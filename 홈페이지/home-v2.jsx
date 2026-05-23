@@ -132,8 +132,8 @@ function HomePage({ setRoute }) {
               </p>
               <div className="contact-meta">
                 <div className="row"><span className="k">EMAIL</span><span className="mono">customerservice@saegyeol.ai.kr</span></div>
-                <div className="row"><span className="k">RESPONSE</span><span className="mono">≤ 24h (KST 평일)</span></div>
-                <div className="row"><span className="k">FOR</span><span>도입 문의 · PoC 요청 · 보안 자문 · 미디어</span></div>
+                <div className="row"><span className="k">RESPONSE</span><span className="mono">24시간 이내 (연중무휴)</span></div>
+                <div className="row"><span className="k">FOR</span><span>도입 문의 · PoC 요청 · 보안 자문 · 채용 문의</span></div>
                 <div className="row"><span className="k">NDA</span><span>요청 시 즉시 체결 가능</span></div>
               </div>
             </div>
