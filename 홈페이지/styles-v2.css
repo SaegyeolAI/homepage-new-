@@ -139,9 +139,11 @@ input, textarea, select { font-family: inherit; color: inherit; }
   height: 36px;
   width: auto;
   display: block;
+  border-radius: 6px;
 }
 [data-theme="dark"] .brand-logo {
-  filter: brightness(0) invert(1);
+  background: #fff;
+  padding: 2px 6px;
 }
 .brand-sub {
   font-family: "JetBrains Mono", monospace;
