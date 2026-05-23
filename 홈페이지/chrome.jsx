@@ -97,10 +97,10 @@ function Footer({ setRoute }) {
           <div>
             <h4>SITEMAP</h4>
             <ul>
-              <li><a href="#" onClick={(e)=>{e.preventDefault(); go("home");}}>홈</a></li>
-              <li><a href="#" onClick={(e)=>{e.preventDefault(); go("product");}}>K-AgentSec</a></li>
-              <li><a href="#" onClick={(e)=>{e.preventDefault(); go("team");}}>팀 소개</a></li>
-              <li><a href="#" onClick={(e)=>{e.preventDefault(); go("home"); setTimeout(()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"}),60);}}>문의</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); go("home"); }}>홈</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); go("product"); }}>K-AgentSec</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); go("team"); }}>팀 소개</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); go("home"); setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60); }}>문의</a></li>
             </ul>
           </div>
           <div>
@@ -117,7 +117,7 @@ function Footer({ setRoute }) {
             <ul>
               <li><a href="#">개인정보처리방침</a></li>
               <li><a href="#">이용약관</a></li>
-              <li><a href="mailto:contact@saegyeol.kr">contact@saegyeol.kr</a></li>
+              <li><a href="mailto:customerservice@saegyeol.ai.kr">customerservice@saegyeol.ai.kr</a></li>
             </ul>
           </div>
         </div>
@@ -142,10 +142,10 @@ function ContactForm() {
     e.preventDefault();
     setTouched(true);
     if (!valid) return;
-    // Mailto fallback: prepares an email to contact@saegyeol.kr
+    // Mailto fallback: prepares an email to customerservice@saegyeol.ai.kr
     const subject = encodeURIComponent(`[Saegyeol 문의] ${data.name}`);
     const body = encodeURIComponent(`이름: ${data.name}\n이메일: ${data.email}\n\n문의 내용:\n${data.message}`);
-    window.location.href = `mailto:contact@saegyeol.kr?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 4000);
   };
@@ -157,22 +157,22 @@ function ContactForm() {
         <label htmlFor="cf-name">이름 / NAME</label>
         <input id="cf-name" type="text" placeholder="홍길동"
           value={data.name}
-          onChange={(e)=>setData({...data, name: e.target.value})} />
+          onChange={(e) => setData({ ...data, name: e.target.value })} />
       </div>
       <div className="row">
         <label htmlFor="cf-email">이메일 / EMAIL</label>
         <input id="cf-email" type="email" placeholder="you@company.kr"
           value={data.email}
-          onChange={(e)=>setData({...data, email: e.target.value})} />
+          onChange={(e) => setData({ ...data, email: e.target.value })} />
       </div>
       <div className="row">
         <label htmlFor="cf-msg">문의 내용 / MESSAGE</label>
-        <textarea id="cf-msg" placeholder="도입 검토 중인 AI 에이전트 시스템 정보와 함께 자세한 문의 사항을 적어주세요."
+        <textarea id="cf-msg" placeholder="자세한 문의 사항을 적어주세요."
           value={data.message}
-          onChange={(e)=>setData({...data, message: e.target.value})} />
+          onChange={(e) => setData({ ...data, message: e.target.value })} />
       </div>
       <div className="actions">
-        <span className="hint">→ contact@saegyeol.kr 로 전송됩니다</span>
+        <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
         <button type="submit" className="btn btn-accent" disabled={touched && !valid}>
           문의 보내기 <span className="arrow">→</span>
         </button>

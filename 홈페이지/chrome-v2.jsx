@@ -97,7 +97,7 @@ function Nav({ route, setRoute, theme, setTheme }) {
 
         <div className="nav-links">
           <div className={"nav-item" + (open === "services" ? " open" : "")}
-               onMouseEnter={() => enter("services")} onMouseLeave={leave}>
+            onMouseEnter={() => enter("services")} onMouseLeave={leave}>
             <button className={"nav-link" + (route === "product" ? " active" : "")} onClick={() => go("product")}>
               서비스 소개 <span className="chev">▾</span>
             </button>
@@ -169,7 +169,7 @@ function ClosingCTA({ onContact }) {
     <section className="closing-cta">
       <div className="closing-cta-inner">
         <span className="label">JOIN US</span>
-        <h2>지금 새결과<br/>함께하세요.</h2>
+        <h2>지금 새결과<br />함께하세요.</h2>
         <p>AI 에이전트 도입은 더 이상 미래의 이야기가 아닙니다. 새결과 함께 한국어 위협 관점에서 점검하고, 안전하게 출시하세요.</p>
         <div className="hero-cta">
           <button className="btn btn-accent" onClick={onContact}>문의하기 <span className="arrow">→</span></button>
@@ -203,7 +203,7 @@ function Footer({ setRoute }) {
               <div className="row"><span className="k">대표자</span><span>[대표자명]</span></div>
               <div className="row"><span className="k">사업자번호</span><span>000-00-00000</span></div>
               <div className="row"><span className="k">주소</span><span>[서울특별시 ··· ]</span></div>
-              <div className="row"><span className="k">이메일</span><span>contact@saegyeol.kr</span></div>
+              <div className="row"><span className="k">이메일</span><span>customerservice@saegyeol.ai.kr</span></div>
             </div>
           </div>
           <div className="footer-right">
@@ -236,7 +236,7 @@ function Footer({ setRoute }) {
         </div>
         <div className="footer-bottom">
           <span>© 2026 Saegyeol. All rights reserved.</span>
-          <span><a href="#" style={{marginRight:24}}>개인정보처리방침</a><a href="#">이용약관</a></span>
+          <span><a href="#" style={{ marginRight: 24 }}>개인정보처리방침</a><a href="#">이용약관</a></span>
         </div>
       </div>
     </footer>
@@ -257,7 +257,7 @@ function ContactForm() {
     if (!valid) return;
     const subject = encodeURIComponent(`[Saegyeol 문의] ${data.name}`);
     const body = encodeURIComponent(`이름: ${data.name}\n이메일: ${data.email}\n\n문의 내용:\n${data.message}`);
-    window.location.href = `mailto:contact@saegyeol.kr?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 4000);
   };
@@ -267,18 +267,18 @@ function ContactForm() {
       {sent && <div className="form-success">문의가 전송되었습니다. 메일 클라이언트를 확인해 주세요.</div>}
       <div className="row">
         <label htmlFor="cfv2-name">이름 / NAME</label>
-        <input id="cfv2-name" type="text" placeholder="홍길동" value={data.name} onChange={(e)=>setData({...data, name: e.target.value})} />
+        <input id="cfv2-name" type="text" placeholder="홍길동" value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} />
       </div>
       <div className="row">
         <label htmlFor="cfv2-email">이메일 / EMAIL</label>
-        <input id="cfv2-email" type="email" placeholder="you@company.kr" value={data.email} onChange={(e)=>setData({...data, email: e.target.value})} />
+        <input id="cfv2-email" type="email" placeholder="you@company.kr" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} />
       </div>
       <div className="row">
         <label htmlFor="cfv2-msg">문의 내용 / MESSAGE</label>
-        <textarea id="cfv2-msg" placeholder="검토 중인 AI 에이전트 시스템 정보와 함께 자세한 문의 내용을 적어주세요." value={data.message} onChange={(e)=>setData({...data, message: e.target.value})} />
+        <textarea id="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요." value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
       </div>
       <div className="actions">
-        <span className="hint">→ contact@saegyeol.kr 로 전송됩니다</span>
+        <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
         <button type="submit" className="btn btn-accent" disabled={touched && !valid}>
           문의 보내기 <span className="arrow">→</span>
         </button>
