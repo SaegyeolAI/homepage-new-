@@ -2,7 +2,7 @@ function App() {
   const [theme, setTheme] = useTheme();
   const [route, setRoute] = useState(() => {
     const hash = (location.hash || "").replace("#", "");
-    if (["home", "team", "product"].includes(hash)) return hash;
+    if (["home", "team", "product", "privacy"].includes(hash)) return hash;
     return "home";
   });
 
@@ -14,6 +14,7 @@ function App() {
       {route === "home" && <HomePage setRoute={setRoute} />}
       {route === "team" && <TeamPage setRoute={setRoute} />}
       {route === "product" && <ProductPage setRoute={setRoute} />}
+      {route === "privacy" && <PrivacyPage />}
       <Footer setRoute={setRoute} />
     </React.Fragment>
   );

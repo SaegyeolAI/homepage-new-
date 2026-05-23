@@ -14,8 +14,7 @@ function useTheme() {
 function Brand({ onClick, showSub }) {
   return (
     <a className="brand" href="#" onClick={(e) => { e.preventDefault(); onClick && onClick(); }}>
-      <span className="brand-mark" aria-hidden="true"></span>
-      <span>Saegyeol</span>
+      <img src="logo.png" alt="Saegyeol" className="brand-logo" />
       {showSub && <span className="brand-sub">새결 · AI AGENT SECURITY</span>}
     </a>
   );
@@ -200,9 +199,9 @@ function Footer({ setRoute }) {
             <Brand onClick={() => go("home")} />
             <div className="footer-legal">
               <div className="row"><span className="k">회사명</span><span>새결 (Saegyeol)</span></div>
-              <div className="row"><span className="k">대표자</span><span>[대표자명]</span></div>
-              <div className="row"><span className="k">사업자번호</span><span>000-00-00000</span></div>
-              <div className="row"><span className="k">주소</span><span>[서울특별시 ··· ]</span></div>
+              <div className="row"><span className="k">대표자</span><span>황지후</span></div>
+              <div className="row"><span className="k">사업자번호</span><span>101-30-53151</span></div>
+              <div className="row"><span className="k">주소</span><span>부산광역시 해운대구 좌동순환로8번길 78, 103동 801호(중동, 해운대메트로하이츠)</span></div>
               <div className="row"><span className="k">이메일</span><span>customerservice@saegyeol.ai.kr</span></div>
             </div>
           </div>
@@ -236,7 +235,10 @@ function Footer({ setRoute }) {
         </div>
         <div className="footer-bottom">
           <span>© 2026 Saegyeol. All rights reserved.</span>
-          <span><a href="#" style={{ marginRight: 24 }}>개인정보처리방침</a><a href="#">이용약관</a></span>
+          <span>
+            <a href="#" style={{ marginRight: 24 }} onClick={(e) => { e.preventDefault(); go("privacy"); }}>개인정보처리방침</a>
+            <a href="#">이용약관</a>
+          </span>
         </div>
       </div>
     </footer>
