@@ -21,7 +21,7 @@ function TeamPage({ setRoute }) {
     const body = encodeURIComponent(
       `지원자: ${name}\n이메일: ${email}\n첨부파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)\n\n* 메일 작성 후 첨부파일을 직접 추가해 주세요.`
     );
-    window.location.href = `mailto:careers@saegyeol.ai.kr?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
   };
@@ -64,7 +64,7 @@ function TeamPage({ setRoute }) {
             <div style={{position:"relative", zIndex:1}}>
               <span className="section-label">JOIN US · 채용</span>
               <h2>함께할 사람을<br/>찾습니다.</h2>
-              <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다. 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요. 자유 형식의 포트폴리오를 careers@saegyeol.kr 로 전달합니다.</p>
+              <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다. 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요. 자유 형식의 포트폴리오를 customerservice@saegyeol.ai.kr 로 전달합니다.</p>
               <div className="tags">
                 <span className="tag">Offensive Eng.</span>
                 <span className="tag">LLM Researcher</span>
@@ -104,7 +104,7 @@ function TeamPage({ setRoute }) {
                 </div>
               </div>
               <div className="actions">
-                <span className="hint">→ careers@saegyeol.ai.kr 로 전송됩니다</span>
+                <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
                 <button type="submit" className="btn btn-accent">지원하기 <span className="arrow">→</span></button>
               </div>
             </form>

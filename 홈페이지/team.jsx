@@ -1,10 +1,8 @@
 const TEAM_MEMBERS = [
-  { initials: "JM", name: "정민호", role: "CEO / Founder",   bio: "전 카카오엔터프라이즈 보안팀 리드. AI 에이전트 위협 모델링 전문.", link: "#" },
-  { initials: "HS", name: "한승우", role: "CTO",            bio: "LLM 레드팀 도구 K-RedKit 메인 컨트리뷰터. 10년차 시큐리티 엔지니어.", link: "#" },
-  { initials: "YK", name: "유경아", role: "Head of Research", bio: "KAIST 정보보호 박사. 한국어 프롬프트 인젝션 벤치마크 KoPI 저자.", link: "#" },
-  { initials: "DJ", name: "도지원", role: "Compliance Lead",  bio: "ISMS-P 심사원. 금융권 AI 가이드라인 자문 다수.", link: "#" },
-  { initials: "SC", name: "서채연", role: "Offensive Eng.",   bio: "DEF CON CTF 본선 입상. MCP 서버 익스플로잇 PoC 다수 공개.", link: "#" },
-  { initials: "BK", name: "배기훈", role: "Product Design",   bio: "토스 · 라인 출신. 보안 리포트를 읽히는 형태로 설계.", link: "#" },
+  { initials: "JH", name: "황지후", role: "CEO / Founder",   bio: "소프트웨어로 세상을 바꾸는 더 나은 세상을 꿈꾸는 보안 전문가.", link: "#" },
+  { initials: "SY", name: "김수윤", role: "Technical Advisor", bio: "LLM 레드팀 도구 K-RedKit 메인 컨트리뷰터. 10년차 시큐리티 엔지니어.", link: "#" },
+  { initials: "YK", name: "김윤지", role: "CISO",             bio: "KAIST 정보보호 박사. 한국어 프롬프트 인젝션 벤치마크 KoPI 저자.", link: "#" },
+  { initials: "YS", name: "신유승", role: "Full-Stack Engineer",  bio: "ISMS-P 심사원. 금융권 AI 가이드라인 자문 다수.", link: "#" },
 ];
 
 function TeamPage({ setRoute }) {
@@ -21,7 +19,7 @@ function TeamPage({ setRoute }) {
     const body = encodeURIComponent(
       `지원자: ${name}\n이메일: ${email}\n첨부파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)\n\n* 메일 작성 후 첨부파일을 직접 추가해 주세요.`
     );
-    window.location.href = `mailto:careers@saegyeol.kr?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
   };
@@ -61,7 +59,7 @@ function TeamPage({ setRoute }) {
               <h2>함께할 사람을 찾습니다.</h2>
               <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다.
                 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요.
-                자유 형식의 포트폴리오를 careers@saegyeol.kr 로 전달합니다.</p>
+                자유 형식의 포트폴리오를 customerservice@saegyeol.ai.kr 로 전달합니다.</p>
               <div style={{display:"flex", gap:8, flexWrap:"wrap", marginTop:8}}>
                 {["Offensive Eng.", "LLM Researcher", "Compliance", "Product Design", "Open application"].map(t => (
                   <span key={t} style={{
@@ -95,7 +93,7 @@ function TeamPage({ setRoute }) {
                 </div>
               </div>
               <div className="actions">
-                <span className="hint">→ careers@saegyeol.kr 로 전송됩니다</span>
+                <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
                 <button type="submit" className="btn btn-accent">
                   지원하기 <span className="arrow">→</span>
                 </button>
