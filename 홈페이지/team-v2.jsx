@@ -21,7 +21,7 @@ function TeamPage({ setRoute }) {
     const body = encodeURIComponent(
       `지원자: ${name}\n이메일: ${email}\n첨부파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)\n\n* 메일 작성 후 첨부파일을 직접 추가해 주세요.`
     );
-    window.location.href = `mailto:careers@saegyeol.kr?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:careers@saegyeol.ai.kr?subject=${subject}&body=${body}`;
     setSent(true);
     setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
   };
@@ -86,17 +86,25 @@ function TeamPage({ setRoute }) {
               </div>
               <div className="row">
                 <label>포트폴리오 / FREE FORMAT</label>
-                <input ref={fileRef} type="file" style={{display:"none"}} onChange={(e)=>setFile(e.target.files?.[0]||null)} />
+                <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.mp4,.mov,.avi,.png,.jpg,.jpeg" style={{display:"none"}} onChange={(e) => {
+                  const f = e.target.files?.[0] || null;
+                  if (f && f.size > 50 * 1024 * 1024) {
+                    alert("파일 크기는 50MB 이하로 첨부해 주세요.");
+                    e.target.value = "";
+                    return;
+                  }
+                  setFile(f);
+                }} />
                 <div className="file-drop" onClick={()=>fileRef.current?.click()}>
                   <div className="icon">{file ? "✓" : "↑"}</div>
                   <div className="meta">
                     <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-                    <div className="sub">{file ? `${(file.size/1024).toFixed(1)} KB · 모든 형식 허용` : "PDF · PPT · LINK · ZIP · 영상 등 자유 형식"}</div>
+                    <div className="sub">{file ? `${(file.size/1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 영상 등 (최대 50MB)"}</div>
                   </div>
                 </div>
               </div>
               <div className="actions">
-                <span className="hint">→ careers@saegyeol.kr 로 전송됩니다</span>
+                <span className="hint">→ careers@saegyeol.ai.kr 로 전송됩니다</span>
                 <button type="submit" className="btn btn-accent">지원하기 <span className="arrow">→</span></button>
               </div>
             </form>
