@@ -370,6 +370,9 @@ function Footer({ setRoute }) {
 }
 
 /* ---------------- Inline contact form ---------------- */
+const SUBMIT_COOLDOWN_MS = 60_000;
+const lastSubmitKey = "saegyeol-last-submit";
+
 function ContactForm() {
   const [data, setData] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
@@ -383,6 +386,13 @@ function ContactForm() {
     e.preventDefault();
     setTouched(true);
     if (!valid) return;
+
+    const lastSubmit = parseInt(localStorage.getItem(lastSubmitKey) || "0", 10);
+    if (Date.now() - lastSubmit < SUBMIT_COOLDOWN_MS) {
+      setError("잠시 후 다시 시도해 주세요. (1분 쿨다운)");
+      return;
+    }
+
     setSending(true);
     setError("");
     try {
@@ -391,6 +401,7 @@ function ContactForm() {
         window.EMAILJS_TEMPLATE_ID,
         { from_name: data.name, reply_to: data.email, message: data.message }
       );
+      localStorage.setItem(lastSubmitKey, String(Date.now()));
       setSent(true);
       setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 5000);
     } catch (err) {
