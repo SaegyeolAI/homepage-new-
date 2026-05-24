@@ -65,13 +65,8 @@ function HomePage({ setRoute }) {
               <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("feature-report"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
             </article>
           </div>
-        </div>
-      </section>
 
-      {/* STATS BAR */}
-      <section className="block" style={{ paddingTop: 0, paddingBottom: 120, borderTop: "none" }}>
-        <div className="container">
-          <div className="stats">
+          <div className="stats" style={{ marginTop: 64 }}>
             <div className="item">
               <div className="v">2,400<span className="unit">+</span></div>
               <div className="k">한국어 공격 페이로드</div>
@@ -103,15 +98,16 @@ function HomePage({ setRoute }) {
               <h3>한국 AI 보안을 가장 가까이서<br />다뤄온 사람들.</h3>
               <p>오펜시브 시큐리티, LLM 평가, 한국형 컴플라이언스 — 세 영역에서 실전 경험을 쌓은 팀이 새결의 기술을 만들고 있습니다.</p>
               <div className="av-stack">
-                <span className="av">JM</span>
-                <span className="av">HS</span>
+                <span className="av">JH</span>
+                <span className="av">SY</span>
                 <span className="av">YK</span>
-                <span className="av">DJ</span>
-                <span className="av">SC</span>
-                <span className="av" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>+3</span>
+                <span className="av">YS</span>
               </div>
             </div>
-            <span className="banner-arrow">↗</span>
+            <button className="btn btn-accent"
+              onClick={(e) => { e.stopPropagation(); setRoute("team"); window.scrollTo({ top: 0 }); }}>
+              바로가기 <span className="arrow">→</span>
+            </button>
           </div>
         </div>
       </section>

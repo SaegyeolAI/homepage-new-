@@ -1,8 +1,8 @@
 const TEAM_MEMBERS = [
-  { initials: "JH", name: "황지후", role: "CEO / Founder",   bio: "소프트웨어로 세상을 바꾸는 더 나은 세상을 꿈꾸는 보안 전문가.", link: "#" },
-  { initials: "SY", name: "김수윤", role: "Technical Advisor", bio: "LLM 레드팀 도구 K-RedKit 메인 컨트리뷰터. 10년차 시큐리티 엔지니어.", link: "#" },
-  { initials: "YK", name: "김윤지", role: "CISO",             bio: "KAIST 정보보호 박사. 한국어 프롬프트 인젝션 벤치마크 KoPI 저자.", link: "#" },
-  { initials: "YS", name: "신유승", role: "Full-Stack Engineer",  bio: "ISMS-P 심사원. 금융권 AI 가이드라인 자문 다수.", link: "#" },
+  { initials: "JH", name: "황지후", role: "CEO / Founder",      bio: "소프트웨어로 세상을 바꾸는 더 나은 세상을 꿈꾸는 보안 전가.", link: "https://www.notion.so/saegyeol/Hwang-Jihoo-31cb75833d178043a85ec6c11a1b2af8?source=copy_link" },
+  { initials: "SY", name: "김수윤", role: "Technical Advisor",  bio: "LLM 레드팀 도구 K-RedKit 메인 컨트리뷰터. 10년차 시큐리티 엔지니어.", link: "https://devksy.xyz/portfolio" },
+  { initials: "YK", name: "김윤지", role: "CISO",               bio: "KAIST 정보보호 박사. 한국어 프롬프트 인젝션 벤치마크 KoPI 저자.", link: "https://www.notion.so/YUNJI-S-PORTFOLIO-369bed12f7ec804385c6c6e4608ea371?source=copy_link" },
+  { initials: "YS", name: "신유승", role: "Full-Stack Engineer", bio: "ISMS-P 심사원. 금융권 AI 가이드라인 자문 다수.", link: "#" },
 ];
 
 function TeamPage({ setRoute }) {

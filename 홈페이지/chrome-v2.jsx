@@ -1,5 +1,132 @@
 const { useState, useEffect, useRef } = React;
 
+/* ---------------- Fullpage Scroll ---------------- */
+function useFullScroll(route) {
+  useEffect(() => {
+    const QUERY = '.hero, .page-hero, section.block, .closing-cta';
+    const getSections = () => [...document.querySelectorAll(QUERY)];
+
+    const easeInOutCubic = t =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    let busy = false;
+    let accumulated = 0;
+    let resetTimer = null;
+
+    const animateTo = (targetY) => {
+      const startY = window.scrollY;
+      const dist = targetY - startY;
+      if (Math.abs(dist) < 2) { busy = false; return; }
+      const duration = 900;
+      let startTime = null;
+      busy = true;
+
+      const step = (ts) => {
+        if (!startTime) startTime = ts;
+        const p = Math.min((ts - startTime) / duration, 1);
+        window.scrollTo(0, startY + dist * easeInOutCubic(p));
+        if (p < 1) requestAnimationFrame(step);
+        else busy = false;
+      };
+      requestAnimationFrame(step);
+    };
+
+    const getNearestIdx = (sections) => {
+      let idx = 0, minDist = Infinity;
+      sections.forEach((s, i) => {
+        const d = Math.abs(s.getBoundingClientRect().top);
+        if (d < minDist) { minDist = d; idx = i; }
+      });
+      return idx;
+    };
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (busy) return;
+
+      accumulated += e.deltaY;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { accumulated = 0; }, 200);
+      if (Math.abs(accumulated) < 60) return;
+
+      const dir = accumulated > 0 ? 1 : -1;
+      accumulated = 0;
+
+      const sections = getSections();
+      const idx = getNearestIdx(sections);
+      const next = idx + dir;
+
+      if (next < 0) return;
+      if (next >= sections.length) {
+        animateTo(document.body.scrollHeight - window.innerHeight);
+        return;
+      }
+      animateTo(sections[next].offsetTop);
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => { window.removeEventListener('wheel', onWheel); busy = false; };
+  }, [route]);
+}
+
+/* ---------------- Scroll Reveal ---------------- */
+function useReveal(route) {
+  useEffect(() => {
+    const SELECTORS = [
+      'section.block .section-head',
+      'section.block .cards > article',
+      'section.block .stats',
+      'section.block .flow-step',
+      'section.block .banner',
+      'section.block .contact-grid > div',
+      'section.block .team-grid',
+      'section.block .recruit',
+      '.closing-cta-inner',
+      '.privacy-header',
+      '.privacy-section',
+    ].join(',');
+
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        if (e.target.classList.contains('sr')) {
+          e.target.classList.add('sr-in');
+        } else {
+          e.target.classList.add('line-in');
+        }
+        observer.unobserve(e.target);
+      }),
+      { threshold: 0.08, rootMargin: '0px 0px -30px 0px' }
+    );
+
+    const t = setTimeout(() => {
+      document.querySelectorAll(SELECTORS).forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight && rect.bottom > 0;
+        if (inView) return;
+        el.classList.add('sr');
+        const siblings = el.parentElement
+          ? [...el.parentElement.children].filter(c => c.classList.contains('sr'))
+          : [];
+        const idx = siblings.indexOf(el);
+        if (idx > 0) el.classList.add(`sr-d${Math.min(idx, 3)}`);
+        observer.observe(el);
+      });
+
+      document.querySelectorAll('section.block').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('line-in');
+        } else {
+          observer.observe(el);
+        }
+      });
+    }, 60);
+
+    return () => { clearTimeout(t); observer.disconnect(); };
+  }, [route]);
+}
+
 /* ---------------- Theme ---------------- */
 function useTheme() {
   const [theme, setTheme] = useState(() => localStorage.getItem("saegyeol-theme-v2") || "dark");
@@ -246,24 +373,37 @@ function Footer({ setRoute }) {
 function ContactForm() {
   const [data, setData] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
 
   const valid = data.name.trim() && /\S+@\S+\.\S+/.test(data.email) && data.message.trim().length > 3;
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setTouched(true);
     if (!valid) return;
-    const subject = encodeURIComponent(`[Saegyeol 문의] ${data.name}`);
-    const body = encodeURIComponent(`이름: ${data.name}\n이메일: ${data.email}\n\n문의 내용:\n${data.message}`);
-    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
-    setSent(true);
-    setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 4000);
+    setSending(true);
+    setError("");
+    try {
+      await emailjs.send(
+        window.EMAILJS_SERVICE_ID,
+        window.EMAILJS_TEMPLATE_ID,
+        { from_name: data.name, reply_to: data.email, message: data.message }
+      );
+      setSent(true);
+      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 5000);
+    } catch (err) {
+      setError("전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
     <form className="form" onSubmit={submit} noValidate>
-      {sent && <div className="form-success">문의가 전송되었습니다. 메일 클라이언트를 확인해 주세요.</div>}
+      {sent && <div className="form-success">문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다.</div>}
+      {error && <div className="form-error">{error}</div>}
       <div className="row">
         <label htmlFor="cfv2-name">이름 / NAME</label>
         <input id="cfv2-name" type="text" placeholder="홍길동" value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} />
@@ -278,12 +418,12 @@ function ContactForm() {
       </div>
       <div className="actions">
         <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
-        <button type="submit" className="btn btn-accent" disabled={touched && !valid}>
-          문의 보내기 <span className="arrow">→</span>
+        <button type="submit" className="btn btn-accent" disabled={(touched && !valid) || sending}>
+          {sending ? "전송 중…" : <>문의 보내기 <span className="arrow">→</span></>}
         </button>
       </div>
     </form>
   );
 }
 
-Object.assign(window, { useTheme, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon });
+Object.assign(window, { useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon });

@@ -7,6 +7,8 @@ function App() {
   });
 
   useEffect(() => { location.hash = route; }, [route]);
+  useFullScroll(route);
+  useReveal(route);
 
   return (
     <React.Fragment>
