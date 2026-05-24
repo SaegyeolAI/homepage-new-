@@ -102,6 +102,9 @@ function TeamPage({ setRoute }) {
                     <div className="sub">{file ? `${(file.size/1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 영상 등 (최대 50MB)"}</div>
                   </div>
                 </div>
+                <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+                  50MB를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>customerservice@saegyeol.ai.kr</span>로 직접 보내주세요.
+                </p>
               </div>
               <div className="actions">
                 <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
