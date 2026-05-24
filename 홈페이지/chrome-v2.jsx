@@ -15,7 +15,7 @@ function Brand({ onClick, showSub }) {
   return (
     <a className="brand" href="#" onClick={(e) => { e.preventDefault(); onClick && onClick(); }}>
       <img src="logo.png" alt="Saegyeol" className="brand-logo" />
-      {showSub && <span className="brand-sub">새결 · AI AGENT SECURITY</span>}
+      {showSub && <span className="brand-sub">새결</span>}
     </a>
   );
 }
@@ -210,9 +210,6 @@ function Footer({ setRoute }) {
               <h5>PRODUCT</h5>
               <ul>
                 <li onClick={() => go("product")}>K-AgentSec</li>
-                <li onClick={() => go("product", "features")}>Shadow Agent 탐지</li>
-                <li onClick={() => go("product", "features")}>K-PII 차단</li>
-                <li onClick={() => go("product", "features")}>컴플라이언스 리포트</li>
               </ul>
             </div>
             <div>

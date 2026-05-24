@@ -8,7 +8,7 @@ function HomePage({ setRoute }) {
         <div className="hero-bg" />
         <div className="hero-glow" />
         <div className="hero-inner">
-          <span className="hero-tag"><span className="blink" />KOREAN AI AGENT SECURITY · EST. 2025</span>
+          <span className="hero-tag"><span className="blink" />KOREAN AI AGENT SECURITY · SINCE 2026</span>
           <h1>
             Securing the Future<br />
             of <span className="accent-w">Korean AI Agents.</span>
@@ -48,21 +48,21 @@ function HomePage({ setRoute }) {
               <div className="ico"><Icon.shadow /></div>
               <h3>Shadow Agent 탐지</h3>
               <p>임직원이 사내 데이터로 만든 개인 AI 에이전트가 만드는 보안 사각지대를 자동으로 발견하고 위험도를 평가합니다.</p>
-              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("product"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
+              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("feature-shadow"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
             </article>
             <article className="card">
               <span className="num">02</span>
               <div className="ico"><Icon.pii /></div>
               <h3>K-PII 차단</h3>
               <p>주민번호·사업자번호·한국식 주소·계좌·운전면허 등 한국식 PII 14종을 전용 탐지기로 식별하고 차단합니다.</p>
-              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("product"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
+              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("feature-pii"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
             </article>
             <article className="card">
               <span className="num">03</span>
               <div className="ico"><Icon.report /></div>
               <h3>컴플라이언스 리포트</h3>
               <p>ISMS-P · 개인정보보호법 · 금융 AI 가이드라인 등 한국형 기준에 자동 매핑된 리포트를 PDF·웹으로 생성합니다.</p>
-              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("product"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
+              <a className="more" href="#" onClick={(e) => { e.preventDefault(); setRoute("feature-report"); window.scrollTo({ top: 0 }); }}>자세히 보기</a>
             </article>
           </div>
         </div>

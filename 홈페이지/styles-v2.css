@@ -136,23 +136,25 @@ input, textarea, select { font-family: inherit; color: inherit; }
   color: var(--nav-text);
 }
 .brand-logo {
-  height: 36px;
-  width: auto;
+  height: 44px;
+  width: 44px;
   display: block;
-  border-radius: 6px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center;
 }
 [data-theme="dark"] .brand-logo {
   background: #fff;
-  padding: 2px 6px;
+  padding: 2px;
 }
 .brand-sub {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: var(--nav-text-2);
-  text-transform: uppercase;
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--nav-text);
   border-left: 1px solid var(--nav-border);
-  padding-left: 12px;
+  padding-left: 14px;
   margin-left: 2px;
 }
 
