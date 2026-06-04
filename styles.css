@@ -446,12 +446,16 @@ input, textarea, select { font-family: inherit; color: inherit; }
    ========================================================= */
 
 section.block {
-  padding: 120px 0;
+  padding: clamp(60px, 8vh, 120px) 0;
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+section.block#contact {
+  min-height: auto;
+  justify-content: flex-start;
 }
 section.block::before {
   content: '';
@@ -1271,7 +1275,7 @@ html[data-theme="light"] .flow-step .step-num { color: #008C71; }
   .stats .item:nth-child(odd) { border-left: none; }
   .footer-grid { grid-template-columns: 1fr; gap: 48px; }
   .banner { grid-template-columns: 1fr; padding: 36px; }
-  section.block { padding: 80px 0; }
+  section.block { padding: clamp(48px, 6vh, 80px) 0; }
   .nav-link { padding: 8px 10px; font-size: 13px; }
   .brand-sub { display: none; }
   .mega { display: none !important; }
