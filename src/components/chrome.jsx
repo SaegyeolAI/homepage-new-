@@ -329,7 +329,7 @@ function Footer({ setRoute }) {
               <div className="row"><span className="k">대표자</span><span>황지후</span></div>
               <div className="row"><span className="k">사업자번호</span><span>101-30-53151</span></div>
               <div className="row"><span className="k">주소</span><span>부산광역시 해운대구 좌동순환로8번길 78, 103동 801호(중동, 해운대메트로하이츠)</span></div>
-              <div className="row"><span className="k">이메일</span><span>customerservice@saegyeol.ai.kr</span></div>
+              <div className="row"><span className="k">이메일</span><span>contact@saegyeol.ai.kr</span></div>
             </div>
           </div>
           <div className="footer-right">
@@ -375,10 +375,12 @@ const lastSubmitKey = "saegyeol-last-submit";
 
 function ContactForm() {
   const [data, setData] = useState({ name: "", email: "", message: "" });
+  const [file, setFile] = useState(null);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
+  const fileRef = useRef(null);
 
   const valid = data.name.trim() && /\S+@\S+\.\S+/.test(data.email) && data.message.trim().length > 3;
 
@@ -396,16 +398,20 @@ function ContactForm() {
     setSending(true);
     setError("");
     try {
-      await emailjs.send(
-        window.EMAILJS_SERVICE_ID,
-        window.EMAILJS_TEMPLATE_ID,
-        { from_name: data.name, reply_to: data.email, message: data.message }
-      );
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("message", data.message);
+      if (file) formData.append("file", file);
+
+      const res = await fetch("/api/contact", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "전송 실패");
       localStorage.setItem(lastSubmitKey, String(Date.now()));
       setSent(true);
-      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setTouched(false); }, 5000);
+      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setFile(null); setTouched(false); }, 5000);
     } catch (err) {
-      setError("전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setSending(false);
     }
@@ -427,8 +433,27 @@ function ContactForm() {
         <label htmlFor="cfv2-msg">문의 내용 / MESSAGE</label>
         <textarea id="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요." value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
       </div>
+      <div className="row">
+        <label>첨부파일 / ATTACHMENT <span style={{ fontWeight: 400, opacity: 0.5 }}>(선택)</span></label>
+        <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{ display: "none" }} onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          if (f && f.size > 50 * 1024 * 1024) {
+            alert("파일 크기는 50MB 이하로 첨부해 주세요.");
+            e.target.value = "";
+            return;
+          }
+          setFile(f);
+        }} />
+        <div className="file-drop" onClick={() => fileRef.current?.click()}>
+          <div className="icon">{file ? "✓" : "↑"}</div>
+          <div className="meta">
+            <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
+            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 이미지 등 (최대 50MB)"}</div>
+          </div>
+        </div>
+      </div>
       <div className="actions">
-        <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
+        <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
         <button type="submit" className="btn btn-accent" disabled={(touched && !valid) || sending}>
           {sending ? "전송 중…" : <>문의 보내기 <span className="arrow">→</span></>}
         </button>

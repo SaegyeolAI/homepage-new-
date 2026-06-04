@@ -127,7 +127,7 @@ function HomePage({ setRoute }) {
                 AI 에이전트 보안 도입을 검토 중이시거나, K-AgentSec PoC가 필요하다면 아래 양식으로 직접 문의해 주세요. 영업일 기준 1일 내 회신드립니다.
               </p>
               <div className="contact-meta">
-                <div className="row"><span className="k">EMAIL</span><span className="mono">customerservice@saegyeol.ai.kr</span></div>
+                <div className="row"><span className="k">EMAIL</span><span className="mono">contact@saegyeol.ai.kr</span></div>
                 <div className="row"><span className="k">RESPONSE</span><span className="mono">24시간 이내 (연중무휴)</span></div>
                 <div className="row"><span className="k">FOR</span><span>도입 문의 · PoC 요청 · 보안 자문 · 채용 문의</span></div>
                 <div className="row"><span className="k">NDA</span><span>요청 시 체결 가능</span></div>

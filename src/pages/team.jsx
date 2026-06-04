@@ -10,18 +10,30 @@ function TeamPage({ setRoute }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const fileRef = useRef(null);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!name || !email || !file) return;
-    const subject = encodeURIComponent(`[Saegyeol 지원] ${name}`);
-    const body = encodeURIComponent(
-      `지원자: ${name}\n이메일: ${email}\n첨부파일: ${file.name} (${(file.size/1024).toFixed(1)} KB)\n\n* 메일 작성 후 첨부파일을 직접 추가해 주세요.`
-    );
-    window.location.href = `mailto:customerservice@saegyeol.ai.kr?subject=${subject}&body=${body}`;
-    setSent(true);
-    setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
+    setSending(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("file", file);
+      const res = await fetch("/api/recruit", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "전송 실패");
+      setSent(true);
+      setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
+    } catch (err) {
+      setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const goContact = () => {
@@ -62,7 +74,7 @@ function TeamPage({ setRoute }) {
             <div style={{position:"relative", zIndex:1}}>
               <span className="section-label">JOIN US · 채용</span>
               <h2>함께할 사람을<br/>찾습니다.</h2>
-              <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다. 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요. 자유 형식의 포트폴리오를 customerservice@saegyeol.ai.kr 로 전달합니다.</p>
+              <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다. 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요. 자유 형식의 포트폴리오를 contact@saegyeol.ai.kr 로 전달합니다.</p>
               <div className="tags">
                 <span className="tag">Offensive Eng.</span>
                 <span className="tag">LLM Researcher</span>
@@ -74,6 +86,7 @@ function TeamPage({ setRoute }) {
 
             <form className="form" onSubmit={submit} style={{position:"relative", zIndex:1}}>
               {sent && <div className="form-success">지원서가 전송되었습니다.</div>}
+              {error && <div className="form-error">{error}</div>}
               <div className="row">
                 <label>이름 / NAME</label>
                 <input type="text" placeholder="홍길동" value={name} onChange={(e)=>setName(e.target.value)} />
@@ -101,12 +114,14 @@ function TeamPage({ setRoute }) {
                   </div>
                 </div>
                 <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-                  50MB를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>customerservice@saegyeol.ai.kr</span>로 직접 보내주세요.
+                  50MB를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
                 </p>
               </div>
               <div className="actions">
-                <span className="hint">→ customerservice@saegyeol.ai.kr 로 전송됩니다</span>
-                <button type="submit" className="btn btn-accent">지원하기 <span className="arrow">→</span></button>
+                <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
+                <button type="submit" className="btn btn-accent" disabled={sending || !name || !email || !file}>
+                  {sending ? "전송 중…" : <>지원하기 <span className="arrow">→</span></>}
+                </button>
               </div>
             </form>
           </div>
