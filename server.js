@@ -8,10 +8,20 @@ const rateLimit = require("express-rate-limit");
 
 const app = express();
 
+// Cloudflare 등 리버스 프록시 뒤에서도 실제 클라이언트 IP로 rate limit 적용
+app.set("trust proxy", 1);
+
 app.use(helmet({
   contentSecurityPolicy: false, // meta 태그로 이미 설정
 }));
 app.use(express.json({ limit: "32kb" }));
+
+// 서버 내부 파일 노출 차단
+app.use((req, res, next) => {
+  const blocked = ["/server.js", "/package.json", "/package-lock.json", "/.env.example"];
+  if (blocked.includes(req.path)) return res.status(403).end();
+  next();
+});
 app.use(express.static(path.join(__dirname)));
 
 const apiLimiter = rateLimit({
@@ -25,6 +35,18 @@ const apiLimiter = rateLimit({
 const RECIPIENT = "contact@saegyeol.ai.kr";
 const MAX_NAME = 100;
 const MAX_MESSAGE = 5000;
+
+// SMTP 헤더 인젝션 방지: 개행문자 제거
+const sanitizeHeader = (s) => String(s).replace(/[\r\n]/g, "");
+
+// 이메일 HTML 본문용 이스케이프
+const escapeHtml = (s) =>
+  String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
 
 function createTransporter() {
   return nodemailer.createTransport({
@@ -65,13 +87,16 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
     return res.status(400).json({ error: "문의 내용이 너무 깁니다. (5,000자 이내)" });
   }
 
+  const safeName = sanitizeHeader(name);
+  const safeEmail = sanitizeHeader(email);
+
   const mailOptions = {
     from: `"새결 문의" <${process.env.SMTP_USER}>`,
     to: RECIPIENT,
-    replyTo: email,
-    subject: `[새결 문의] ${name}`,
+    replyTo: safeEmail,
+    subject: `[새결 문의] ${safeName}`,
     text: `이름: ${name}\n이메일: ${email}\n\n${message}`,
-    html: `<p><strong>이름:</strong> ${name}</p><p><strong>이메일:</strong> ${email}</p><hr/><p>${message.replace(/\n/g, "<br/>")}</p>`,
+    html: `<p><strong>이름:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p><hr/><p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>`,
   };
 
   if (file) {
@@ -111,13 +136,16 @@ app.post("/api/recruit", apiLimiter, upload.single("file"), async (req, res) => 
     return res.status(400).json({ error: "이메일 형식이 올바르지 않습니다." });
   }
 
+  const safeName = sanitizeHeader(name);
+  const safeEmail = sanitizeHeader(email);
+
   const mailOptions = {
     from: `"새결 채용" <${process.env.SMTP_USER}>`,
     to: RECIPIENT,
-    replyTo: email,
-    subject: `[Saegyeol 지원] ${name}`,
+    replyTo: safeEmail,
+    subject: `[Saegyeol 지원] ${safeName}`,
     text: `지원자: ${name}\n이메일: ${email}${file ? `\n첨부파일: ${file.originalname}` : ""}`,
-    html: `<p><strong>지원자:</strong> ${name}</p><p><strong>이메일:</strong> ${email}</p>`,
+    html: `<p><strong>지원자:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p>`,
   };
 
   if (file) {
