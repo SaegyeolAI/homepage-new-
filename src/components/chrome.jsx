@@ -3,6 +3,7 @@ const { useState, useEffect, useRef } = React;
 /* ---------------- Fullpage Scroll ---------------- */
 function useFullScroll(route) {
   useEffect(() => {
+    if (route === "privacy" || route === "terms") return;
     const QUERY = '.hero, .page-hero, section.block, .closing-cta';
     const getSections = () => [...document.querySelectorAll(QUERY)];
 

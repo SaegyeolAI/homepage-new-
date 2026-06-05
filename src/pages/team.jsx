@@ -1,8 +1,8 @@
 const TEAM_MEMBERS_V2 = [
-  { initials: "JH", name: "황지후", role: "CEO / Founder",      bio: "소프트웨어로 세상을 바꾸는 더 나은 세상을 꿈꾸는 보안 전문가.", link: "https://www.notion.so/saegyeol/Hwang-Jihoo-31cb75833d178043a85ec6c11a1b2af8?source=copy_link" },
-  { initials: "SY", name: "김수윤", role: "Technical Advisor",  bio: "LLM 레드팀 도구 K-RedKit 메인 컨트리뷰터. 10년차 시큐리티 엔지니어.", link: "https://devksy.xyz/portfolio" },
-  { initials: "YK", name: "김윤지", role: "CISO",               bio: "KAIST 정보보호 박사. 한국어 프롬프트 인젝션 벤치마크 KoPI 저자.", link: "https://www.notion.so/YUNJI-S-PORTFOLIO-369bed12f7ec804385c6c6e4608ea371?source=copy_link" },
-  { initials: "YS", name: "신유승", role: "Full-Stack Engineer", bio: "ISMS-P 심사원. 금융권 AI 가이드라인 자문 다수.", link: "#" },
+  { initials: "JH", name: "황지후", role: "CEO / Founder",      bio: "소프트웨어로 세상을 바꾸는, 더 나은 세상을 꿈꾸다.", link: "https://www.notion.so/saegyeol/Hwang-Jihoo-31cb75833d178043a85ec6c11a1b2af8?source=copy_link" },
+  { initials: "SY", name: "김수윤", role: "Technical Advisor",  bio: "사람 중심의 기술을 고민하며, 코드에 가치를 더하다.", link: "https://d3vksy.notion.site/Suyun-Kim-31971b79082080508c39fe9921640bc9" },
+  { initials: "YJ", name: "김윤지", role: "CISO",               bio: " 그 누구보다 반짝일 미래를 믿습니다. 더 나은 세상을 위하여.", link: "https://www.notion.so/YUNJI-S-PORTFOLIO-369bed12f7ec804385c6c6e4608ea371?source=copy_link" },
+  { initials: "YS", name: "신유승", role: "Full-Stack Engineer", bio: "세상의 문제를 코드로 풀고, 소프트웨어로 답을 찾다.", link: "#", pending: true },
 ];
 
 function TeamPage({ setRoute }) {
@@ -12,6 +12,7 @@ function TeamPage({ setRoute }) {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [pendingToast, setPendingToast] = useState(false);
   const fileRef = useRef(null);
 
   const submit = async (e) => {
@@ -47,21 +48,39 @@ function TeamPage({ setRoute }) {
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">TEAM · 새결을 만드는 사람들</span>
-          <h1>한국 AI 보안을<br/>가장 잘 아는 팀.</h1>
+          <h1>AI 보안을<br/>믿고 맡길 수 있는 팀</h1>
           <p>오펜시브 시큐리티 · LLM 연구 · 한국형 컴플라이언스 — 새결의 팀은 한국 AI 에이전트 환경을 실전에서 다뤄온 사람들로 구성됩니다.</p>
         </div>
       </section>
 
       <section className="block">
         <div className="container">
+          {pendingToast && (
+            <div style={{
+              position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
+              background: "var(--bg-2)", border: "1px solid var(--border)",
+              borderRadius: 12, padding: "14px 24px", fontSize: 14,
+              color: "var(--text-2)", zIndex: 9999, whiteSpace: "nowrap",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.24)",
+            }}>
+              포트폴리오 준비중입니다.
+            </div>
+          )}
           <div className="team-grid">
             {TEAM_MEMBERS_V2.map(m => (
-              <a key={m.initials} className="member" href={m.link} target="_blank" rel="noreferrer">
+              <a key={m.initials} className="member" href={m.pending ? undefined : m.link}
+                target={m.pending ? undefined : "_blank"} rel="noreferrer"
+                style={m.pending ? { cursor: "pointer" } : undefined}
+                onClick={m.pending ? (e) => {
+                  e.preventDefault();
+                  setPendingToast(true);
+                  setTimeout(() => setPendingToast(false), 2500);
+                } : undefined}>
                 <div className="photo">{m.initials}</div>
                 <div className="role">{m.role}</div>
                 <h3>{m.name}</h3>
                 <p className="bio">{m.bio}</p>
-                <div className="visit">VIEW PORTFOLIO</div>
+                <div className="visit">{m.pending ? "COMING SOON" : "VIEW PORTFOLIO"}</div>
               </a>
             ))}
           </div>

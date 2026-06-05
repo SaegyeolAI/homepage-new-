@@ -453,7 +453,8 @@ section.block {
   flex-direction: column;
   justify-content: center;
 }
-section.block#contact {
+section.block#contact,
+section.block#what-we-do {
   min-height: auto;
   justify-content: flex-start;
 }
