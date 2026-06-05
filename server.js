@@ -16,10 +16,11 @@ app.use(helmet({
 }));
 app.use(express.json({ limit: "32kb" }));
 
-// 서버 내부 파일 노출 차단
+// 서버 내부 파일 노출 차단 (경로 정규화 후 비교)
 app.use((req, res, next) => {
-  const blocked = ["/server.js", "/package.json", "/package-lock.json", "/.env.example"];
-  if (blocked.includes(req.path)) return res.status(403).end();
+  const normalized = path.posix.normalize(req.path).toLowerCase();
+  const blocked = ["/server.js", "/package.json", "/package-lock.json", "/.env.example", "/.env"];
+  if (blocked.includes(normalized)) return res.status(403).end();
   next();
 });
 app.use(express.static(path.join(__dirname)));
@@ -61,10 +62,30 @@ function createTransporter() {
   });
 }
 
+const ALLOWED_MIMES = new Set([
+  "application/pdf",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/zip",
+  "application/x-zip-compressed",
+  "video/mp4", "video/quicktime", "video/x-msvideo",
+  "image/png", "image/jpeg",
+]);
+
+const mimeFilter = (req, file, cb) => {
+  if (!ALLOWED_MIMES.has(file.mimetype)) {
+    return cb(Object.assign(new Error("허용되지 않는 파일 형식입니다."), { status: 400 }));
+  }
+  cb(null, true);
+};
+
 // POST /api/contact — 일반 문의 (파일 첨부 선택)
 const uploadContact = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: mimeFilter,
 });
 
 app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, res) => {
@@ -77,7 +98,7 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
   if (name.trim().length > MAX_NAME) {
     return res.status(400).json({ error: "이름이 너무 깁니다." });
   }
-  if (!/\S+@\S+\.\S+/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     return res.status(400).json({ error: "이메일 형식이 올바르지 않습니다." });
   }
   if (message.trim().length < 4) {
@@ -119,7 +140,8 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
 // POST /api/recruit — 채용 지원 (파일 첨부)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: mimeFilter,
 });
 
 app.post("/api/recruit", apiLimiter, upload.single("file"), async (req, res) => {
@@ -132,7 +154,7 @@ app.post("/api/recruit", apiLimiter, upload.single("file"), async (req, res) => 
   if (name.trim().length > MAX_NAME) {
     return res.status(400).json({ error: "이름이 너무 깁니다." });
   }
-  if (!/\S+@\S+\.\S+/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     return res.status(400).json({ error: "이메일 형식이 올바르지 않습니다." });
   }
 
