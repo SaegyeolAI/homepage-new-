@@ -11,9 +11,8 @@ const app = express();
 // Cloudflare 등 리버스 프록시 뒤에서도 실제 클라이언트 IP로 rate limit 적용
 app.set("trust proxy", 1);
 
-app.use(helmet({
-  contentSecurityPolicy: false, // meta 태그로 이미 설정
-}));
+// Enable helmet with default security headers (including CSP)
+app.use(helmet());
 app.use(express.json({ limit: "32kb" }));
 
 // 서버 내부 파일 노출 차단 (경로 정규화 후 비교)
