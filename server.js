@@ -104,7 +104,7 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
     return res.status(400).json({ error: "문의 내용이 너무 짧습니다." });
   }
   if (message.trim().length > MAX_MESSAGE) {
-    return res.status(400).json({ error: "문의 내용이 너무 깁니다. (5,000자 이내)" });
+    return res.status(400).json({ error: "문의 내용이 너무 깁니다. (5,000자 이내로 작성하세요.)" });
   }
 
   const safeName = sanitizeHeader(name);
