@@ -2,7 +2,7 @@ function App() {
   const [theme, setTheme] = useTheme();
   const [route, setRoute] = useState(() => {
     const hash = (location.hash || "").replace("#", "");
-    if (["home", "team", "product", "privacy", "terms", "feature-shadow", "feature-pii", "feature-report"].includes(hash)) return hash;
+    if (["home", "team", "product", "vom", "clovers", "privacy", "terms", "feature-shadow", "feature-pii", "feature-report"].includes(hash)) return hash;
     return "home";
   });
 
@@ -16,6 +16,8 @@ function App() {
       {route === "home" && <HomePage setRoute={setRoute} />}
       {route === "team" && <TeamPage setRoute={setRoute} />}
       {route === "product" && <ProductPage setRoute={setRoute} />}
+      {route === "vom" && <VomPage setRoute={setRoute} />}
+      {route === "clovers" && <CloversPage setRoute={setRoute} />}
       {route === "privacy" && <PrivacyPage />}
       {route === "terms" && <TermsPage />}
       {route === "feature-shadow" && <FeatureShadowPage setRoute={setRoute} />}

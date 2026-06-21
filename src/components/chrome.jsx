@@ -192,9 +192,36 @@ const Icon = {
   ),
 };
 
+/* ---------------- Status Badge ---------------- */
+function StatusBadge({ status, mini }) {
+  const cfg = {
+    live:         { label: "정식 출시 (Live)",            dot: "#3FFFDB", bg: "rgba(63,255,219,0.12)",  border: "rgba(63,255,219,0.35)",  color: "#3FFFDB" },
+    final_review: { label: "최종 검토 중 (Final Review)", dot: "#818CF8", bg: "rgba(129,140,248,0.10)", border: "rgba(129,140,248,0.28)", color: "#818CF8" },
+    dev:          { label: "개발 중 (In Development)",    dot: "#FFD060", bg: "rgba(255,208,96,0.1)",   border: "rgba(255,208,96,0.3)",   color: "#FFD060" },
+    coming_soon:  { label: "준비 중 (Coming Soon)",       dot: "var(--text-2)", bg: "rgba(128,128,128,0.08)", border: "rgba(128,128,128,0.2)", color: "var(--text-2)" },
+  };
+  const c = cfg[status] || cfg.live;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center",
+      gap: mini ? 4 : 6,
+      padding: mini ? "2px 7px" : "5px 14px",
+      borderRadius: mini ? 10 : 20,
+      fontSize: mini ? 10 : 12,
+      fontWeight: 500, letterSpacing: "0.02em",
+      background: c.bg, color: c.color,
+      border: `1px solid ${c.border}`,
+      verticalAlign: "middle",
+    }}>
+      <span style={{ width: mini ? 5 : 6, height: mini ? 5 : 6, borderRadius: "50%", background: c.dot, flexShrink: 0 }} />
+      {c.label}
+    </span>
+  );
+}
+
 /* ---------------- Mega-menu Nav ---------------- */
 function Nav({ route, setRoute, theme, setTheme }) {
-  const [open, setOpen] = useState(null); // 'services' | null
+  const [open, setOpen] = useState(null); // 'products' | null
   const closeTimer = useRef(null);
 
   const enter = (id) => {
@@ -223,25 +250,35 @@ function Nav({ route, setRoute, theme, setTheme }) {
         <Brand onClick={() => go("home")} showSub />
 
         <div className="nav-links">
-          <div className={"nav-item" + (open === "services" ? " open" : "")}
-            onMouseEnter={() => enter("services")} onMouseLeave={leave}>
-            <button className={"nav-link" + (route === "product" ? " active" : "")} onClick={() => go("product")}>
-              서비스 소개 <span className="chev">▾</span>
+          <div className={"nav-item" + (open === "products" ? " open" : "")}
+            onMouseEnter={() => enter("products")} onMouseLeave={leave}>
+            <button className={"nav-link" + ((route === "product" || route === "vom" || route === "clovers") ? " active" : "")} onClick={() => go("product")}>
+              제품 <span className="chev">▾</span>
             </button>
             <div className="mega" role="menu">
               <div className="mega-col">
-                <h5>PRODUCT</h5>
+                <h5>제품</h5>
                 <a className="mega-item" onClick={() => go("product")}>
-                  <div className="t">K-AgentSec</div>
+                  <div className="t" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    여울 <StatusBadge status="final_review" mini />
+                  </div>
                   <div className="d">한국어 AI 에이전트 자동 침투 테스트 서비스</div>
                 </a>
-                <a className="mega-item" onClick={() => go("product", "how-it-works")}>
-                  <div className="t">How It Works</div>
-                  <div className="d">3단계 자동 분석 흐름</div>
+                <a className="mega-item" onClick={() => go("vom")}>
+                  <div className="t" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    VOM (봄) <StatusBadge status="dev" mini />
+                  </div>
+                  <div className="d">시각장애인을 위한 AI 기반 키오스크 접근성 솔루션</div>
+                </a>
+                <a className="mega-item" onClick={() => go("clovers")}>
+                  <div className="t" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    클로버스 (Clovers) <StatusBadge status="coming_soon" mini />
+                  </div>
+                  <div className="d">고등학생을 위한 온·오프라인 통합 소셜 네트워크</div>
                 </a>
               </div>
               <div className="mega-col">
-                <h5>CAPABILITIES</h5>
+                <h5>여울 기능</h5>
                 <a className="mega-item" onClick={() => go("product", "features")}>
                   <div className="t">Shadow Agent 탐지</div>
                   <div className="d">사각지대의 개인 AI 에이전트 발견</div>
@@ -337,7 +374,9 @@ function Footer({ setRoute }) {
             <div>
               <h5>PRODUCT</h5>
               <ul>
-                <li onClick={() => go("product")}>K-AgentSec</li>
+                <li onClick={() => go("product")}>여울</li>
+                <li onClick={() => go("vom")}>VOM (봄)</li>
+                <li onClick={() => go("clovers")}>클로버스 (Clovers)</li>
               </ul>
             </div>
             <div>
@@ -438,8 +477,8 @@ function ContactForm() {
         <label>첨부파일 / ATTACHMENT <span style={{ fontWeight: 400, opacity: 0.5 }}>(선택)</span></label>
         <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{ display: "none" }} onChange={(e) => {
           const f = e.target.files?.[0] || null;
-          if (f && f.size > 50 * 1024 * 1024) {
-            alert("파일 크기는 50MB 이하로 첨부해 주세요.");
+          if (f && f.size > 4.5 * 1024 * 1024) {
+            alert("파일 크기는 4.5MB 이하로 첨부해 주세요.");
             e.target.value = "";
             return;
           }
@@ -449,9 +488,12 @@ function ContactForm() {
           <div className="icon">{file ? "✓" : "↑"}</div>
           <div className="meta">
             <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 이미지 등 (최대 50MB)"}</div>
+            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 이미지 등 (최대 4.5MB)"}</div>
           </div>
         </div>
+        <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+          4.5MB를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
+        </p>
       </div>
       <div className="actions">
         <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
@@ -463,4 +505,4 @@ function ContactForm() {
   );
 }
 
-Object.assign(window, { useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon });
+Object.assign(window, { useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon, StatusBadge });

@@ -5,11 +5,12 @@ function ProductPage({ setRoute }) {
   };
 
   return (
-    <div data-screen-label="03 Product · K-AgentSec">
+    <div data-screen-label="03 Product · 여울">
       <section className="page-hero">
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
-          <span className="section-label">PRODUCT · K-AGENTSEC · BETA</span>
+          <div style={{ marginBottom: 16 }}><StatusBadge status="final_review" /></div>
+          <span className="section-label">PRODUCT · 여울 · 최종 검토 중</span>
           <h1>한국어 AI 에이전트<br/>시스템을 위한<br/>자동 침투 테스트.</h1>
           <p>한국 기업의 AI 에이전트 시스템(LLM + MCP 서버 + 사용자 플로우)을 한국어 위협 관점에서 자동으로 공격하고, 익스플로잇 PoC와 한국형 컴플라이언스 리포트를 산출합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
@@ -25,9 +26,9 @@ function ProductPage({ setRoute }) {
       <section className="block" style={{paddingBottom:0}}>
         <div className="container">
           <div className="section-head">
-            <span className="section-label">WHY K-AGENTSEC</span>
+            <span className="section-label">WHY 여울</span>
             <h2>국제 도구가 다루지 못하는<br/>한국 환경의 위협을 정확히 짚어냅니다.</h2>
-            <p>K-AgentSec은 한국어 프롬프트 인젝션 2,400+, MCP 권한 우회, K-PII 추출 시나리오를 자동으로 실행하고, ISMS-P/개인정보보호법 기준에 매핑된 한국어 리포트를 산출합니다. PoC와 함께 우선순위 보안 조치도 함께 제안합니다.</p>
+            <p>여울은 한국어 프롬프트 인젝션 2,400+, MCP 권한 우회, K-PII 추출 시나리오를 자동으로 실행하고, ISMS-P/개인정보보호법 기준에 매핑된 한국어 리포트를 산출합니다. PoC와 함께 우선순위 보안 조치도 함께 제안합니다.</p>
           </div>
           <div className="stats">
             <div className="item">

@@ -19,7 +19,7 @@ function FeatureShadowPage({ setRoute }) {
           <div className="hero-cta" style={{marginTop:36}}>
             <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
-              K-AgentSec 전체 보기 <span className="arrow">→</span>
+              여울 전체 보기 <span className="arrow">→</span>
             </button>
           </div>
         </div>
@@ -162,7 +162,7 @@ function FeaturePiiPage({ setRoute }) {
           <div className="hero-cta" style={{marginTop:36}}>
             <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
-              K-AgentSec 전체 보기 <span className="arrow">→</span>
+              여울 전체 보기 <span className="arrow">→</span>
             </button>
           </div>
         </div>
@@ -290,7 +290,7 @@ function FeatureReportPage({ setRoute }) {
           <div className="hero-cta" style={{marginTop:36}}>
             <button className="btn btn-accent" onClick={goContact}>리포트 샘플 요청 <span className="arrow">→</span></button>
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
-              K-AgentSec 전체 보기 <span className="arrow">→</span>
+              여울 전체 보기 <span className="arrow">→</span>
             </button>
           </div>
         </div>

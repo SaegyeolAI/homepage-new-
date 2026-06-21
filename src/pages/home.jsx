@@ -9,13 +9,15 @@ function HomePage({ setRoute }) {
         <div className="hero-glow" />
         <div className="hero-inner">
           <span className="hero-tag"><span className="blink" />KOREAN AI AGENT SECURITY · SINCE 2026</span>
+          <div style={{ margin: "18px 0 28px" }}><StatusBadge status="final_review" /></div>
           <h1>
             Securing the Future<br />
             of <span className="accent-w">Korean AI Agents.</span>
           </h1>
           <p className="hero-sub">
             한국어 AI 에이전트, 한국형 위협 관점으로 먼저 점검합니다.<br />
-            새결은 LLM·MCP·사용자 플로우 전체를 자동으로 공격해 익스플로잇 PoC와 컴플라이언스 리포트를 산출합니다.
+            새결은 LLM·MCP·사용자 플로우 전체를 자동으로 공격해 익스플로잇 PoC와 컴플라이언스 리포트를 산출합니다.<br />
+            <span style={{ color: "var(--text-2)", fontSize: "0.88em" }}>여울은 현재 최종 아이템 검토 단계로, 조기 도입 기업을 선별 모집 중입니다.</span>
           </p>
           <div className="hero-cta">
             <button className="btn btn-accent" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
