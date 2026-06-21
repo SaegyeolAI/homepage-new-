@@ -1,4 +1,4 @@
-const formidable = require("formidable");
+const { formidable } = require("formidable");
 const fs = require("fs").promises;
 const {
   RECIPIENT, MAX_NAME, FILE_LIMIT,
