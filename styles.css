@@ -965,6 +965,12 @@ footer.site-footer {
   max-width: 860px;
   margin: 0 auto;
 }
+.team-grid > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  max-width: calc(50% - 10px);
+  margin-left: auto;
+  margin-right: auto;
+}
 .member {
   border: 1px solid var(--border);
   border-radius: 16px;

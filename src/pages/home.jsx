@@ -101,7 +101,6 @@ function HomePage({ setRoute }) {
               <p>오펜시브 시큐리티, LLM 평가, 한국형 컴플라이언스 — 세 영역에서 실전 경험을 쌓은 팀이 새결의 기술을 만들고 있습니다.</p>
               <div className="av-stack">
                 <span className="av">JH</span>
-                <span className="av">SY</span>
                 <span className="av">YK</span>
                 <span className="av">YS</span>
               </div>
