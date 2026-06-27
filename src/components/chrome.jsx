@@ -397,9 +397,8 @@ function Footer({ setRoute }) {
             <div>
               <h5>FOLLOW</h5>
               <ul>
-                <li>Blog</li>
+                <li><a href="https://www.instagram.com/saegyeol_official" target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>Instagram</a></li>
                 <li>GitHub</li>
-                <li>LinkedIn</li>
               </ul>
             </div>
           </div>
