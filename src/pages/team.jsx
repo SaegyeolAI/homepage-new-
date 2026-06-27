@@ -115,7 +115,7 @@ function TeamPage({ setRoute }) {
               </div>
               <div className="row">
                 <label>포트폴리오 / FREE FORMAT</label>
-                <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.mp4,.mov,.avi,.png,.jpg,.jpeg" style={{display:"none"}} onChange={(e) => {
+                <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{display:"none"}} onChange={(e) => {
                   const f = e.target.files?.[0] || null;
                   if (f && f.size > MAX_UPLOAD_BYTES) {
                     alert(`파일 크기는 ${MAX_UPLOAD_LABEL}를 초과할 수 없습니다.`);
@@ -132,7 +132,7 @@ function TeamPage({ setRoute }) {
                   </div>
                 </div>
                 <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-                  {MAX_UPLOAD_LABEL}를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
+                  영상 파일이나 {MAX_UPLOAD_LABEL}를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
                 </p>
               </div>
               <div className="actions">

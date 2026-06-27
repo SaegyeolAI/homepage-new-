@@ -119,9 +119,6 @@ const MIME_EXT_MAP = {
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
   "application/zip": [".zip"],
   "application/x-zip-compressed": [".zip"],
-  "video/mp4": [".mp4"],
-  "video/quicktime": [".mov"],
-  "video/x-msvideo": [".avi"],
   "image/png": [".png"],
   "image/jpeg": [".jpg", ".jpeg"],
 };
