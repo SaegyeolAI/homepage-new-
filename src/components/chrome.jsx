@@ -1,5 +1,12 @@
 const { useState, useEffect, useRef } = React;
 
+// 파일 업로드 크기 제한 (프론트엔드 공통 상수).
+// Vercel 서버리스 함수의 request body 한도가 4.5MB이므로 그 값에 맞춘다.
+// 이보다 큰 값을 설정해도 플랫폼 단에서 거부되므로 백엔드(api/_utils.js의 FILE_LIMIT)와
+// 반드시 동일하게 유지할 것. chrome.jsx가 가장 먼저 로드되므로 다른 페이지(team.jsx 등)에서도 이 상수를 재사용한다.
+const MAX_UPLOAD_BYTES = 4.5 * 1024 * 1024;
+const MAX_UPLOAD_LABEL = "4.5MB";
+
 /* ---------------- Fullpage Scroll ---------------- */
 function useFullScroll(route) {
   useEffect(() => {
@@ -477,8 +484,8 @@ function ContactForm() {
         <label>첨부파일 / ATTACHMENT <span style={{ fontWeight: 400, opacity: 0.5 }}>(선택)</span></label>
         <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{ display: "none" }} onChange={(e) => {
           const f = e.target.files?.[0] || null;
-          if (f && f.size > 4.5 * 1024 * 1024) {
-            alert("파일 크기는 4.5MB 이하로 첨부해 주세요.");
+          if (f && f.size > MAX_UPLOAD_BYTES) {
+            alert(`파일 크기는 ${MAX_UPLOAD_LABEL}를 초과할 수 없습니다.`);
             e.target.value = "";
             return;
           }
@@ -488,11 +495,11 @@ function ContactForm() {
           <div className="icon">{file ? "✓" : "↑"}</div>
           <div className="meta">
             <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : "PDF · PPT · DOC · ZIP · 이미지 등 (최대 4.5MB)"}</div>
+            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `PDF · PPT · DOC · ZIP · 이미지 등 (최대 ${MAX_UPLOAD_LABEL})`}</div>
           </div>
         </div>
         <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-          4.5MB를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
+          {MAX_UPLOAD_LABEL}를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
         </p>
       </div>
       <div className="actions">

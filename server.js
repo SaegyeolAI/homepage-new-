@@ -79,6 +79,9 @@ const apiLimiter = rateLimit({
 const RECIPIENT = "contact@saegyeol.ai.kr";
 const MAX_NAME = 100;
 const MAX_MESSAGE = 5000;
+// 파일 업로드 크기 제한: Vercel 서버리스 함수의 request body 한도(4.5MB)에 맞춘다.
+// 프론트엔드(MAX_UPLOAD_BYTES) 및 서버리스 핸들러(api/_utils.js의 FILE_LIMIT)와 동일하게 유지할 것.
+const FILE_LIMIT = 4.5 * 1024 * 1024;
 
 // SMTP 헤더 인젝션 방지: 개행문자 제거
 const sanitizeHeader = (s) => String(s).replace(/[\r\n]/g, "");
@@ -138,7 +141,7 @@ const mimeFilter = (req, file, cb) => {
 // POST /api/contact — 일반 문의 (파일 첨부 선택)
 const uploadContact = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 4.5 * 1024 * 1024 },
+  limits: { fileSize: FILE_LIMIT },
   fileFilter: mimeFilter,
 });
 
@@ -194,7 +197,7 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
 // POST /api/recruit — 채용 지원 (파일 첨부)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 4.5 * 1024 * 1024 },
+  limits: { fileSize: FILE_LIMIT },
   fileFilter: mimeFilter,
 });
 

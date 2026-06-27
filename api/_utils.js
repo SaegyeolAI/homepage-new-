@@ -5,6 +5,8 @@ const nodemailer = require("nodemailer");
 const RECIPIENT = "contact@saegyeol.ai.kr";
 const MAX_NAME = 100;
 const MAX_MESSAGE = 5000;
+// 파일 업로드 크기 제한: Vercel 서버리스 함수의 request body 한도(4.5MB)와 일치시킨다.
+// 이보다 큰 값을 설정해도 플랫폼 단에서 거부되므로 프론트엔드와 동일하게 유지할 것.
 const FILE_LIMIT = 4.5 * 1024 * 1024;
 
 const sanitizeHeader = (s) => String(s).replace(/[\r\n]/g, "");
