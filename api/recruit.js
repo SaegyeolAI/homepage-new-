@@ -5,9 +5,13 @@ const {
   sanitizeHeader, sanitizeFilename, escapeHtml,
   validateFile, transporter,
 } = require("./_utils");
+const { checkRateLimit } = require("./_ratelimit");
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+  const rlError = await checkRateLimit(req);
+  if (rlError) return res.status(429).json({ error: rlError });
 
   const form = formidable({ maxFileSize: FILE_LIMIT, maxFiles: 1 });
   let fields, files;
