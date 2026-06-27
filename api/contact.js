@@ -3,12 +3,15 @@ const fs = require("fs").promises;
 const {
   RECIPIENT, MAX_NAME, MAX_MESSAGE, FILE_LIMIT,
   sanitizeHeader, sanitizeFilename, escapeHtml,
-  validateFile, transporter,
+  validateFile, checkOrigin, transporter,
 } = require("./_utils");
 const { checkRateLimit } = require("./_ratelimit");
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+  const originError = checkOrigin(req);
+  if (originError) return res.status(403).json({ error: originError });
 
   const rlError = await checkRateLimit(req);
   if (rlError) return res.status(429).json({ error: rlError });

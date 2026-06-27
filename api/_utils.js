@@ -11,6 +11,29 @@ const FILE_LIMIT = 4.5 * 1024 * 1024;
 
 const sanitizeHeader = (s) => String(s).replace(/[\r\n]/g, "");
 
+// CSRF 완화: 상태변경(POST) 요청의 Origin을 허용 목록과 대조한다.
+// 브라우저는 cross-site로 폼/fetch를 보낼 때 항상 Origin 헤더를 붙이므로,
+// 허용 도메인과 다른 Origin이면 차단한다(=타 사이트發 위조 요청 차단).
+// ALLOWED_ORIGIN(쉼표 구분) 미설정 시 통과 — server.js와 동일한 환경변수 사용.
+// 통과 시 null, 차단 시 에러 메시지 문자열을 반환한다.
+function checkOrigin(req) {
+  const allowed = (process.env.ALLOWED_ORIGIN || "")
+    .split(",").map((o) => o.trim()).filter(Boolean);
+  if (allowed.length === 0) return null; // 미설정 시 통과
+  const origin = req.headers.origin;
+  if (origin) {
+    return allowed.includes(origin) ? null : "허용되지 않은 출처의 요청입니다.";
+  }
+  // Origin이 없으면 Referer로 폴백. 브라우저發 CSRF 공격은 항상 Origin이 붙으므로
+  // Origin·Referer가 모두 없는 경우(비브라우저 클라이언트)는 통과시킨다.
+  const referer = req.headers.referer;
+  if (referer) {
+    return allowed.some((a) => referer === a || referer.startsWith(a + "/"))
+      ? null : "허용되지 않은 출처의 요청입니다.";
+  }
+  return null;
+}
+
 const sanitizeFilename = (name) =>
   path.basename(String(name)).replace(/[^\w\s.\-]/g, "_").trim() || "attachment";
 
@@ -68,5 +91,6 @@ module.exports = {
   sanitizeFilename,
   escapeHtml,
   validateFile,
+  checkOrigin,
   transporter,
 };
