@@ -419,22 +419,26 @@ input, textarea, select { font-family: inherit; color: inherit; }
   margin: 0 auto 44px;
   letter-spacing: -0.005em;
 }
-.hero-cta { display: inline-flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.hero-cta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
 .hero-scrollhint {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-3);
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   z-index: 1;
+  margin-top: 8px;
 }
 .hero-scrollhint .bar {
   width: 1px; height: 36px;
