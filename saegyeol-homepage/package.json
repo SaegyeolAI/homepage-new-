@@ -1,0 +1,25 @@
+{
+  "name": "saegyeol-homepage",
+  "version": "1.1.0",
+  "description": "새결 공식 홈페이지와 문의 API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "formidable": "^3.5.4",
+    "helmet": "^8.2.0",
+    "multer": "^2.0.0",
+    "nodemailer": "^8.0.10"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

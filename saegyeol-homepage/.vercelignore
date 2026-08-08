@@ -1,0 +1,5 @@
+server.js
+src/
+.env
+.env.example
+node_modules/
