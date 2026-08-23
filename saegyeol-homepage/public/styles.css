@@ -427,7 +427,9 @@ input, textarea, select { font-family: inherit; color: inherit; }
   margin-bottom: 24px;
 }
 .hero-scrollhint {
-  position: relative;
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -438,7 +440,6 @@ input, textarea, select { font-family: inherit; color: inherit; }
   align-items: center;
   gap: 8px;
   z-index: 1;
-  margin-top: 8px;
 }
 .hero-scrollhint .bar {
   width: 1px; height: 36px;
