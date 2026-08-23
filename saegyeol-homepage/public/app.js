@@ -375,7 +375,7 @@ function HomePage({ setRoute }) {
                         React.createElement("span", { className: "arrow" }, "\u2192"))),
                 React.createElement("div", { className: "hero-scrollhint" },
                     React.createElement("span", null, "SCROLL"),
-                    React.createElement("span", { className: "bar" }))),
+                    React.createElement("span", { className: "bar" })))),
         React.createElement("section", { className: "block", id: "what-we-do" },
             React.createElement("div", { className: "container" },
                 React.createElement("div", { className: "section-head" },
