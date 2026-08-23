@@ -426,25 +426,6 @@ input, textarea, select { font-family: inherit; color: inherit; }
   justify-content: center;
   margin-bottom: 24px;
 }
-.hero-scrollhint {
-  position: relative;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  z-index: 1;
-  margin-top: 8px;
-}
-.hero-scrollhint .bar {
-  width: 1px; height: 36px;
-  background: linear-gradient(to bottom, var(--text-3), transparent);
-}
-
 /* =========================================================
    Sections
    ========================================================= */
@@ -1744,7 +1725,6 @@ html[data-theme="dark"] .recruit {
   .nav-link { padding: 8px 9px; font-size: 12.5px; }
   .theme-toggle { width: 36px; height: 36px; margin-left: 4px; }
   .hero { min-height: auto; padding: 132px 20px 96px; }
-  .hero-scrollhint { display: none; }
   .page-hero { padding: 124px 0 76px; }
   .page-hero h1 { font-size: clamp(42px, 12vw, 62px); }
   .detail-modal-backdrop { padding: 14px; }

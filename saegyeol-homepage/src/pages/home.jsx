@@ -32,10 +32,6 @@ function HomePage({ setRoute }) {
               팀 소개 보기 <span className="arrow">→</span>
             </button>
           </div>
-          <div className="hero-scrollhint">
-            <span>SCROLL</span>
-            <span className="bar" />
-          </div>
         </div>
       </section>
 
