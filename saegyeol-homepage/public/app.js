@@ -440,7 +440,6 @@ function HomePage({ setRoute }) {
                         React.createElement("p", null, "\uC624\uD39C\uC2DC\uBE0C \uC2DC\uD050\uB9AC\uD2F0, LLM \uD3C9\uAC00, \uD55C\uAD6D\uD615 \uCEF4\uD50C\uB77C\uC774\uC5B8\uC2A4 \u2014 \uC138 \uC601\uC5ED\uC5D0\uC11C \uC804\uBB38\uC131\uC744 \uC313\uC740 \uD300\uC774 \uC0C8\uACB0\uC758 \uAE30\uC220\uC744 \uB9CC\uB4E4\uACE0 \uC788\uC2B5\uB2C8\uB2E4."),
                         React.createElement("div", { className: "av-stack" },
                             React.createElement("span", { className: "av" }, "JH"),
-                            React.createElement("span", { className: "av" }, "YK"),
                             React.createElement("span", { className: "av" }, "YS"))),
                     React.createElement("button", { className: "btn btn-accent", onClick: (e) => { e.stopPropagation(); setRoute("team"); window.scrollTo({ top: 0 }); } },
                         "\uBC14\uB85C\uAC00\uAE30 ",
@@ -478,8 +477,7 @@ function HomePage({ setRoute }) {
 window.HomePage = HomePage;
 const TEAM_MEMBERS_V2 = [
     { initials: "JH", name: "황지후", role: "CEO / Founder", bio: "소프트웨어로 세상을 바꾸는, 더 나은 세상을 꿈꾸다.", link: "https://www.notion.so/saegyeol/Hwang-Jihoo-31cb75833d178043a85ec6c11a1b2af8?source=copy_link" },
-    { initials: "YJ", name: "김윤지", role: "CISO", bio: " 그 누구보다 반짝일 미래를 믿습니다. 더 나은 세상을 위하여.", link: "https://www.notion.so/YUNJI-S-PORTFOLIO-369bed12f7ec804385c6c6e4608ea371?source=copy_link" },
-    { initials: "YS", name: "신유승", role: "Full-Stack Engineer", bio: "세상의 문제를 코드로 풀고, 소프트웨어로 답을 찾다.", link: null },
+    { initials: "YS", name: "신유승", role: "Full-Stack Engineer", bio: "세상의 문제를 코드로 풀고, 소프트웨어로 답을 찾다.", link: "https://app.notion.com/p/PoRTfoLio-9831ecbe58c883fca2aa81f08c64f30a?source=copy_link" },
 ];
 function TeamPage({ setRoute }) {
     const [file, setFile] = useState(null);
