@@ -45,6 +45,14 @@ const WHEEL_MIN_DELTA = 4;
 const WHEEL_QUIET_MS = 120;
 const WHEEL_SETTLE_TIMEOUT = 1200;
 const EDGE_TOLERANCE = 2;
+const WHEEL_STEP_RATIO = 0.85;
+function stickyTopOffset() {
+  const nav = document.querySelector(".nav");
+  if (!nav) return 0;
+  const position = getComputedStyle(nav).position;
+  if (position !== "fixed" && position !== "sticky") return 0;
+  return Math.round(nav.getBoundingClientRect().height);
+}
 function scrollableAncestor(start, direction) {
   let el = start;
   while (el && el.nodeType === 1 && el !== document.body && el !== document.documentElement) {
@@ -104,7 +112,7 @@ function useWheelSnap(route) {
     };
     const onWheel = (e) => {
       if (!snapActive(route)) return;
-      if (e.ctrlKey) return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
       if (Math.abs(e.deltaY) < WHEEL_MIN_DELTA) return;
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const direction = e.deltaY > 0 ? 1 : -1;
@@ -122,10 +130,12 @@ function useWheelSnap(route) {
       const maxScroll = document.documentElement.scrollHeight - vh;
       let target;
       if (heights[index] > vh + EDGE_TOLERANCE) {
+        const readable = Math.max(120, vh - stickyTopOffset());
+        const step = Math.max(80, Math.round(readable * WHEEL_STEP_RATIO));
         if (direction > 0 && y + vh < bottom - EDGE_TOLERANCE) {
-          target = Math.min(y + vh, bottom - vh);
+          target = Math.min(y + step, bottom - vh);
         } else if (direction < 0 && y > top + EDGE_TOLERANCE) {
-          target = Math.max(y - vh, top);
+          target = Math.max(y - step, top);
         }
       }
       if (target === void 0) {

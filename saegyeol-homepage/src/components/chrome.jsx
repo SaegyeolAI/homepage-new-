@@ -82,6 +82,20 @@ const WHEEL_QUIET_MS = 120;       // 이만큼 휠이 멎어야 관성이 끝난
 const WHEEL_SETTLE_TIMEOUT = 1200;
 const EDGE_TOLERANCE = 2;
 
+// 긴 섹션 안에서 한 번에 움직이는 양. 한 화면을 통째로 넘기면 읽던 자리를
+// 잃어버려서, 직전 화면의 마지막 부분이 위에 조금 남도록 줄인다.
+const WHEEL_STEP_RATIO = 0.85;
+
+// 고정 nav가 화면 위쪽을 덮는다. 그만큼은 스크롤해도 읽히지 않으므로
+// 이동량 계산에서 빼야 내용이 nav 뒤로 건너뛰지 않는다.
+function stickyTopOffset() {
+  const nav = document.querySelector(".nav");
+  if (!nav) return 0;
+  const position = getComputedStyle(nav).position;
+  if (position !== "fixed" && position !== "sticky") return 0;
+  return Math.round(nav.getBoundingClientRect().height);
+}
+
 // 휠이 향하는 쪽으로 더 스크롤할 수 있는 조상이 있으면 그대로 둔다.
 // 입력 칸, 가로 스크롤 표, 모달 내부가 여기에 걸린다.
 function scrollableAncestor(start, direction) {
@@ -148,7 +162,15 @@ function useWheelSnap(route) {
 
     const onWheel = (e) => {
       if (!snapActive(route)) return;
-      if (e.ctrlKey) return;                                    // 브라우저 확대
+
+      // 조합키가 눌린 휠은 절대 가로채지 않는다. 브라우저·OS의 기본 동작이다.
+      //   Ctrl  — 브라우저 확대·축소 (트랙패드 핀치도 ctrlKey로 들어온다)
+      //   Meta  — macOS의 Cmd 확대·축소
+      //   Shift — 가로 스크롤
+      //   Alt   — 일부 브라우저의 가로 스크롤
+      // 여기서 preventDefault를 하면 확대가 먹지 않거나 가로 스크롤이 죽는다.
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
       if (Math.abs(e.deltaY) < WHEEL_MIN_DELTA) return;
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;      // 가로 제스처
 
@@ -172,13 +194,19 @@ function useWheelSnap(route) {
       const maxScroll = document.documentElement.scrollHeight - vh;
       let target;
 
-      // 화면보다 긴 섹션은 섹션 안에서 먼저 한 화면씩 움직인다.
+      // 화면보다 긴 섹션은 섹션 안에서 먼저 조금씩 움직인다.
       // 끝(또는 시작)에 닿은 다음 휠에서 옆 섹션으로 넘어간다.
+      //
+      // 이동량은 "nav에 가리지 않고 실제로 읽히는 높이"의 85%다.
+      // 한 화면을 통째로 넘기면 읽던 자리를 잃고, nav 높이를 빼지 않으면
+      // 다음 화면의 첫 부분이 nav 뒤로 들어가 건너뛰어진다.
       if (heights[index] > vh + EDGE_TOLERANCE) {
+        const readable = Math.max(120, vh - stickyTopOffset());
+        const step = Math.max(80, Math.round(readable * WHEEL_STEP_RATIO));
         if (direction > 0 && y + vh < bottom - EDGE_TOLERANCE) {
-          target = Math.min(y + vh, bottom - vh);
+          target = Math.min(y + step, bottom - vh);   // 마지막엔 섹션 끝에 딱 맞춘다
         } else if (direction < 0 && y > top + EDGE_TOLERANCE) {
-          target = Math.max(y - vh, top);
+          target = Math.max(y - step, top);
         }
       }
 
