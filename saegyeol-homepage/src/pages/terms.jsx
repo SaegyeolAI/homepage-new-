@@ -1,8 +1,10 @@
 /* ---------------- Terms of Service Page ---------------- */
-function TermsPage() {
+function TermsPage({ onBack }) {
   return (
     <main className="privacy-page">
       <div className="container">
+        <BackButton onBack={onBack} />
+
         <div className="privacy-header">
           <span className="label">LEGAL</span>
           <h1>이용약관</h1>

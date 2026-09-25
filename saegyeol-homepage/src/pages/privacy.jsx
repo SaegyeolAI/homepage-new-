@@ -1,8 +1,10 @@
 /* ---------------- Privacy Policy Page ---------------- */
-function PrivacyPage() {
+function PrivacyPage({ onBack }) {
   return (
     <main className="privacy-page">
       <div className="container">
+        <BackButton onBack={onBack} />
+
         <div className="privacy-header">
           <span className="label">LEGAL</span>
           <h1>개인정보처리방침</h1>

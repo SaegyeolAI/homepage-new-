@@ -1,16 +1,8 @@
 function PricingPage({ setRoute }) {
-  const goContact = (subject) => {
-    setRoute("home");
-    setTimeout(() => {
-      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      const message = document.getElementById("cfv2-msg");
-      if (message && subject && !message.value) {
-        const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
-        setter?.call(message, `${subject} 요금제 도입을 문의합니다.`);
-        message.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    }, 100);
-  };
+  // 예전에는 DOM value setter를 직접 호출해 textarea에 값을 밀어 넣었다.
+  // 이제는 ContactForm이 prefill을 받아 자기 상태로 반영한다.
+  const goContact = createContactNav(setRoute);
+  const askAbout = (subject) => goContact(`${subject} 요금제 도입을 문의합니다.`);
 
   const plans = [
     {
@@ -25,7 +17,6 @@ function PricingPage({ setRoute }) {
         "재검사 24시간당 1회",
         "통과 인증 없음",
       ],
-      cta: "무료 점검 문의",
     },
     {
       id: "pro",
@@ -40,7 +31,6 @@ function PricingPage({ setRoute }) {
         "컴플라이언스 매핑 옵션",
         "재검증 이력 관리",
       ],
-      cta: "프로 도입 문의",
     },
     {
       id: "franchise",
@@ -54,7 +44,6 @@ function PricingPage({ setRoute }) {
         "전용 지원",
         "규제 감사 통과용 리포트",
       ],
-      cta: "기업 견적 문의",
     },
   ];
 
@@ -71,7 +60,7 @@ function PricingPage({ setRoute }) {
 
   return (
     <div data-screen-label="Pricing · 여울">
-      <section className="page-hero pricing-hero">
+      <section className="page-hero pricing-hero" data-section-label="요금 안내">
         <div className="hero-bg" />
         <div className="container" style={{ position: "relative" }}>
           <span className="section-label">PRODUCT · 여울 · PRICING</span>
@@ -81,12 +70,12 @@ function PricingPage({ setRoute }) {
             <a className="btn btn-accent" href="#plans" onClick={(e) => { e.preventDefault(); document.getElementById("plans")?.scrollIntoView({ behavior: "smooth" }); }}>
               요금제 비교 <span className="arrow">↓</span>
             </a>
-            <button className="btn btn-ghost" onClick={() => goContact("여울")}>도입 문의하기 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="여울 도입을 문의합니다." variant="ghost" />
           </div>
         </div>
       </section>
 
-      <section className="block" id="plans">
+      <section className="block" id="plans" data-section-label="플랜">
         <div className="container">
           <div className="section-head">
             <span className="section-label">PLANS · 03</span>
@@ -106,9 +95,8 @@ function PricingPage({ setRoute }) {
                 <ul>
                   {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
                 </ul>
-                <button className={`btn ${plan.featured ? "btn-accent" : "btn-ghost"}`} onClick={() => goContact(plan.name)}>
-                  {plan.cta} <span className="arrow">→</span>
-                </button>
+                <ContactButton onContact={() => askAbout(plan.name)}
+                  variant={plan.featured ? "accent" : "ghost"} />
               </article>
             ))}
           </div>
@@ -121,7 +109,7 @@ function PricingPage({ setRoute }) {
         </div>
       </section>
 
-      <section className="block pricing-compare-section">
+      <section className="block pricing-compare-section" data-section-label="비교">
         <div className="container">
           <div className="section-head">
             <span className="section-label">COMPARE</span>
@@ -143,7 +131,7 @@ function PricingPage({ setRoute }) {
         </div>
       </section>
 
-      <section className="block">
+      <section className="block" data-section-label="자주 묻는 내용">
         <div className="container">
           <div className="section-head">
             <span className="section-label">FAQ</span>
@@ -170,7 +158,7 @@ function PricingPage({ setRoute }) {
         </div>
       </section>
 
-      <ClosingCTA onContact={() => goContact("여울")} />
+      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
     </div>
   );
 }

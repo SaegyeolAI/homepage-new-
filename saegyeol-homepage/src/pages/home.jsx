@@ -1,5 +1,5 @@
 function HomePage({ setRoute }) {
-  const goContact = () => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const goContact = createContactNav(setRoute);
   const openRoute = (route) => { setRoute(route); window.scrollTo({ top: 0, behavior: "auto" }); };
   const cardKey = (event, route) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -11,7 +11,7 @@ function HomePage({ setRoute }) {
   return (
     <div data-screen-label="01 Home">
       {/* HERO — full viewport */}
-      <section className="hero">
+      <section className="hero" data-section-label="인트로">
         <div className="hero-bg" />
         <div className="hero-glow" />
         <div className="hero-inner">
@@ -21,8 +21,8 @@ function HomePage({ setRoute }) {
             of <span className="accent-w">Korean AI Agents.</span>
           </h1>
           <p className="hero-sub">
-            한국어 AI 에이전트, 한국형 위협 관점으로 먼저 점검합니다.<br />
-            새결은 LLM·MCP·사용자 플로우 전체를 자동으로 공격해 익스플로잇 PoC와 컴플라이언스 리포트를 산출합니다.<br />
+            AI 에이전트, 내보내도 괜찮은 상태인지 먼저 확인하세요.<br />
+            여울은 출시 직전의 한국어 AI 에이전트에 실제 공격을 넣어보고 배포 여부를 판정합니다.<br />
           </p>
           <div className="hero-cta">
             <button className="btn btn-accent" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
@@ -36,13 +36,14 @@ function HomePage({ setRoute }) {
       </section>
 
       {/* WHAT WE DO */}
-      <section className="block" id="what-we-do">
+      <section className="block" id="what-we-do" data-section-label="하는 일">
         <div className="container">
           <div className="section-head">
             <span className="section-label">WHAT WE DO</span>
-            <h2>한국 환경에서만 보이는<br />위협을 정면으로 다룹니다.</h2>
-            <p>국제 LLM 보안 도구는 한국어 인젝션, 한국식 PII, 국내 컴플라이언스를 다루지 못합니다.
-              여울은 한국어 위협 모델에 특화된 자동 침투 테스트와 리포트를 제공합니다.</p>
+            <h2>한국어로 공격해야<br />보이는 구멍이 있습니다.</h2>
+            <p>한국어는 조사와 어미가 붙어 같은 뜻을 수없이 다르게 쓸 수 있습니다.
+              영어를 기준으로 만든 필터는 이 변형을 대부분 놓칩니다.
+              여울은 그 형태 변형을 공격 방법으로 삼아 에이전트를 두드려 봅니다.</p>
           </div>
 
           <div className="cards">
@@ -66,35 +67,36 @@ function HomePage({ setRoute }) {
               onClick={() => openRoute("feature-report")} onKeyDown={(e) => cardKey(e, "feature-report")}>
               <span className="num">03</span>
               <div className="ico"><Icon.report /></div>
-              <h3>컴플라이언스 리포트</h3>
-              <p>ISMS-P · 개인정보보호법 · 금융 AI 가이드라인 등 한국형 기준에 자동 매핑된 리포트를 PDF·웹으로 생성합니다.</p>
+              <h3>증거 기반 리포트</h3>
+              <p>취약점마다 재현할 수 있는 최소한의 증거를 담은 PDF 리포트를 드립니다. 표지에는 이번 검사가 어디까지 다뤘는지 적습니다.</p>
               <span className="more">자세히 보기</span>
             </article>
           </div>
 
           <div className="stats" style={{ marginTop: 64 }}>
             <div className="item">
-              <div className="v">2,400<span className="unit">+</span></div>
-              <div className="k">한국어 공격 페이로드</div>
+              <div className="v">154<span className="unit">종</span></div>
+              <div className="k">형태 변형 공격 유형</div>
             </div>
             <div className="item">
-              <div className="v">36<span className="unit">분</span></div>
-              <div className="k">평균 점검 시간</div>
+              <div className="v">97.4<span className="unit">%</span></div>
+              <div className="k">탐지율 (recall)</div>
             </div>
             <div className="item">
-              <div className="v">14<span className="unit">종</span></div>
-              <div className="k">한국식 PII 카테고리</div>
+              <div className="v">5.3<span className="unit">%</span></div>
+              <div className="k">오탐률</div>
             </div>
             <div className="item">
-              <div className="v">8<span className="unit">개</span></div>
-              <div className="k">컴플라이언스 매핑 기준</div>
+              <div className="v">4<span className="unit">단계</span></div>
+              <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
+          <p className="stats-note">내부 회귀 벤치마크 기준입니다.</p>
         </div>
       </section>
 
       {/* TEAM SHORTCUT BANNER */}
-      <section className="block" style={{ paddingTop: 0, borderTop: "none" }}>
+      <section className="block" data-section-label="팀" style={{ paddingTop: 0, borderTop: "none" }}>
         <div className="container">
           <div className="banner" role="button" tabIndex={0}
             onClick={() => { setRoute("team"); window.scrollTo({ top: 0 }); }}
@@ -117,7 +119,7 @@ function HomePage({ setRoute }) {
       </section>
 
       {/* INLINE CONTACT FORM */}
-      <section className="block" id="contact">
+      <section className="block" id="contact" data-section-label="문의">
         <div className="container">
           <div className="contact-grid">
             <div>
@@ -128,7 +130,7 @@ function HomePage({ setRoute }) {
                 lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 700
               }}>새결 팀에<br />직접 문의해 주세요.</h2>
               <p style={{ margin: 0, color: "var(--text-2)", fontSize: 17, lineHeight: 1.7, maxWidth: 480 }}>
-                AI 에이전트 보안 도입을 검토 중이시거나 여울의 보안 검증이 필요하다면 아래 양식으로 직접 문의해 주세요. 영업일 기준 1일 내 회신드립니다.
+                출시를 앞둔 에이전트를 점검하고 싶으시거나 여울이 어떤 범위를 검사하는지 궁금하시면 아래 양식으로 보내주세요. 영업일 기준 1일 내 회신드립니다.
               </p>
               <div className="contact-meta">
                 <div className="row"><span className="k">EMAIL</span><span className="mono">contact@saegyeol.ai.kr</span></div>

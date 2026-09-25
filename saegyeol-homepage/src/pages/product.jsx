@@ -1,8 +1,5 @@
 function ProductPage({ setRoute }) {
-  const goContact = () => {
-    setRoute("home");
-    setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-  };
+  const goContact = createContactNav(setRoute);
 
   const openRoute = (route) => {
     setRoute(route);
@@ -18,14 +15,14 @@ function ProductPage({ setRoute }) {
 
   return (
     <div data-screen-label="03 Product · 여울">
-      <section className="page-hero">
+      <section className="page-hero" data-section-label="여울 소개">
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">PRODUCT · 여울</span>
-          <h1>한국어 AI 에이전트<br/>시스템을 위한<br/>자동 침투 테스트.</h1>
-          <p>한국 기업의 AI 에이전트 시스템(LLM + MCP 서버 + 사용자 플로우)을 한국어 위협 관점에서 자동으로 공격하고, 익스플로잇 PoC와 한국형 컴플라이언스 리포트를 산출합니다.</p>
+          <h1>내보내도 되는지,<br/>내보내기 전에<br/>확인합니다.</h1>
+          <p>여울은 한국어 AI 에이전트 침투 테스트 서비스입니다. 출시를 앞둔 에이전트에 한국어 공격을 넣어보고 배포해도 되는지 판정합니다. 지금은 출시를 준비하고 있습니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="여울 도입을 문의합니다." />
             <button className="btn btn-ghost" onClick={() => openRoute("pricing")}>
               요금제 보기 <span className="arrow">→</span>
             </button>
@@ -34,36 +31,37 @@ function ProductPage({ setRoute }) {
       </section>
 
       {/* One-liner block / stats */}
-      <section className="block" style={{paddingBottom:0}}>
+      <section className="block" data-section-label="WHY 여울" style={{paddingBottom:0}}>
         <div className="container">
           <div className="section-head">
             <span className="section-label">WHY 여울</span>
-            <h2>국제 도구가 다루지 못하는<br/>한국 환경의 위협을 정확히 짚어냅니다.</h2>
-            <p>여울은 한국어 프롬프트 인젝션 2,400+, MCP 권한 우회, K-PII 추출 시나리오를 자동으로 실행하고, ISMS-P/개인정보보호법 기준에 매핑된 한국어 리포트를 산출합니다. PoC와 함께 우선순위 보안 조치도 함께 제안합니다.</p>
+            <h2>조사 하나만 바꿔도<br/>필터는 그냥 지나갑니다.</h2>
+            <p>한국어는 조사와 어미가 붙어 같은 요구를 수없이 다르게 쓸 수 있습니다. 여울은 이 교착어 형태론을 공격 방법론으로 삼아, 조사·어미·동의어를 바꿔가며 같은 공격을 다시 시도합니다. 영어 기준으로 만든 필터가 놓치는 구조적 취약점이 여기서 드러납니다.</p>
           </div>
           <div className="stats">
             <div className="item">
-              <div className="v">2,400<span className="unit">+</span></div>
-              <div className="k">한국어 공격 페이로드</div>
+              <div className="v">154<span className="unit">종</span></div>
+              <div className="k">형태 변형 공격 유형</div>
             </div>
             <div className="item">
-              <div className="v">36<span className="unit">분</span></div>
-              <div className="k">평균 점검 시간</div>
+              <div className="v">97.4<span className="unit">%</span></div>
+              <div className="k">탐지율 (recall)</div>
             </div>
             <div className="item">
-              <div className="v">14<span className="unit">종</span></div>
-              <div className="k">한국식 PII 카테고리</div>
+              <div className="v">5.3<span className="unit">%</span></div>
+              <div className="k">오탐률</div>
             </div>
             <div className="item">
-              <div className="v">8<span className="unit">개</span></div>
-              <div className="k">컴플라이언스 매핑 기준</div>
+              <div className="v">4<span className="unit">단계</span></div>
+              <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
+          <p className="stats-note">내부 회귀 벤치마크 기준입니다. 관련 연구는 ACK2026 학술대회에 논문으로 제출했습니다.</p>
         </div>
       </section>
 
       {/* 3 feature cards */}
-      <section className="block" id="features">
+      <section className="block" id="features" data-section-label="핵심 기능">
         <div className="container">
           <div className="section-head">
             <span className="section-label">CORE CAPABILITIES · 03</span>
@@ -92,8 +90,8 @@ function ProductPage({ setRoute }) {
               onClick={() => openRoute("feature-report")} onKeyDown={(e) => cardKey(e, "feature-report")}>
               <span className="num">03</span>
               <div className="ico"><Icon.report /></div>
-              <h3>컴플라이언스 리포트</h3>
-              <p>ISMS-P · 개인정보보호법 · 금융 AI 가이드라인 등 한국형 기준에 자동 매핑된 리포트를 PDF·웹으로 생성. 익스플로잇 PoC와 우선순위 조치를 함께 제공합니다.</p>
+              <h3>증거 기반 리포트</h3>
+              <p>취약점마다 재현할 수 있는 최소한의 증거를 담은 PDF 리포트를 드립니다. 표지에는 이번 검사가 어디까지 다뤘는지 적습니다.</p>
               <span className="more">자세히 보기</span>
             </article>
           </div>
@@ -101,42 +99,48 @@ function ProductPage({ setRoute }) {
       </section>
 
       {/* How it works */}
-      <section className="block" id="how-it-works">
+      <section className="block" id="how-it-works" data-section-label="검사 절차">
         <div className="container">
           <div className="section-head">
             <span className="section-label">HOW IT WORKS · 03 STEPS</span>
-            <h2>연결만 해주시면<br/>나머지는 자동입니다.</h2>
-            <p>MCP 엔드포인트 또는 에이전트 API만 연결하면, 새결이 한국어 위협 시나리오를 자동으로 실행하고 결과 리포트를 받아보실 수 있습니다.</p>
+            <h2>남의 서비스를<br/>함부로 두드리지 않습니다.</h2>
+            <p>침투 테스트는 실제 공격을 보내는 일입니다. 여울은 검사할 권한이 있는지 먼저 확인하고, 검사 직전에 다시 한번 승낙을 받은 뒤에만 시작합니다.</p>
           </div>
 
           <div className="flow">
             <div className="flow-step">
               <span className="step-num">STEP 01</span>
-              <h4>에이전트 행동 수집</h4>
-              <p>MCP 서버 · LLM 엔드포인트 · 사용자 플로우 로그를 안전하게 연결해 정상 행동 모델을 학습합니다.</p>
-              <div className="terminal">connect /agent · /mcp · /logs</div>
+              <h4>권한 확인</h4>
+              <p>도메인 소유권을 검증한 뒤에만 검사할 수 있습니다. 검사를 시작하기 직전에 한 번 더 개별 승낙을 받습니다.</p>
+              <div className="terminal">verify domain · confirm consent</div>
             </div>
             <div className="flow-step">
               <span className="step-num">STEP 02</span>
-              <h4>위협 분석</h4>
-              <p>한국어 프롬프트 인젝션 2,400+, MCP 권한 우회, K-PII 추출 시나리오를 자동 실행합니다.</p>
-              <div className="terminal">run inject · pivot · exfil</div>
+              <h4>형태 변형 공격</h4>
+              <p>조사·어미·동의어를 바꿔가며 같은 공격을 다시 시도합니다. 진행 중 언제든 즉시 중단(Kill Switch)할 수 있습니다.</p>
+              <div className="terminal">mutate josa · eomi · synonym</div>
             </div>
             <div className="flow-step">
               <span className="step-num">STEP 03</span>
-              <h4>리포트 산출</h4>
-              <p>익스플로잇 PoC와 ISMS-P/개인정보보호법 매핑이 포함된 한국어 리포트를 PDF·웹으로 받아보세요.</p>
-              <div className="terminal">export ko_report.pdf</div>
+              <h4>판정과 리포트</h4>
+              <p>결과를 확정·의심·통과·미검사 네 단계로 나눠 알려드립니다. 저장 전 개인정보는 마스킹하고, 데이터 유형별로 자동 파기합니다.</p>
+              <div className="terminal">CONFIRMED · SUSPECTED · CLEAN · UNTESTED</div>
             </div>
           </div>
 
+          <div className="honesty-note" style={{marginTop: 48}}>
+            <span className="section-label">WHAT WE DO NOT SAY</span>
+            <h3>"100% 안전"이라고 말하지 않습니다.</h3>
+            <p>여울이 확인해 드리는 것은 알려진 공격 범위 안에서 통과했다는 사실입니다. 검사하지 못한 범위는 리포트에 미검사(UNTESTED)로 남기고 표지에 그대로 적습니다. 무엇을 확인했는지만큼 무엇을 확인하지 못했는지도 알아야 판단할 수 있기 때문입니다.</p>
+          </div>
+
           <div style={{marginTop: 56, display: "flex", justifyContent: "center"}}>
-            <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="여울 검사 절차에 대해 문의합니다." />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} />
+      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
     </div>
   );
 }

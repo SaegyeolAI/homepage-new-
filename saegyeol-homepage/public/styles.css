@@ -16,24 +16,18 @@
 .sr.sr-d3 { transition-delay: 0.24s; }
 
 /* =========================================================
-   LINE Seed KR
-   ========================================================= */
+   LINE Seed KR — 제거됨
+   ---------------------------------------------------------
+   cdn.jsdelivr.net에서 LINE Seed KR을 받아오는 @font-face 세 개가
+   있었으나, 어떤 요소에도 이 family가 적용되어 있지 않아 실제로는
+   쓰이지 않았다. 게다가 index.html과 vercel.json의 CSP가
+   `font-src https://fonts.gstatic.com`만 허용해 운영 환경에서는
+   매 페이지마다 CSP 위반 콘솔 에러 세 줄을 남기고 있었다.
 
-@font-face {
-  font-family: "LINE Seed KR";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/LINESeedKR-Th.woff2") format("woff2");
-  font-weight: 300; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: "LINE Seed KR";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/LINESeedKR-Rg.woff2") format("woff2");
-  font-weight: 400; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: "LINE Seed KR";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/LINESeedKR-Bd.woff2") format("woff2");
-  font-weight: 700; font-style: normal; font-display: swap;
-}
+   다시 쓰려면 두 가지가 같이 필요하다.
+     1) CSP font-src에 https://cdn.jsdelivr.net 추가 (index.html · vercel.json)
+     2) body 등에 font-family로 실제 적용
+   ========================================================= */
 
 /* =========================================================
    Tokens
@@ -1745,4 +1739,206 @@ html[data-theme="dark"] .recruit {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* =========================================================
+   Full-page scroll (CSS scroll-snap)
+   ---------------------------------------------------------
+   외부 라이브러리를 쓰지 않는다. fullPage.js는 GPL-3.0 또는 유료
+   상업 라이선스라 이 사이트에 쓸 수 없다.
+
+   `mandatory`가 아니라 `proximity`인 이유: 화면보다 긴 섹션(요금제
+   비교표, 기능 상세)에서 mandatory는 내용을 잘라먹는다. proximity는
+   스냅 지점 근처에서만 붙고 그 외에는 일반 스크롤로 동작한다.
+   ========================================================= */
+
+html[data-snap="on"] {
+  scroll-snap-type: y proximity;
+  /* 스냅 지점은 섹션 윗변이므로 앵커용 padding을 0으로 되돌린다. */
+  scroll-padding-top: 0;
+}
+
+html[data-snap="on"] .snap-section {
+  scroll-snap-align: start;
+  /* 긴 섹션을 건너뛰지 않도록 강제 정지시키지 않는다. */
+  scroll-snap-stop: normal;
+}
+
+/* 섹션이 한 화면을 채워야 "한 번에 한 섹션"으로 읽힌다.
+   위쪽 v2 레이어가 min-height를 auto로 풀어 두었기 때문에, 스냅이 켜진
+   페이지에서만 다시 한 화면 높이로 되돌린다. min-height라서 내용이 더
+   길면 섹션은 그만큼 자연스럽게 늘어난다(잘리지 않는다). */
+html[data-snap="on"] .hero,
+html[data-snap="on"] .page-hero,
+html[data-snap="on"] section.block {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 고정 내비게이션(72~76px) 아래로 제목이 밀려 들어가지 않게 최소 여백을 준다.
+   예전 휠 가로채기 구현이 실패했던 지점이다.
+   clamp 값은 v2 레이어의 section.block padding과 같은 값을 써야 한다. */
+html[data-snap="on"] section.block {
+  padding-top: max(clamp(78px, 9vw, 132px), 104px);
+}
+
+/* 마지막 CTA는 푸터와 한 화면에 함께 들어오도록 높이를 풀어준다. */
+html[data-snap="on"] .closing-cta {
+  min-height: auto;
+  padding-top: clamp(80px, 10vh, 120px);
+  padding-bottom: clamp(80px, 10vh, 120px);
+}
+
+.stats-note {
+  margin: 20px 0 0;
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   Section dots
+   ---------------------------------------------------------
+   섹션마다 배경색이 달라(밝은 본문 / 어두운 closing-cta) 도트 자체에
+   반투명 배경을 깔아 어느 쪽에서도 읽히게 한다.
+   ========================================================= */
+
+.section-dots {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+}
+.section-dots ul {
+  list-style: none;
+  margin: 0;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bg) 62%, transparent);
+  border: 1px solid var(--border);
+  backdrop-filter: saturate(1.3) blur(10px);
+  -webkit-backdrop-filter: saturate(1.3) blur(10px);
+}
+.section-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--text-2);
+}
+.section-dot-mark {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+.section-dot:hover .section-dot-mark { opacity: 1; }
+.section-dot.is-active .section-dot-mark {
+  background: var(--accent);
+  border-color: var(--accent);
+  opacity: 1;
+  transform: scale(1.35);
+}
+.section-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* 툴팁 — 기존 .hero-tag와 같은 pill 모양·모노 서체를 따른다. */
+.section-dot-tip {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  border: 1px solid var(--nav-border);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.section-dot:hover .section-dot-tip,
+.section-dot:focus-visible .section-dot-tip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* =========================================================
+   Back link (개인정보처리방침 · 이용약관)
+   ---------------------------------------------------------
+   Nav가 이미 상단에 고정되어 있어 버튼까지 고정하면 이중 바가 된다.
+   문서 시작 지점에 함께 흐르도록 둔다.
+   ========================================================= */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 28px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.back-link svg { width: 16px; height: 16px; }
+.back-link:hover {
+  color: var(--text);
+  border-color: var(--text-3);
+  transform: translateX(-2px);
+}
+.back-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 모바일: 풀페이지 스냅·도트를 끄고 일반 스크롤로 되돌린다.
+   위쪽 `@media (max-width: 800px)`의 해제 규칙과 같은 기준을 쓴다. */
+@media (max-width: 800px) {
+  html[data-snap="on"] {
+    scroll-snap-type: none;
+    scroll-padding-top: 96px;
+  }
+  html[data-snap="on"] .snap-section { scroll-snap-align: none; }
+  html[data-snap="on"] .hero,
+  html[data-snap="on"] .page-hero,
+  html[data-snap="on"] section.block {
+    min-height: auto;
+    display: block;
+  }
+  html[data-snap="on"] section.block { padding-top: clamp(78px, 9vw, 132px); }
+  html[data-snap="on"] .closing-cta { min-height: auto; }
+  .section-dots { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-snap="on"] { scroll-snap-type: none; }
+  html[data-snap="on"] .snap-section { scroll-snap-align: none; }
 }

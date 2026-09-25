@@ -10,6 +10,23 @@ function App() {
     return APP_ROUTES.includes(hash) ? hash : "home";
   });
 
+  // 법적 고지 페이지의 뒤로가기 버튼이 쓸 "직전 라우트".
+  // 해시 라우팅이라 history.length로는 사이트 내부 진입인지 알 수 없어 직접 추적한다.
+  // 링크로 바로 들어온 경우 null로 남고, 그때는 홈으로 보낸다.
+  const [prevRoute, setPrevRoute] = useState(null);
+  const lastRoute = useRef(route);
+  useEffect(() => {
+    if (lastRoute.current !== route) {
+      setPrevRoute(lastRoute.current);
+      lastRoute.current = route;
+    }
+  }, [route]);
+
+  const goBack = () => {
+    setRoute(prevRoute && prevRoute !== route ? prevRoute : "home");
+    window.scrollTo({ top: 0, behavior: "auto" });
+  };
+
   useEffect(() => {
     const onHashChange = () => {
       const hash = (location.hash || "").replace("#", "");
@@ -28,15 +45,15 @@ function App() {
 
   useEffect(() => {
     const meta = {
-      home: ["새결 | 한국어 AI 에이전트 보안", "한국어 AI 에이전트의 프롬프트 인젝션, MCP 권한, 개인정보 유출 위험을 점검하고 대응 리포트를 제공합니다."],
+      home: ["새결 | 한국어 AI 에이전트 보안", "여울은 AI 에이전트를 내보내기 전에 한국어로 공격을 넣어보고, 배포해도 되는지 판정합니다. 확인한 범위와 확인하지 못한 범위를 함께 알려드립니다."],
       team: ["팀 소개 | 새결", "한국어 AI 에이전트 보안을 연구하고 만드는 새결 팀을 소개합니다."],
-      product: ["여울 | 한국어 AI 에이전트 침투 테스트", "한국어 AI 에이전트 시스템을 자동으로 점검하고 Exploit PoC와 컴플라이언스 리포트를 제공하는 여울을 소개합니다."],
+      product: ["여울 | 한국어 AI 에이전트 침투 테스트", "조사와 어미를 바꿔가며 한국어로 공격해, 영어 기준 필터가 놓치는 구멍을 찾습니다. 재현 가능한 증거와 검사 범위를 함께 담은 리포트를 드립니다."],
       pricing: ["여울 요금제 | 새결", "무료, 프로, 프랜차이즈 플랜의 기능과 도입 방식을 비교합니다."],
       privacy: ["개인정보처리방침 | 새결", "새결 개인정보처리방침입니다."],
       terms: ["이용약관 | 새결", "새결 홈페이지 이용약관입니다."],
       "feature-shadow": ["Shadow Agent 탐지 | 여울", "사내 데이터에 접근하는 비인가 AI 에이전트를 발견하고 위험도를 평가합니다."],
       "feature-pii": ["K-PII 차단 | 여울", "주민등록번호, 사업자등록번호, 계좌번호 등 한국식 개인정보를 탐지하고 차단합니다."],
-      "feature-report": ["컴플라이언스 리포트 | 여울", "발견된 취약점을 국내 보안 및 개인정보보호 기준에 매핑한 리포트를 제공합니다."],
+      "feature-report": ["증거 기반 리포트 | 여울", "취약점마다 재현 가능한 최소 증거를 담고, 표지에 이번 검사가 다룬 범위를 적은 PDF 리포트를 드립니다."],
     };
     const [title, description] = meta[route] || meta.home;
     document.title = title;
@@ -50,11 +67,12 @@ function App() {
       {route === "team" && <TeamPage setRoute={setRoute} />}
       {route === "product" && <ProductPage setRoute={setRoute} />}
       {route === "pricing" && <PricingPage setRoute={setRoute} />}
-      {route === "privacy" && <PrivacyPage />}
-      {route === "terms" && <TermsPage />}
+      {route === "privacy" && <PrivacyPage onBack={goBack} />}
+      {route === "terms" && <TermsPage onBack={goBack} />}
       {route === "feature-shadow" && <FeatureShadowPage setRoute={setRoute} />}
       {route === "feature-pii" && <FeaturePiiPage setRoute={setRoute} />}
       {route === "feature-report" && <FeatureReportPage setRoute={setRoute} />}
+      <SectionDots route={route} />
       <Footer setRoute={setRoute} />
     </React.Fragment>
   );

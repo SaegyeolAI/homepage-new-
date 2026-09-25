@@ -4,23 +4,12 @@ const TEAM_MEMBERS_V2 = [
 ];
 
 function TeamPage({ setRoute }) {
-  const [file, setFile] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-  const fileRef = useRef(null);
-
-  const selectFile = (nextFile) => {
-    if (!nextFile) return;
-    if (nextFile.size > MAX_UPLOAD_BYTES) {
-      alert(`파일 크기는 ${MAX_UPLOAD_LABEL}를 초과할 수 없습니다.`);
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
-    setFile(nextFile);
-  };
+  const { file, fileRef, selectFile, clearFile } = useFileSelect();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -36,7 +25,7 @@ function TeamPage({ setRoute }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "전송 실패");
       setSent(true);
-      setTimeout(() => { setSent(false); setFile(null); setName(""); setEmail(""); }, 4000);
+      setTimeout(() => { setSent(false); clearFile(); setName(""); setEmail(""); }, 4000);
     } catch (err) {
       setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
@@ -44,14 +33,11 @@ function TeamPage({ setRoute }) {
     }
   };
 
-  const goContact = () => {
-    setRoute("home");
-    setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
-  };
+  const goContact = createContactNav(setRoute);
 
   return (
     <div data-screen-label="02 Team">
-      <section className="page-hero">
+      <section className="page-hero" data-section-label="팀 소개">
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">TEAM · 새결을 만드는 사람들</span>
@@ -60,7 +46,7 @@ function TeamPage({ setRoute }) {
         </div>
       </section>
 
-      <section className="block">
+      <section className="block" data-section-label="구성원">
         <div className="container">
           <div className="team-grid">
             {TEAM_MEMBERS_V2.map((m) => {
@@ -83,7 +69,7 @@ function TeamPage({ setRoute }) {
         </div>
       </section>
 
-      <section className="block" id="recruit">
+      <section className="block" id="recruit" data-section-label="채용">
         <div className="container">
           <div className="recruit">
             <div style={{position:"relative", zIndex:1}}>
@@ -99,47 +85,23 @@ function TeamPage({ setRoute }) {
               </div>
             </div>
 
-            <form className="form" onSubmit={submit} style={{position:"relative", zIndex:1}}>
-              {sent && <div className="form-success">지원서가 전송되었습니다.</div>}
-              {error && <div className="form-error">{error}</div>}
-              <div className="row">
-                <label>이름 / NAME</label>
-                <input type="text" placeholder="홍길동" value={name} onChange={(e)=>setName(e.target.value)} />
-              </div>
-              <div className="row">
-                <label>이메일 / EMAIL</label>
-                <input type="email" placeholder="you@mail.kr" value={email} onChange={(e)=>setEmail(e.target.value)} />
-              </div>
-              <div className="row">
-                <label>포트폴리오 / FREE FORMAT</label>
-                <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{display:"none"}} onChange={(e) => selectFile(e.target.files?.[0] || null)} />
-                <div className="file-drop" role="button" tabIndex={0}
-                  onClick={() => fileRef.current?.click()}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => { e.preventDefault(); selectFile(e.dataTransfer.files?.[0] || null); }}>
-                  <div className="icon">{file ? "✓" : "↑"}</div>
-                  <div className="meta">
-                    <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-                    <div className="sub">{file ? `${(file.size/1024).toFixed(1)} KB` : `PDF · PPT · DOC · ZIP · 이미지 등 (최대 ${MAX_UPLOAD_LABEL})`}</div>
-                  </div>
-                </div>
-                <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-                  영상 파일이나 {MAX_UPLOAD_LABEL}를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
-                </p>
-              </div>
-              <div className="actions">
-                <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
-                <button type="submit" className="btn btn-accent" disabled={sending || !name || !email || !file}>
-                  {sending ? "전송 중…" : <>지원하기 <span className="arrow">→</span></>}
-                </button>
-              </div>
+            {/* 문의 폼(ContactForm)과 같은 조각들로 구성한다. 전송 경로는 /api/recruit 그대로. */}
+            <form className="form" onSubmit={submit} noValidate style={{position:"relative", zIndex:1}}>
+              <FormStatus sent={sent} error={error} successText="지원서가 전송되었습니다." />
+              <TextField id="rcv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
+                value={name} onChange={setName} />
+              <TextField id="rcv2-email" label="이메일 / EMAIL" type="email" placeholder="you@mail.kr" autoComplete="email"
+                value={email} onChange={setEmail} />
+              <FileField id="rcv2-file" label="포트폴리오 / FREE FORMAT"
+                file={file} fileRef={fileRef} onSelect={selectFile}
+                note={`영상 파일이나 ${MAX_UPLOAD_LABEL}를 초과하는 파일은 `} />
+              <FormActions sending={sending} disabled={!name || !email || !file} label="지원하기" />
             </form>
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} />
+      <ClosingCTA onContact={goContact} prefill="새결 팀에 문의합니다." />
     </div>
   );
 }

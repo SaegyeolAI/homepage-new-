@@ -7,14 +7,217 @@ const { useState, useEffect, useRef } = React;
 const MAX_UPLOAD_BYTES = 4.5 * 1024 * 1024;
 const MAX_UPLOAD_LABEL = "4.5MB";
 
-/* ---------------- Route scroll reset ---------------- */
+/* ---------------- Full-page scroll ---------------- */
+
+// 풀페이지 스크롤을 적용하는 라우트.
+// 개인정보처리방침·이용약관은 끝까지 읽어 내려가는 긴 문서라 제외한다.
+const SNAP_ROUTES = new Set([
+  "home", "team", "product", "pricing",
+  "feature-shadow", "feature-pii", "feature-report",
+]);
+
+const prefersReducedMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// 모바일 해제 기준. styles.css의 `@media (max-width: 800px)`와 반드시 같이 움직일 것.
+const SNAP_MIN_WIDTH = 801;
+const snapActive = (route) =>
+  SNAP_ROUTES.has(route) && window.innerWidth >= SNAP_MIN_WIDTH && !prefersReducedMotion();
+
+// 스냅 단위가 될 섹션을 찾아 표시하고, 도트 내비게이션이 쓸 라벨을 붙인다.
+// 페이지 컴포넌트가 감싸는 [data-screen-label] 컨테이너의 직계 <section>이
+// 한 화면 단위이며, 마지막 CTA(.closing-cta)도 같은 방식으로 포함된다.
+function markSnapSections() {
+  const page = document.querySelector("[data-screen-label]");
+  if (!page) return [];
+  const sections = [...page.children].filter((el) => el.tagName === "SECTION");
+  sections.forEach((el, i) => {
+    el.classList.add("snap-section");
+    if (!el.dataset.sectionLabel) {
+      const source =
+        el.querySelector(".section-label")?.textContent ||
+        el.querySelector("h1, h2")?.textContent ||
+        `섹션 ${i + 1}`;
+      const clean = source.replace(/\s+/g, " ").trim();
+      // 툴팁이므로 길면 자르되, 단어 중간에서 끊기지 않게 마지막 공백까지만 쓴다.
+      const MAX = 40;
+      el.dataset.sectionLabel = clean.length <= MAX
+        ? clean
+        : `${clean.slice(0, MAX).replace(/\s+\S*$/, "")}…`;
+    }
+  });
+  return sections;
+}
+
+// 키보드로 한 섹션씩 이동. 입력 중이거나 조합키가 눌린 경우는 건드리지 않는다.
+const SCROLL_KEYS = { ArrowDown: 1, ArrowUp: -1, PageDown: 1, PageUp: -1 };
+
+function isTextEntry(el) {
+  if (!el) return false;
+  if (el.isContentEditable) return true;
+  return ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName);
+}
+
+// Space는 버튼·링크·details를 여는 기본 동작이 있어 더 넓게 양보한다.
+function isActivatable(el) {
+  if (!el) return false;
+  return ["BUTTON", "A", "SUMMARY", "DETAILS", "LABEL"].includes(el.tagName);
+}
+
 function useFullScroll(route) {
+  // 라우트가 바뀌면 맨 위로. (해시 라우팅이라 브라우저가 대신 해주지 않는다)
   useEffect(() => {
-    // 기존 휠 가로채기 방식은 긴 섹션을 건너뛰고 고정 내비게이션 아래로
-    // 제목을 밀어 넣는 문제가 있어 제거했습니다. 기본 스크롤을 그대로 사용합니다.
     const frame = requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }));
     return () => cancelAnimationFrame(frame);
   }, [route]);
+
+  // <html data-snap="on">으로 CSS 스냅을 켠다. 실제 해제 조건(모바일 폭,
+  // prefers-reduced-motion)은 styles.css의 미디어 쿼리가 최종 판단한다.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (SNAP_ROUTES.has(route)) root.dataset.snap = "on";
+    else delete root.dataset.snap;
+
+    const t = setTimeout(markSnapSections, 60);
+    return () => { clearTimeout(t); delete root.dataset.snap; };
+  }, [route]);
+
+  // 키보드 이동
+  useEffect(() => {
+    if (!SNAP_ROUTES.has(route)) return undefined;
+
+    const onKeyDown = (e) => {
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+      if (!snapActive(route)) return;
+
+      const target = e.target;
+      const isSpace = e.key === " " || e.code === "Space";
+      if (isTextEntry(target)) return;
+      if (isSpace && isActivatable(target)) return;
+
+      const direction = isSpace ? (e.shiftKey ? -1 : 1) : SCROLL_KEYS[e.key];
+      if (!direction) return;
+
+      const sections = [...document.querySelectorAll(".snap-section")];
+      if (sections.length < 2) return;
+
+      const viewport = window.innerHeight;
+      const current = window.scrollY;
+      const tops = sections.map((el) => el.offsetTop);
+
+      let next;
+      if (direction > 0) {
+        next = tops.find((top) => top > current + 4);
+        if (next === undefined) next = document.body.scrollHeight - viewport;
+      } else {
+        const earlier = tops.filter((top) => top < current - 4);
+        next = earlier.length ? earlier[earlier.length - 1] : 0;
+      }
+
+      // 화면보다 긴 섹션 안에 있으면 한 번에 건너뛰지 않고 한 화면씩만 움직인다.
+      if (Math.abs(next - current) > viewport) next = current + direction * viewport;
+
+      e.preventDefault();
+      window.scrollTo({ top: Math.max(0, next), behavior: "smooth" });
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [route]);
+}
+
+/* ---------------- Section dots ---------------- */
+function SectionDots({ route }) {
+  const [items, setItems] = useState([]);
+  const [active, setActive] = useState(0);
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    if (!SNAP_ROUTES.has(route)) {
+      sectionsRef.current = [];
+      setItems([]);
+      return undefined;
+    }
+
+    let frame = 0;
+    const sync = () => {
+      const sections = sectionsRef.current;
+      if (!sections.length) return;
+      // 화면 중앙이 어느 섹션 위에 있는지로 현재 섹션을 정한다.
+      const middle = window.scrollY + window.innerHeight / 2;
+      let index = 0;
+      sections.forEach((el, i) => { if (el.offsetTop <= middle) index = i; });
+      setActive(index);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(sync);
+    };
+
+    // 페이지가 렌더된 뒤에 섹션을 읽어야 한다. useReveal과 같은 지연폭을 쓴다.
+    const t = setTimeout(() => {
+      sectionsRef.current = markSnapSections();
+      setItems(sectionsRef.current.map((el, i) => ({
+        key: i,
+        label: el.dataset.sectionLabel || `섹션 ${i + 1}`,
+      })));
+      sync();
+    }, 80);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [route]);
+
+  if (items.length < 2) return null;
+
+  const goTo = (index) => {
+    const el = sectionsRef.current[index];
+    if (!el) return;
+    window.scrollTo({
+      top: el.offsetTop,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
+
+  return (
+    <nav className="section-dots" aria-label="섹션 바로가기">
+      <ul>
+        {items.map((item, i) => (
+          <li key={item.key}>
+            <button
+              type="button"
+              className={"section-dot" + (i === active ? " is-active" : "")}
+              aria-label={`${item.label} 섹션으로 이동`}
+              aria-current={i === active ? "true" : undefined}
+              onClick={() => goTo(i)}
+            >
+              <span className="section-dot-mark" aria-hidden="true" />
+              <span className="section-dot-tip" aria-hidden="true">{item.label}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/* ---------------- Back button (법적 고지 페이지용) ---------------- */
+function BackButton({ onBack }) {
+  return (
+    <button type="button" className="back-link" aria-label="이전 페이지로 돌아가기" onClick={onBack}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+        fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 5l-7 7 7 7" />
+      </svg>
+      <span>뒤로</span>
+    </button>
+  );
 }
 
 /* ---------------- Scroll Reveal ---------------- */
@@ -152,15 +355,16 @@ function Nav({ route, setRoute, theme, setTheme }) {
     closeTimer.current = setTimeout(() => setOpen(null), 140);
   };
 
+  const goContact = createContactNav(setRoute);
+
   const go = (id, hash) => {
     setOpen(null);
     if (id === "contact") {
-      setRoute("home");
-      setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
+      goContact();
     } else {
       setRoute(id);
       window.scrollTo({ top: 0, behavior: "instant" });
-      if (hash) setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), 60);
+      if (hash) setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), CONTACT_SCROLL_DELAY);
     }
   };
 
@@ -244,17 +448,64 @@ function Nav({ route, setRoute, theme, setTheme }) {
   );
 }
 
-/* ---------------- Closing CTA (full-bleed) ---------------- */
-function ClosingCTA({ onContact }) {
+/* ---------------- Contact navigation (전 페이지 공통) ---------------- */
+
+// 예전에는 페이지마다 goContact가 따로 있었고 setTimeout 지연도 60/80/100ms로
+// 제각각이었다. 모든 "문의" CTA는 이 한 곳을 통해 홈의 #contact로 간다.
+const CONTACT_SCROLL_DELAY = 100;
+const CONTACT_PREFILL_EVENT = "saegyeol:contact-prefill";
+
+// 라우트 전환 직후에는 ContactForm이 아직 마운트 전일 수 있다.
+// 이벤트를 놓치더라도 마운트 시점에 집어갈 수 있도록 값을 잠시 보관한다.
+let pendingContactPrefill = "";
+
+function takeContactPrefill() {
+  const value = pendingContactPrefill;
+  pendingContactPrefill = "";
+  return value;
+}
+
+// 페이지 컴포넌트는 `const goContact = createContactNav(setRoute)` 로 받아 쓴다.
+// 인자로 넘긴 문구는 문의 내용 칸에 미리 채워진다(사용자가 이미 쓴 내용은 건드리지 않음).
+function createContactNav(setRoute) {
+  return (prefillMessage) => {
+    setRoute("home");
+    setTimeout(() => {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (prefillMessage) {
+        pendingContactPrefill = prefillMessage;
+        window.dispatchEvent(new CustomEvent(CONTACT_PREFILL_EVENT));
+      }
+    }, CONTACT_SCROLL_DELAY);
+  };
+}
+
+// 모든 페이지가 같은 모양의 문의 버튼을 쓰도록 한 컴포넌트로 모았다.
+// 문구는 "문의하기"로 통일하고, 맥락은 prefill로 전달한다.
+function ContactButton({ onContact, prefill, variant = "accent", onDark = false }) {
+  const className = [
+    "btn",
+    variant === "accent" ? "btn-accent" : "btn-ghost",
+    onDark ? "on-dark" : "",
+  ].filter(Boolean).join(" ");
+
   return (
-    <section className="closing-cta">
+    <button type="button" className={className} onClick={() => onContact(prefill)}>
+      문의하기 <span className="arrow">→</span>
+    </button>
+  );
+}
+
+/* ---------------- Closing CTA (full-bleed) ---------------- */
+function ClosingCTA({ onContact, prefill }) {
+  return (
+    <section className="closing-cta" data-section-label="문의하기">
       <div className="closing-cta-inner">
         <span className="label">JOIN US</span>
         <h2>지금 새결과<br />함께하세요.</h2>
-        <p>AI 에이전트 도입은 더 이상 미래의 이야기가 아닙니다. 새결과 함께 한국어 위협 관점에서 점검하고, 안전하게 출시하세요.</p>
+        <p>AI 에이전트를 내보내기 전에 한국어 공격 관점으로 한 번 점검해 보세요. 어디까지 확인했고 무엇이 남았는지 함께 정리해 드립니다.</p>
         <div className="hero-cta">
-          <button className="btn btn-accent" onClick={onContact}>문의하기 <span className="arrow">→</span></button>
-          <button className="btn btn-ghost on-dark" onClick={onContact}>보안 검증 상담 <span className="arrow">→</span></button>
+          <ContactButton onContact={onContact} prefill={prefill} />
         </div>
       </div>
     </section>
@@ -263,14 +514,15 @@ function ClosingCTA({ onContact }) {
 
 /* ---------------- Footer ---------------- */
 function Footer({ setRoute }) {
+  const goContact = createContactNav(setRoute);
+
   const go = (id, hash) => {
     if (id === "contact") {
-      setRoute("home");
-      setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
+      goContact();
     } else {
       setRoute(id);
       window.scrollTo({ top: 0 });
-      if (hash) setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), 60);
+      if (hash) setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), CONTACT_SCROLL_DELAY);
     }
   };
   return (
@@ -324,17 +576,90 @@ function Footer({ setRoute }) {
   );
 }
 
-/* ---------------- Inline contact form ---------------- */
-const SUBMIT_COOLDOWN_MS = 60_000;
-const lastSubmitKey = "saegyeol-last-submit";
+/* ---------------- Form primitives (문의 폼 · 채용 지원 폼 공용) ---------------- */
 
-function ContactForm() {
-  const [data, setData] = useState({ name: "", email: "", message: "" });
+// 문의 폼과 채용 지원 폼이 같은 마크업·같은 상태 표시를 쓰도록 모아둔 조각들.
+// 전송 경로(엔드포인트·FormData 키·검증 순서)는 각 폼이 그대로 유지한다.
+
+function FormStatus({ sent, successText, error }) {
+  return (
+    <React.Fragment>
+      {sent && <div className="form-success" role="status">{successText}</div>}
+      {error && <div className="form-error" role="alert">{error}</div>}
+    </React.Fragment>
+  );
+}
+
+function FormField({ id, label, optional, children }) {
+  return (
+    <div className="row">
+      <label htmlFor={id}>
+        {label}
+        {optional && <span style={{ fontWeight: 400, opacity: 0.5 }}> (선택)</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete }) {
+  return (
+    <FormField id={id} label={label}>
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        autoComplete={autoComplete}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </FormField>
+  );
+}
+
+function FileField({ id, label, optional, file, fileRef, onSelect, note }) {
+  return (
+    <FormField id={id} label={label} optional={optional}>
+      <input
+        ref={fileRef}
+        id={id}
+        type="file"
+        accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg"
+        style={{ display: "none" }}
+        onChange={(e) => onSelect(e.target.files?.[0] || null)}
+      />
+      <div className="file-drop" role="button" tabIndex={0}
+        onClick={() => fileRef.current?.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { e.preventDefault(); onSelect(e.dataTransfer.files?.[0] || null); }}>
+        <div className="icon">{file ? "✓" : "↑"}</div>
+        <div className="meta">
+          <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
+          <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `PDF · PPT · DOC · ZIP · 이미지 등 (최대 ${MAX_UPLOAD_LABEL})`}</div>
+        </div>
+      </div>
+      <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+        {note}<span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
+      </p>
+    </FormField>
+  );
+}
+
+function FormActions({ sending, disabled, label }) {
+  return (
+    <div className="actions">
+      <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
+      <button type="submit" className="btn btn-accent" disabled={disabled || sending}>
+        {sending ? "전송 중…" : <>{label} <span className="arrow">→</span></>}
+      </button>
+    </div>
+  );
+}
+
+// 파일 선택 공통 처리. 두 폼 모두 같은 한도(백엔드 FILE_LIMIT과 동일)를 쓴다.
+function useFileSelect() {
   const [file, setFile] = useState(null);
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [touched, setTouched] = useState(false);
   const fileRef = useRef(null);
 
   const selectFile = (nextFile) => {
@@ -346,6 +671,39 @@ function ContactForm() {
     }
     setFile(nextFile);
   };
+
+  const clearFile = () => {
+    setFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  return { file, fileRef, selectFile, clearFile };
+}
+
+/* ---------------- Inline contact form ---------------- */
+const SUBMIT_COOLDOWN_MS = 60_000;
+const lastSubmitKey = "saegyeol-last-submit";
+
+function ContactForm() {
+  const [data, setData] = useState({ name: "", email: "", message: "" });
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
+  const { file, fileRef, selectFile, clearFile } = useFileSelect();
+
+  // 다른 페이지의 문의 버튼이 넘긴 문구를 받아 채운다.
+  // 사용자가 이미 입력한 내용이 있으면 덮어쓰지 않는다.
+  useEffect(() => {
+    const apply = () => {
+      const message = takeContactPrefill();
+      if (!message) return;
+      setData((prev) => (prev.message.trim() ? prev : { ...prev, message }));
+    };
+    apply();
+    window.addEventListener(CONTACT_PREFILL_EVENT, apply);
+    return () => window.removeEventListener(CONTACT_PREFILL_EVENT, apply);
+  }, []);
 
   const valid = data.name.trim() && /\S+@\S+\.\S+/.test(data.email) && data.message.trim().length > 3;
 
@@ -374,7 +732,7 @@ function ContactForm() {
       if (!res.ok) throw new Error(json.error || "전송 실패");
       localStorage.setItem(lastSubmitKey, String(Date.now()));
       setSent(true);
-      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); setFile(null); setTouched(false); }, 5000);
+      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); clearFile(); setTouched(false); }, 5000);
     } catch (err) {
       setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
@@ -384,46 +742,26 @@ function ContactForm() {
 
   return (
     <form className="form" onSubmit={submit} noValidate>
-      {sent && <div className="form-success">문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다.</div>}
-      {error && <div className="form-error">{error}</div>}
-      <div className="row">
-        <label htmlFor="cfv2-name">이름 / NAME</label>
-        <input id="cfv2-name" type="text" placeholder="홍길동" value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} />
-      </div>
-      <div className="row">
-        <label htmlFor="cfv2-email">이메일 / EMAIL</label>
-        <input id="cfv2-email" type="email" placeholder="you@company.kr" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} />
-      </div>
-      <div className="row">
-        <label htmlFor="cfv2-msg">문의 내용 / MESSAGE</label>
-        <textarea id="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요." value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
-      </div>
-      <div className="row">
-        <label>첨부파일 / ATTACHMENT <span style={{ fontWeight: 400, opacity: 0.5 }}>(선택)</span></label>
-        <input ref={fileRef} type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg" style={{ display: "none" }} onChange={(e) => selectFile(e.target.files?.[0] || null)} />
-        <div className="file-drop" role="button" tabIndex={0}
-          onClick={() => fileRef.current?.click()}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => { e.preventDefault(); selectFile(e.dataTransfer.files?.[0] || null); }}>
-          <div className="icon">{file ? "✓" : "↑"}</div>
-          <div className="meta">
-            <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-            <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `PDF · PPT · DOC · ZIP · 이미지 등 (최대 ${MAX_UPLOAD_LABEL})`}</div>
-          </div>
-        </div>
-        <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-          {MAX_UPLOAD_LABEL}를 초과하는 파일은 <span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
-        </p>
-      </div>
-      <div className="actions">
-        <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
-        <button type="submit" className="btn btn-accent" disabled={(touched && !valid) || sending}>
-          {sending ? "전송 중…" : <>문의 보내기 <span className="arrow">→</span></>}
-        </button>
-      </div>
+      <FormStatus sent={sent} error={error}
+        successText="문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다." />
+      <TextField id="cfv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
+        value={data.name} onChange={(v) => setData({ ...data, name: v })} />
+      <TextField id="cfv2-email" label="이메일 / EMAIL" type="email" placeholder="you@company.kr" autoComplete="email"
+        value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+      <FormField id="cfv2-msg" label="문의 내용 / MESSAGE">
+        <textarea id="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요."
+          value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
+      </FormField>
+      <FileField id="cfv2-file" label="첨부파일 / ATTACHMENT" optional
+        file={file} fileRef={fileRef} onSelect={selectFile}
+        note={`${MAX_UPLOAD_LABEL}를 초과하는 파일은 `} />
+      <FormActions sending={sending} disabled={touched && !valid} label="문의 보내기" />
     </form>
   );
 }
 
-Object.assign(window, { useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon });
+Object.assign(window, {
+  useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon,
+  SectionDots, BackButton, ContactButton, createContactNav, SNAP_ROUTES,
+  FormStatus, FormField, TextField, FileField, FormActions, useFileSelect,
+});

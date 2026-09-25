@@ -2,10 +2,7 @@
    CAPABILITY 01  Shadow Agent 탐지
    ────────────────────────────────────────────── */
 function FeatureShadowPage({ setRoute }) {
-  const goContact = () => {
-    setRoute("home");
-    setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
-  };
+  const goContact = createContactNav(setRoute);
 
   return (
     <div data-screen-label="Feature: Shadow Agent">
@@ -17,7 +14,7 @@ function FeatureShadowPage({ setRoute }) {
           <h1>보안팀도 모르는<br/>AI 에이전트를<br/>먼저 찾아냅니다.</h1>
           <p>임직원이 사내 데이터로 만든 개인 AI 에이전트는 IT·보안팀의 가시권 밖에서 작동합니다. 여울은 네트워크 트래픽과 MCP 연결 패턴을 분석해 Shadow Agent를 자동으로 식별하고 데이터 노출 위험도를 평가합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="Shadow Agent 탐지 도입을 문의합니다." />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -114,12 +111,12 @@ function FeatureShadowPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <button className="btn btn-accent" onClick={goContact}>Shadow Agent 점검 요청 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="Shadow Agent 점검을 문의합니다." />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} />
+      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
     </div>
   );
 }
@@ -128,10 +125,7 @@ function FeatureShadowPage({ setRoute }) {
    CAPABILITY 02  K-PII 차단
    ────────────────────────────────────────────── */
 function FeaturePiiPage({ setRoute }) {
-  const goContact = () => {
-    setRoute("home");
-    setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
-  };
+  const goContact = createContactNav(setRoute);
 
   const [selectedPii, setSelectedPii] = useState(null);
 
@@ -174,7 +168,7 @@ function FeaturePiiPage({ setRoute }) {
           <h1>한국식 개인정보<br/>14종, 유출 전에<br/>막습니다.</h1>
           <p>국제 LLM 보안 도구는 한국식 주민번호·사업자번호·운전면허번호·한국식 주소를 제대로 식별하지 못합니다. 여울의 K-PII 탐지기는 한국 개인정보 14종을 전용 패턴과 컨텍스트 인식 ML 모델로 실시간 탐지하고, 에이전트가 외부로 전송하기 전에 차단합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <button className="btn btn-accent" onClick={goContact}>도입 문의하기 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="K-PII 차단 도입을 문의합니다." />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -255,7 +249,7 @@ function FeaturePiiPage({ setRoute }) {
               <code>{selectedPii.sample}</code>
             </div>
             <div className="detail-modal-actions">
-              <button className="btn btn-accent" onClick={goContact}>관련 자료 문의 <span className="arrow">→</span></button>
+              <ContactButton onContact={goContact} prefill="K-PII 차단 관련 자료를 문의합니다." />
               <button className="btn btn-ghost" onClick={() => setSelectedPii(null)}>닫기</button>
             </div>
           </section>
@@ -291,12 +285,12 @@ function FeaturePiiPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <button className="btn btn-accent" onClick={goContact}>K-PII 도입 문의 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="K-PII 차단 도입을 문의합니다." />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} />
+      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
     </div>
   );
 }
@@ -305,10 +299,7 @@ function FeaturePiiPage({ setRoute }) {
    CAPABILITY 03  컴플라이언스 리포트
    ────────────────────────────────────────────── */
 function FeatureReportPage({ setRoute }) {
-  const goContact = () => {
-    setRoute("home");
-    setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 60);
-  };
+  const goContact = createContactNav(setRoute);
 
   const FRAMEWORKS = [
     { id:"01", name:"ISMS-P",             full:"정보보호 및 개인정보보호 관리체계 인증",  scope:"인증심사 대응" },
@@ -327,11 +318,11 @@ function FeatureReportPage({ setRoute }) {
       <section className="page-hero">
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
-          <span className="section-label">CAPABILITY 03 · 컴플라이언스 리포트</span>
-          <h1>익스플로잇 PoC부터<br/>법적 근거까지,<br/>한 번에.</h1>
-          <p>여울의 리포트는 발견된 취약점을 ISMS-P·개인정보보호법·금융 AI 가이드라인 등 8개 기준에 자동 매핑합니다. 보안팀은 PoC로 재현하고, 법무·컴플라이언스팀은 법적 근거와 조치 기한을 확인할 수 있습니다.</p>
+          <span className="section-label">CAPABILITY 03 · 증거 기반 리포트</span>
+          <h1>무엇을 확인했고<br/>무엇이 남았는지<br/>적어 드립니다.</h1>
+          <p>여울의 리포트는 취약점마다 재현할 수 있는 최소한의 증거를 담습니다. 표지에는 이번 검사가 다룬 범위를 적고, 확인하지 못한 부분은 미검사(UNTESTED)로 남깁니다. 관련 기준과의 연결은 참고 자료로 함께 정리합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <button className="btn btn-accent" onClick={goContact}>리포트 도입 문의 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="증거 기반 리포트 도입을 문의합니다." />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -404,14 +395,14 @@ function FeatureReportPage({ setRoute }) {
           <div className="flow">
             <div className="flow-step">
               <span className="step-num">SECTION A</span>
-              <h4>익스플로잇 PoC</h4>
-              <p>발견된 취약점을 실제로 재현할 수 있는 PoC 코드·프롬프트·API 요청을 제공합니다. 보안팀이 경영진에게 위험을 직접 시연할 수 있습니다.</p>
+              <h4>재현 가능한 증거</h4>
+              <p>발견된 취약점을 그대로 재현할 수 있는 프롬프트·API 요청·재현 절차를 담습니다. 판정은 확정·의심·통과·미검사 네 단계로 구분해 표시합니다.</p>
               <div className="terminal">poc_prompt · api_request · replay_steps</div>
             </div>
             <div className="flow-step">
               <span className="step-num">SECTION B</span>
-              <h4>법령 매핑 및 위반 항목</h4>
-              <p>각 취약점이 ISMS-P·개인정보보호법 등 어떤 조항에 해당하는지, 과태료·행정처분 기준과 함께 정리합니다. 법무팀이 즉시 활용 가능합니다.</p>
+              <h4>관련 기준 참고 자료</h4>
+              <p>각 취약점이 ISMS-P·개인정보보호법 등 어떤 항목과 관련되는지 참고할 수 있도록 정리합니다. 법적 판단이나 의무 이행 여부는 담당 부서의 검토가 필요합니다.</p>
               <div className="terminal">isms_p_ctrl · pipa_article · penalty_ref</div>
             </div>
             <div className="flow-step">
@@ -422,12 +413,12 @@ function FeatureReportPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <button className="btn btn-accent" onClick={goContact}>상세 자료 문의 <span className="arrow">→</span></button>
+            <ContactButton onContact={goContact} prefill="증거 기반 리포트 상세 자료를 문의합니다." />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} />
+      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
     </div>
   );
 }
