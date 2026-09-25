@@ -1,5 +1,9 @@
 server.js
-src/
 .env
 .env.example
 node_modules/
+
+# src/ 는 제외하지 않는다.
+# Vercel이 배포 때 `npm run build`(build.js)를 실행하는데, 그 입력이 src/*.jsx다.
+# 여기에 src/를 다시 넣으면 빌드가 ENOENT로 실패해 배포 자체가 깨진다.
+# 서빙되는 것은 Output Directory인 public/ 뿐이라, src/가 올라가도 외부에 노출되지 않는다.

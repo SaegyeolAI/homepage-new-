@@ -4,16 +4,16 @@ function PricingPage({ setRoute }) {
   const goContact = createContactNav(setRoute);
   const askAbout = (subject) => goContact(`${subject} 요금제 도입을 문의합니다.`);
 
+  // 금액은 아직 정해지지 않았다. 플랜 구성만 보여주고 가격은 적지 않는다.
   const plans = [
     {
       id: "free",
       name: "무료",
-      price: "0원",
-      caption: "첫 점검과 결과 확인",
+      caption: "한 번 검사하고 결과를 받아보는 단계",
       features: [
-        "전체 탐지 + 형태 변형",
-        "Exploit PoC 리포트",
-        "remediation 개선 방안",
+        "전체 탐지 + 형태 변형 공격",
+        "재현 가능한 증거가 담긴 리포트",
+        "발견된 문제의 조치 가이드",
         "재검사 24시간당 1회",
         "통과 인증 없음",
       ],
@@ -21,39 +21,37 @@ function PricingPage({ setRoute }) {
     {
       id: "pro",
       name: "프로",
-      price: "월 9만원",
-      caption: "지속적인 검증 루프",
+      caption: "고치고 다시 확인하기를 반복하는 단계",
       featured: true,
       features: [
         "무료 기능 전부 포함",
-        "재검증 무제한 (쿨다운 없음)",
+        "재검사 무제한 (쿨다운 없음)",
         "통과 인증서 발급",
-        "컴플라이언스 매핑 옵션",
-        "재검증 이력 관리",
+        "관련 기준 참고 자료 옵션",
+        "재검사 이력 관리",
       ],
     },
     {
       id: "franchise",
       name: "프랜차이즈",
-      price: "상담 후 결정",
-      caption: "다중 자산·온프레미스",
+      caption: "에이전트가 여럿이거나 내부망에 둬야 할 때",
       features: [
         "프로 기능 전부 포함",
         "여러 에이전트 자산 단위",
         "온프레미스 배포",
         "전용 지원",
-        "규제 감사 통과용 리포트",
+        "감사 대응용 리포트",
       ],
     },
   ];
 
   const rows = [
     ["탐지 엔진", "동일", "동일", "동일"],
-    ["Exploit PoC 리포트", "포함", "포함", "포함"],
-    ["재검증", "24시간당 1회", "무제한", "무제한"],
+    ["증거 기반 리포트", "포함", "포함", "포함"],
+    ["재검사", "24시간당 1회", "무제한", "무제한"],
     ["통과 인증서", "미제공", "제공", "제공"],
-    ["컴플라이언스 매핑", "미제공", "옵션", "감사 대응형"],
-    ["재검증 이력", "미제공", "관리", "자산 단위 관리"],
+    ["관련 기준 참고 자료", "미제공", "옵션", "감사 대응형"],
+    ["재검사 이력", "미제공", "관리", "자산 단위 관리"],
     ["배포 방식", "클라우드", "클라우드", "온프레미스 지원"],
     ["지원", "기본", "기본", "전용 지원"],
   ];
@@ -64,11 +62,12 @@ function PricingPage({ setRoute }) {
         <div className="hero-bg" />
         <div className="container" style={{ position: "relative" }}>
           <span className="section-label">PRODUCT · 여울 · PRICING</span>
-          <h1>뚫는 능력은 같고,<br />검증 루프가 달라집니다.</h1>
-          <p>여울은 탐지 정확도로 요금제를 나누지 않습니다. 모든 플랜에 동일한 탐지 엔진을 제공하고, 재검증 접근권·인증·배포 방식에 따라 구분합니다.</p>
+          <h1>뚫는 능력은 같고,<br />다시 보는 횟수가 다릅니다.</h1>
+          <p>비싼 플랜이라고 더 잘 찾아내지는 않습니다. 어느 플랜이든 같은 엔진으로 검사합니다. 갈리는 건 몇 번이나 다시 검사할 수 있는지, 인증서를 받는지, 어디에 설치하는지입니다.</p>
+          <p className="pricing-pending">요금제는 출시와 함께 공개합니다.</p>
           <div className="hero-cta" style={{ marginTop: 36 }}>
             <a className="btn btn-accent" href="#plans" onClick={(e) => { e.preventDefault(); document.getElementById("plans")?.scrollIntoView({ behavior: "smooth" }); }}>
-              요금제 비교 <span className="arrow">↓</span>
+              플랜 비교 <span className="arrow">↓</span>
             </a>
             <ContactButton onContact={goContact} prefill="여울 도입을 문의합니다." variant="ghost" />
           </div>
@@ -80,7 +79,8 @@ function PricingPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">PLANS · 03</span>
             <h2>세 플랜, 한눈에.</h2>
-            <p>첫 검증은 무료로 시작하고, 반복 검증이나 인증이 필요하면 프로, 다중 에이전트와 온프레미스가 필요하면 프랜차이즈를 선택합니다.</p>
+            <p>우선 무료로 한 번 검사해 보세요. 고치고 다시 확인하는 일이 잦아지면 프로입니다. 에이전트가 여럿이거나 내부망에 둬야 한다면 프랜차이즈를 보시면 됩니다.</p>
+            <p className="pricing-pending">금액은 아직 정하는 중입니다.</p>
           </div>
 
           <div className="pricing-grid">
@@ -88,8 +88,7 @@ function PricingPage({ setRoute }) {
               <article key={plan.id} className={`pricing-card${plan.featured ? " featured" : ""}`}>
                 {plan.featured && <span className="pricing-recommend">RECOMMENDED</span>}
                 <div className="pricing-card-head">
-                  <span className="pricing-plan">{plan.name}</span>
-                  <h3>{plan.price}</h3>
+                  <h3>{plan.name}</h3>
                   <p>{plan.caption}</p>
                 </div>
                 <ul>
@@ -104,7 +103,7 @@ function PricingPage({ setRoute }) {
           <div className="honesty-note">
             <span className="section-label">HONESTY PRINCIPLE</span>
             <h3>탐지 정확도로 등급을 나누지 않습니다.</h3>
-            <p>세 플랜의 차이는 검증 루프 접근권과 배포 형태뿐입니다. 여울의 리포트는 안전 보증서가 아니라, 검사 범위·DB 버전·기준일·증거 유형을 명시한 성적서입니다.</p>
+            <p>세 플랜의 차이는 다시 검사할 수 있는 횟수와 설치 위치뿐입니다. 리포트도 안전을 보증하는 문서가 아닙니다. 무엇을 어디까지, 언제 기준으로 검사했는지 적어 둔 성적서에 가깝습니다.</p>
           </div>
         </div>
       </section>
@@ -113,7 +112,7 @@ function PricingPage({ setRoute }) {
         <div className="container">
           <div className="section-head">
             <span className="section-label">COMPARE</span>
-            <h2>필요한 운영 방식으로 선택하세요.</h2>
+            <h2>어떻게 운영할지에 맞춰 고르세요.</h2>
             <p>모바일에서는 표를 좌우로 움직여 확인할 수 있습니다.</p>
           </div>
           <div className="pricing-table-wrap" role="region" aria-label="여울 요금제 비교표" tabIndex={0}>
@@ -140,19 +139,19 @@ function PricingPage({ setRoute }) {
           <div className="faq-list">
             <details open>
               <summary>무료 플랜과 프로 플랜의 탐지 성능이 다른가요?</summary>
-              <p>아닙니다. 모든 플랜은 동일한 탐지 엔진과 형태 변형 공격 방식을 사용합니다. 차이는 재검증 횟수, 인증서, 이력 관리 등 운영 기능입니다.</p>
+              <p>아닙니다. 어느 플랜이든 같은 엔진으로, 같은 형태 변형 공격을 넣습니다. 달라지는 건 다시 검사할 수 있는 횟수와 인증서, 이력 관리 같은 운영 쪽입니다.</p>
             </details>
             <details>
-              <summary>무료 플랜에서도 Exploit PoC와 개선 방안을 받을 수 있나요?</summary>
-              <p>네. 무료 플랜에도 전체 탐지, 형태 변형, Exploit PoC 리포트와 remediation 개선 방안이 포함됩니다.</p>
+              <summary>무료 플랜에서도 증거와 조치 방법을 받을 수 있나요?</summary>
+              <p>네. 재현할 수 있는 증거가 담긴 리포트와, 발견된 문제를 어떻게 고치면 되는지가 함께 들어갑니다.</p>
             </details>
             <details>
-              <summary>프로 플랜의 재검증은 횟수 제한이 있나요?</summary>
-              <p>프로 플랜은 쿨다운 없이 재검증할 수 있으며, 재검증 이력을 관리할 수 있습니다.</p>
+              <summary>프로 플랜은 몇 번까지 다시 검사할 수 있나요?</summary>
+              <p>횟수 제한이 없습니다. 쿨다운 없이 다시 검사할 수 있고, 검사 이력이 남습니다.</p>
             </details>
             <details>
-              <summary>온프레미스 배포가 필요한 경우 어떤 플랜을 선택하나요?</summary>
-              <p>여러 에이전트 자산을 관리하거나 내부망 온프레미스 배포, 전용 지원, 규제 감사 대응 리포트가 필요하면 프랜차이즈 플랜으로 상담합니다.</p>
+              <summary>내부망에 설치해야 하면 어떤 플랜인가요?</summary>
+              <p>프랜차이즈입니다. 관리할 에이전트가 여럿이거나 감사 대응용 리포트가 필요한 경우도 여기에 해당합니다.</p>
             </details>
           </div>
         </div>
