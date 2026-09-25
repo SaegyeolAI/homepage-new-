@@ -8,26 +8,53 @@ function TeamPage({ setRoute }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const { file, fileRef, selectFile, clearFile } = useFileSelect();
+  const [errors, setErrors] = useState({});
+  const [blocked, setBlocked] = useState(null);
+  const startedAt = useRef(Date.now()).current;
+  const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
+
+  // 문의 폼과 같은 방식으로 필드별로 검사한다.
+  // 예전에는 버튼이 페이지에 들어온 순간부터 회색이었고, 왜인지는 어디에도 없었다.
+  const validate = () => {
+    const found = {};
+    if (!name.trim()) found["rcv2-name"] = "이름을 적어주세요.";
+    if (!email.trim()) found["rcv2-email"] = "이메일 주소를 적어주세요.";
+    else if (!/\S+@\S+\.\S+/.test(email)) found["rcv2-email"] = "이메일 주소를 다시 확인해 주세요. (예: you@mail.kr)";
+    return found;
+  };
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !file) return;
+
+    const found = validate();
+    setErrors(found);
+    if (!file) setFileError("포트폴리오 파일을 첨부해 주세요.");
+    if (Object.keys(found).length > 0 || !file) {
+      setBlocked(null);
+      if (Object.keys(found).length > 0) focusFirstError(found, ["rcv2-name", "rcv2-email"]);
+      else document.getElementById("rcv2-file")?.parentElement?.querySelector(".file-drop")?.focus();
+      return;
+    }
+
     setSending(true);
-    setError("");
+    setBlocked(null);
     try {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
       formData.append("file", file);
+      formData.append("company_site", document.getElementById("company_site")?.value || "");
+      formData.append("form_ts", String(startedAt));
       const res = await fetch("/api/recruit", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "전송 실패");
+      const payload = await readJson(res);
+      if (!res.ok) {
+        setBlocked(describeFailure(res.status, payload));
+        return;
+      }
       setSent(true);
-      setTimeout(() => { setSent(false); clearFile(); setName(""); setEmail(""); }, 4000);
-    } catch (err) {
-      setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setTimeout(() => { setSent(false); clearFile(); setName(""); setEmail(""); setErrors({}); }, 4000);
+    } catch {
+      setBlocked(describeFailure(0, null));
     } finally {
       setSending(false);
     }
@@ -87,15 +114,21 @@ function TeamPage({ setRoute }) {
 
             {/* 문의 폼(ContactForm)과 같은 조각들로 구성한다. 전송 경로는 /api/recruit 그대로. */}
             <form className="form" onSubmit={submit} noValidate style={{position:"relative", zIndex:1}}>
-              <FormStatus sent={sent} error={error} successText="지원서가 전송되었습니다." />
+              <FormStatus sent={sent} successText="지원서가 전송되었습니다." />
+              {blocked && <FormBlocked {...blocked}
+                mailSubject={`[Saegyeol 지원] ${name || ""}`.trim()}
+                mailBody={`지원자: ${name}\n이메일: ${email}\n\n포트폴리오 파일을 첨부해 주세요.`} />}
+              <Honeypot startedAt={startedAt} />
               <TextField id="rcv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
-                value={name} onChange={setName} />
+                value={name} error={errors["rcv2-name"]}
+                onChange={(v) => { setName(v); setErrors((p) => (p["rcv2-name"] ? { ...p, "rcv2-name": "" } : p)); }} />
               <TextField id="rcv2-email" label="이메일 / EMAIL" type="email" placeholder="you@mail.kr" autoComplete="email"
-                value={email} onChange={setEmail} />
+                value={email} error={errors["rcv2-email"]}
+                onChange={(v) => { setEmail(v); setErrors((p) => (p["rcv2-email"] ? { ...p, "rcv2-email": "" } : p)); }} />
               <FileField id="rcv2-file" label="포트폴리오 / FREE FORMAT"
-                file={file} fileRef={fileRef} onSelect={selectFile}
-                note={`영상 파일이나 ${MAX_UPLOAD_LABEL}를 초과하는 파일은 `} />
-              <FormActions sending={sending} disabled={!name || !email || !file} label="지원하기" />
+                file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
+                note={`한 개만 첨부할 수 있습니다. 영상이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 ${CONTACT_MAIL}로 보내주세요.`} />
+              <FormActions sending={sending} label="지원하기" hint={`→ ${CONTACT_MAIL} 로 전송됩니다`} />
             </form>
           </div>
         </div>

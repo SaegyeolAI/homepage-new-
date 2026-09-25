@@ -1954,3 +1954,96 @@ html[data-snap="on"] .closing-cta {
 .pricing-card-head h3 {
   font-size: clamp(24px, 2.4vw, 30px);
 }
+
+/* =========================================================
+   폼 차단·검증 안내 (2026-09-25)
+   폼이 막힐 때 왜·언제·대체 경로 세 가지를 항상 같이 보여준다.
+   색과 라운드는 기존 .form-error / .form-success 톤을 그대로 따른다.
+   ========================================================= */
+
+/* 허니팟: 사람 눈에도, 스크린리더에도, 탭 순서에도 걸리지 않게 치운다.
+   display:none 이면 일부 봇이 건너뛰므로 화면 밖으로 밀어낸다. */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 필드별 인라인 에러 */
+.field-error {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d13b3b;
+}
+html[data-theme="dark"] .field-error { color: #ff8585; }
+
+.row-invalid input,
+.row-invalid textarea {
+  border-color: #d13b3b;
+}
+html[data-theme="dark"] .row-invalid input,
+html[data-theme="dark"] .row-invalid textarea {
+  border-color: #ff8585;
+}
+.row-invalid input:focus,
+.row-invalid textarea:focus {
+  border-color: #d13b3b;
+  box-shadow: 0 0 0 4px color-mix(in oklab, #d13b3b 20%, transparent);
+}
+.file-drop-invalid { border-color: #d13b3b; }
+
+.field-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+/* 차단 안내 블록 */
+.form-blocked {
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: color-mix(in oklab, #ff4444 10%, var(--bg-2));
+  border: 1px solid color-mix(in oklab, #ff4444 30%, transparent);
+  margin-bottom: 18px;
+}
+.form-blocked p { margin: 0; }
+.form-blocked-reason {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text);
+}
+.form-blocked-retry {
+  margin-top: 6px !important;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.form-blocked-fallback {
+  margin-top: 10px !important;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in oklab, #ff4444 22%, transparent);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+.form-blocked-fallback a {
+  color: var(--accent);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.form-blocked-countdown {
+  margin-top: 8px !important;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+}

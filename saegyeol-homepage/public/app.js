@@ -378,42 +378,78 @@ function Footer({ setRoute }) {
     go("terms");
   } }, "\uC774\uC6A9\uC57D\uAD00")))));
 }
-function FormStatus({ sent, successText, error }) {
-  return /* @__PURE__ */ React.createElement(React.Fragment, null, sent && /* @__PURE__ */ React.createElement("div", { className: "form-success", role: "status" }, successText), error && /* @__PURE__ */ React.createElement("div", { className: "form-error", role: "alert" }, error));
+const UPLOAD_ACCEPT = ".pdf,.docx,.pptx,.png,.jpg,.jpeg";
+const UPLOAD_TYPES_LABEL = "PDF \xB7 DOCX \xB7 PPTX \xB7 PNG \xB7 JPG";
+const CONTACT_MAIL = "contact@saegyeol.ai.kr";
+function mailtoHref(subject, body) {
+  const trimmed = (body || "").slice(0, 1500);
+  return `mailto:${CONTACT_MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(trimmed)}`;
 }
-function FormField({ id, label, optional, children }) {
-  return /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("label", { htmlFor: id }, label, optional && /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 400, opacity: 0.5 } }, " (\uC120\uD0DD)")), children);
+function formatSeconds(total) {
+  if (total <= 0) return "\uACE7";
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m > 0 ? `${m}\uBD84 ${String(s).padStart(2, "0")}\uCD08` : `${s}\uCD08`;
 }
-function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete }) {
-  return /* @__PURE__ */ React.createElement(FormField, { id, label }, /* @__PURE__ */ React.createElement(
+function useCountdown(until) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!until) return void 0;
+    const id = setInterval(() => tick((n) => n + 1), 1e3);
+    return () => clearInterval(id);
+  }, [until]);
+  if (!until) return null;
+  return Math.max(0, Math.ceil((until - Date.now()) / 1e3));
+}
+function FormStatus({ sent, successText }) {
+  if (!sent) return null;
+  return /* @__PURE__ */ React.createElement("div", { className: "form-success", role: "status" }, successText);
+}
+function FormBlocked({ reason, retryText, retryAt, mailSubject, mailBody }) {
+  const left = useCountdown(retryAt);
+  return /* @__PURE__ */ React.createElement("div", { className: "form-blocked" }, /* @__PURE__ */ React.createElement("div", { role: "alert" }, /* @__PURE__ */ React.createElement("p", { className: "form-blocked-reason" }, reason), retryText && /* @__PURE__ */ React.createElement("p", { className: "form-blocked-retry" }, retryText), /* @__PURE__ */ React.createElement("p", { className: "form-blocked-fallback" }, "\uAE09\uD558\uC2DC\uBA74 ", /* @__PURE__ */ React.createElement("a", { href: mailtoHref(mailSubject, mailBody) }, CONTACT_MAIL), "\uB85C \uC9C1\uC811 \uBCF4\uB0B4\uC8FC\uC138\uC694. \uC801\uC5B4\uC8FC\uC2E0 \uB0B4\uC6A9\uC740 \uADF8\uB300\uB85C \uB0A8\uC544 \uC788\uC2B5\uB2C8\uB2E4.")), left !== null && left > 0 && /* @__PURE__ */ React.createElement("p", { className: "form-blocked-countdown", "aria-hidden": "true" }, formatSeconds(left), " \uB0A8\uC74C"));
+}
+function Honeypot({ startedAt }) {
+  return /* @__PURE__ */ React.createElement("div", { className: "hp-field", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("label", { htmlFor: "company_site" }, "\uD68C\uC0AC \uD648\uD398\uC774\uC9C0"), /* @__PURE__ */ React.createElement("input", { id: "company_site", name: "company_site", type: "text", tabIndex: -1, autoComplete: "off", defaultValue: "" }), /* @__PURE__ */ React.createElement("input", { type: "hidden", name: "form_ts", value: startedAt, readOnly: true }));
+}
+function FormField({ id, label, optional, error, children }) {
+  const describedBy = error ? `${id}-error` : void 0;
+  return /* @__PURE__ */ React.createElement("div", { className: `row${error ? " row-invalid" : ""}` }, /* @__PURE__ */ React.createElement("label", { htmlFor: id }, label, optional && /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 400, opacity: 0.5 } }, " (\uC120\uD0DD)")), children({ describedBy, invalid: !!error }), error && /* @__PURE__ */ React.createElement("p", { className: "field-error", id: `${id}-error` }, error));
+}
+function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error }) {
+  return /* @__PURE__ */ React.createElement(FormField, { id, label, error }, ({ describedBy, invalid }) => /* @__PURE__ */ React.createElement(
     "input",
     {
       id,
+      name: id,
       type,
       placeholder,
       value,
       autoComplete,
+      "aria-invalid": invalid || void 0,
+      "aria-describedby": describedBy,
       onChange: (e) => onChange(e.target.value)
     }
   ));
 }
-function FileField({ id, label, optional, file, fileRef, onSelect, note }) {
-  return /* @__PURE__ */ React.createElement(FormField, { id, label, optional }, /* @__PURE__ */ React.createElement(
+function FileField({ id, label, optional, file, fileRef, onSelect, note, error }) {
+  return /* @__PURE__ */ React.createElement(FormField, { id, label, optional, error }, ({ describedBy, invalid }) => /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
     "input",
     {
       ref: fileRef,
       id,
       type: "file",
-      accept: ".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg",
+      accept: UPLOAD_ACCEPT,
       style: { display: "none" },
       onChange: (e) => onSelect(e.target.files?.[0] || null)
     }
   ), /* @__PURE__ */ React.createElement(
     "div",
     {
-      className: "file-drop",
+      className: `file-drop${invalid ? " file-drop-invalid" : ""}`,
       role: "button",
       tabIndex: 0,
+      "aria-describedby": describedBy,
       onClick: () => fileRef.current?.click(),
       onKeyDown: (e) => {
         if (e.key === "Enter" || e.key === " ") fileRef.current?.click();
@@ -425,39 +461,113 @@ function FileField({ id, label, optional, file, fileRef, onSelect, note }) {
       }
     },
     /* @__PURE__ */ React.createElement("div", { className: "icon" }, file ? "\u2713" : "\u2191"),
-    /* @__PURE__ */ React.createElement("div", { className: "meta" }, /* @__PURE__ */ React.createElement("div", { className: "name" }, file ? file.name : "\uD30C\uC77C\uC744 \uC120\uD0DD\uD558\uAC70\uB098 \uC5EC\uAE30\uB85C \uB04C\uC5B4\uB2E4 \uB193\uC73C\uC138\uC694"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, file ? `${(file.size / 1024).toFixed(1)} KB` : `PDF \xB7 PPT \xB7 DOC \xB7 ZIP \xB7 \uC774\uBBF8\uC9C0 \uB4F1 (\uCD5C\uB300 ${MAX_UPLOAD_LABEL})`))
-  ), /* @__PURE__ */ React.createElement("p", { style: { margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 } }, note, /* @__PURE__ */ React.createElement("span", { className: "mono", style: { fontSize: 12 } }, "contact@saegyeol.ai.kr"), "\uB85C \uC9C1\uC811 \uBCF4\uB0B4\uC8FC\uC138\uC694."));
+    /* @__PURE__ */ React.createElement("div", { className: "meta" }, /* @__PURE__ */ React.createElement("div", { className: "name" }, file ? file.name : "\uD30C\uC77C\uC744 \uC120\uD0DD\uD558\uAC70\uB098 \uC5EC\uAE30\uB85C \uB04C\uC5B4\uB2E4 \uB193\uC73C\uC138\uC694"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, file ? `${(file.size / 1024).toFixed(1)} KB` : `${UPLOAD_TYPES_LABEL} (\uCD5C\uB300 ${MAX_UPLOAD_LABEL}, \uD55C \uAC1C)`))
+  ), /* @__PURE__ */ React.createElement("p", { className: "field-note" }, note)));
 }
-function FormActions({ sending, disabled, label }) {
-  return /* @__PURE__ */ React.createElement("div", { className: "actions" }, /* @__PURE__ */ React.createElement("span", { className: "hint" }, "\u2192 contact@saegyeol.ai.kr \uB85C \uC804\uC1A1\uB429\uB2C8\uB2E4"), /* @__PURE__ */ React.createElement("button", { type: "submit", className: "btn btn-accent", disabled: disabled || sending }, sending ? "\uC804\uC1A1 \uC911\u2026" : /* @__PURE__ */ React.createElement(React.Fragment, null, label, " ", /* @__PURE__ */ React.createElement("span", { className: "arrow" }, "\u2192"))));
+function FormActions({ sending, label, hint }) {
+  return /* @__PURE__ */ React.createElement("div", { className: "actions" }, /* @__PURE__ */ React.createElement("span", { className: "hint" }, hint), /* @__PURE__ */ React.createElement("button", { type: "submit", className: "btn btn-accent", disabled: sending }, sending ? "\uC804\uC1A1 \uC911\u2026" : /* @__PURE__ */ React.createElement(React.Fragment, null, label, " ", /* @__PURE__ */ React.createElement("span", { className: "arrow" }, "\u2192"))));
 }
 function useFileSelect() {
   const [file, setFile] = useState(null);
+  const [fileError, setFileError] = useState("");
   const fileRef = useRef(null);
   const selectFile = (nextFile) => {
     if (!nextFile) return;
     if (nextFile.size > MAX_UPLOAD_BYTES) {
-      alert(`\uD30C\uC77C \uD06C\uAE30\uB294 ${MAX_UPLOAD_LABEL}\uB97C \uCD08\uACFC\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.`);
+      setFileError(`\uD30C\uC77C\uC774 \uB108\uBB34 \uD07D\uB2C8\uB2E4. ${MAX_UPLOAD_LABEL} \uC774\uD558\uB85C \uC904\uC774\uAC70\uB098, \uB9C1\uD06C\uB85C \uBCF4\uB0B4\uC8FC\uC138\uC694.`);
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
+    setFileError("");
     setFile(nextFile);
   };
   const clearFile = () => {
     setFile(null);
+    setFileError("");
     if (fileRef.current) fileRef.current.value = "";
   };
-  return { file, fileRef, selectFile, clearFile };
+  return { file, fileRef, fileError, setFileError, selectFile, clearFile };
+}
+function describeFailure(status, payload) {
+  const fromServer = payload && typeof payload.error === "string" ? payload.error : "";
+  const retryAfter = payload && Number(payload.retryAfter);
+  const retryAt = Number.isFinite(retryAfter) && retryAfter > 0 ? Date.now() + retryAfter * 1e3 : null;
+  if (status === 429) {
+    return {
+      reason: fromServer || "\uC9E7\uC740 \uC2DC\uAC04\uC5D0 \uB108\uBB34 \uB9CE\uC774 \uBCF4\uB0B4\uC168\uC2B5\uB2C8\uB2E4.",
+      retryText: retryAt ? `\uC57D ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1e3))} \uB4A4\uC5D0 \uB2E4\uC2DC \uBCF4\uB0BC \uC218 \uC788\uC2B5\uB2C8\uB2E4.` : "\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.",
+      retryAt
+    };
+  }
+  if (status === 503) {
+    return {
+      reason: fromServer || "\uBB38\uC758 \uC811\uC218\uAC00 \uC77C\uC2DC\uC801\uC73C\uB85C \uC911\uB2E8\uB418\uC5B4 \uC788\uC2B5\uB2C8\uB2E4.",
+      retryText: "\uBCF5\uAD6C\uB418\uB294 \uB300\uB85C \uB2E4\uC2DC \uBC1B\uC2B5\uB2C8\uB2E4. \uADF8\uC804\uAE4C\uC9C0\uB294 \uC544\uB798 \uC8FC\uC18C\uB85C \uBCF4\uB0B4\uC8FC\uC138\uC694."
+    };
+  }
+  if (status === 403) {
+    return {
+      reason: fromServer || "\uC9C0\uAE08 \uC774 \uD398\uC774\uC9C0\uC5D0\uC11C\uB294 \uBB38\uC758\uB97C \uBCF4\uB0BC \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.",
+      retryText: "\uD398\uC774\uC9C0\uB97C \uC0C8\uB85C\uACE0\uCE68\uD55C \uB4A4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694."
+    };
+  }
+  if (status === 413) {
+    return {
+      reason: "\uCCA8\uBD80\uD30C\uC77C\uC774 \uB108\uBB34 \uCEE4\uC11C \uBCF4\uB0B4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
+      retryText: `\uD30C\uC77C\uC744 \uBE7C\uAC70\uB098 ${MAX_UPLOAD_LABEL} \uC774\uD558\uB85C \uC904\uC5EC \uB2E4\uC2DC \uBCF4\uB0B4\uC8FC\uC138\uC694.`
+    };
+  }
+  if (status >= 500) {
+    return {
+      reason: fromServer || "\uC11C\uBC84\uC5D0\uC11C \uBB38\uC81C\uAC00 \uC0DD\uACA8 \uBCF4\uB0B4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
+      retryText: "\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694."
+    };
+  }
+  if (status === 0) {
+    return {
+      reason: "\uB124\uD2B8\uC6CC\uD06C\uC5D0 \uC5F0\uACB0\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
+      retryText: "\uC778\uD130\uB137 \uC5F0\uACB0\uC744 \uD655\uC778\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694."
+    };
+  }
+  return {
+    reason: fromServer || "\uBCF4\uB0B4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.",
+    retryText: "\uB0B4\uC6A9\uC744 \uD655\uC778\uD558\uACE0 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694."
+  };
+}
+async function readJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 const SUBMIT_COOLDOWN_MS = 6e4;
 const lastSubmitKey = "saegyeol-last-submit";
+function validateContact(data) {
+  const errors = {};
+  if (!data.name.trim()) errors["cfv2-name"] = "\uC774\uB984\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
+  if (!data.email.trim()) errors["cfv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uC801\uC5B4\uC8FC\uC138\uC694.";
+  else if (!/\S+@\S+\.\S+/.test(data.email)) errors["cfv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uB2E4\uC2DC \uD655\uC778\uD574 \uC8FC\uC138\uC694. (\uC608: you@company.kr)";
+  if (!data.message.trim()) errors["cfv2-msg"] = "\uBB38\uC758 \uB0B4\uC6A9\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
+  else if (data.message.trim().length < 4) errors["cfv2-msg"] = "\uC870\uAE08\uB9CC \uB354 \uC790\uC138\uD788 \uC801\uC5B4\uC8FC\uC138\uC694. (\uB124 \uAE00\uC790 \uC774\uC0C1)";
+  return errors;
+}
+function focusFirstError(errors, order) {
+  const firstId = order.find((id) => errors[id]);
+  if (!firstId) return;
+  const el = document.getElementById(firstId);
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  el.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+}
 function ContactForm() {
   const [data, setData] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [touched, setTouched] = useState(false);
-  const { file, fileRef, selectFile, clearFile } = useFileSelect();
+  const [errors, setErrors] = useState({});
+  const [blocked, setBlocked] = useState(null);
+  const startedAt = useRef(Date.now()).current;
+  const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
   useEffect(() => {
     const apply = () => {
       const message = takeContactPrefill();
@@ -468,49 +578,76 @@ function ContactForm() {
     window.addEventListener(CONTACT_PREFILL_EVENT, apply);
     return () => window.removeEventListener(CONTACT_PREFILL_EVENT, apply);
   }, []);
-  const valid = data.name.trim() && /\S+@\S+\.\S+/.test(data.email) && data.message.trim().length > 3;
+  const update = (key, id) => (value) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => prev[id] ? { ...prev, [id]: "" } : prev);
+  };
   const submit = async (e) => {
     e.preventDefault();
-    setTouched(true);
-    if (!valid) return;
-    const lastSubmit = parseInt(localStorage.getItem(lastSubmitKey) || "0", 10);
-    if (Date.now() - lastSubmit < SUBMIT_COOLDOWN_MS) {
-      setError("\uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694. (1\uBD84 \uCFE8\uB2E4\uC6B4)");
+    const found = validateContact(data);
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      setBlocked(null);
+      focusFirstError(found, ["cfv2-name", "cfv2-email", "cfv2-msg"]);
+      return;
+    }
+    let lastSubmit = 0;
+    try {
+      lastSubmit = parseInt(localStorage.getItem(lastSubmitKey) || "0", 10) || 0;
+    } catch {
+      lastSubmit = 0;
+    }
+    const waited = Date.now() - lastSubmit;
+    if (waited < SUBMIT_COOLDOWN_MS) {
+      const retryAt = lastSubmit + SUBMIT_COOLDOWN_MS;
+      setBlocked({
+        reason: "\uBC29\uAE08 \uBCF4\uB0B4\uC2E0 \uBB38\uC758\uAC00 \uC811\uC218\uB410\uC2B5\uB2C8\uB2E4. \uC5F0\uB2EC\uC544 \uBCF4\uB0B4\uB294 \uAC83\uB9CC \uC7A0\uAE50 \uB9C9\uACE0 \uC788\uC2B5\uB2C8\uB2E4.",
+        retryText: `\uC57D ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1e3))} \uB4A4\uC5D0 \uB2E4\uC2DC \uBCF4\uB0BC \uC218 \uC788\uC2B5\uB2C8\uB2E4.`,
+        retryAt
+      });
       return;
     }
     setSending(true);
-    setError("");
+    setBlocked(null);
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("message", data.message);
+      formData.append("company_site", document.getElementById("company_site")?.value || "");
+      formData.append("form_ts", String(startedAt));
       if (file) formData.append("file", file);
       const res = await fetch("/api/contact", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "\uC804\uC1A1 \uC2E4\uD328");
-      localStorage.setItem(lastSubmitKey, String(Date.now()));
+      const payload = await readJson(res);
+      if (!res.ok) {
+        setBlocked(describeFailure(res.status, payload));
+        return;
+      }
+      try {
+        localStorage.setItem(lastSubmitKey, String(Date.now()));
+      } catch {
+      }
       setSent(true);
       setTimeout(() => {
         setSent(false);
         setData({ name: "", email: "", message: "" });
         clearFile();
-        setTouched(false);
+        setErrors({});
       }, 5e3);
-    } catch (err) {
-      setError(err.message || "\uC804\uC1A1 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+    } catch {
+      setBlocked(describeFailure(0, null));
     } finally {
       setSending(false);
     }
   };
-  return /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true }, /* @__PURE__ */ React.createElement(
-    FormStatus,
+  return /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true }, /* @__PURE__ */ React.createElement(FormStatus, { sent, successText: "\uBB38\uC758\uAC00 \uC804\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC601\uC5C5\uC77C \uAE30\uC900 1\uC77C \uB0B4 \uD68C\uC2E0\uB4DC\uB9BD\uB2C8\uB2E4." }), blocked && /* @__PURE__ */ React.createElement(
+    FormBlocked,
     {
-      sent,
-      error,
-      successText: "\uBB38\uC758\uAC00 \uC804\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC601\uC5C5\uC77C \uAE30\uC900 1\uC77C \uB0B4 \uD68C\uC2E0\uB4DC\uB9BD\uB2C8\uB2E4."
+      ...blocked,
+      mailSubject: `[\uC0C8\uACB0 \uBB38\uC758] ${data.name || ""}`.trim(),
+      mailBody: data.message
     }
-  ), /* @__PURE__ */ React.createElement(
+  ), /* @__PURE__ */ React.createElement(Honeypot, { startedAt }), /* @__PURE__ */ React.createElement(
     TextField,
     {
       id: "cfv2-name",
@@ -518,7 +655,8 @@ function ContactForm() {
       placeholder: "\uD64D\uAE38\uB3D9",
       autoComplete: "name",
       value: data.name,
-      onChange: (v) => setData({ ...data, name: v })
+      onChange: update("name", "cfv2-name"),
+      error: errors["cfv2-name"]
     }
   ), /* @__PURE__ */ React.createElement(
     TextField,
@@ -529,15 +667,19 @@ function ContactForm() {
       placeholder: "you@company.kr",
       autoComplete: "email",
       value: data.email,
-      onChange: (v) => setData({ ...data, email: v })
+      onChange: update("email", "cfv2-email"),
+      error: errors["cfv2-email"]
     }
-  ), /* @__PURE__ */ React.createElement(FormField, { id: "cfv2-msg", label: "\uBB38\uC758 \uB0B4\uC6A9 / MESSAGE" }, /* @__PURE__ */ React.createElement(
+  ), /* @__PURE__ */ React.createElement(FormField, { id: "cfv2-msg", label: "\uBB38\uC758 \uB0B4\uC6A9 / MESSAGE", error: errors["cfv2-msg"] }, ({ describedBy, invalid }) => /* @__PURE__ */ React.createElement(
     "textarea",
     {
       id: "cfv2-msg",
+      name: "cfv2-msg",
       placeholder: "\uC790\uC138\uD55C \uBB38\uC758 \uB0B4\uC6A9\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.",
+      "aria-invalid": invalid || void 0,
+      "aria-describedby": describedBy,
       value: data.message,
-      onChange: (e) => setData({ ...data, message: e.target.value })
+      onChange: (e) => update("message", "cfv2-msg")(e.target.value)
     }
   )), /* @__PURE__ */ React.createElement(
     FileField,
@@ -548,9 +690,10 @@ function ContactForm() {
       file,
       fileRef,
       onSelect: selectFile,
-      note: `${MAX_UPLOAD_LABEL}\uB97C \uCD08\uACFC\uD558\uB294 \uD30C\uC77C\uC740 `
+      error: fileError,
+      note: `\uD55C \uAC1C\uB9CC \uCCA8\uBD80\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC5EC\uB7EC \uAC1C\uC774\uAC70\uB098 ${MAX_UPLOAD_LABEL}\uB97C \uB118\uC73C\uBA74 \uB4DC\uB77C\uC774\uBE0C \uB4F1\uC5D0 \uC62C\uB9B0 \uB9C1\uD06C\uB97C \uBB38\uC758 \uB0B4\uC6A9\uC5D0 \uC801\uC5B4\uC8FC\uC138\uC694.`
     }
-  ), /* @__PURE__ */ React.createElement(FormActions, { sending, disabled: touched && !valid, label: "\uBB38\uC758 \uBCF4\uB0B4\uAE30" }));
+  ), /* @__PURE__ */ React.createElement(FormActions, { sending, label: "\uBB38\uC758 \uBCF4\uB0B4\uAE30", hint: `\u2192 ${CONTACT_MAIL} \uB85C \uC804\uC1A1\uB429\uB2C8\uB2E4` }));
 }
 Object.assign(window, {
   useTheme,
@@ -572,7 +715,14 @@ Object.assign(window, {
   TextField,
   FileField,
   FormActions,
-  useFileSelect
+  useFileSelect,
+  FormBlocked,
+  Honeypot,
+  describeFailure,
+  readJson,
+  focusFirstError,
+  formatSeconds,
+  CONTACT_MAIL
 });
 
 /* ---- src/pages/home.jsx ---- */
@@ -687,30 +837,53 @@ function TeamPage({ setRoute }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const { file, fileRef, selectFile, clearFile } = useFileSelect();
+  const [errors, setErrors] = useState({});
+  const [blocked, setBlocked] = useState(null);
+  const startedAt = useRef(Date.now()).current;
+  const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
+  const validate = () => {
+    const found = {};
+    if (!name.trim()) found["rcv2-name"] = "\uC774\uB984\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
+    if (!email.trim()) found["rcv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uC801\uC5B4\uC8FC\uC138\uC694.";
+    else if (!/\S+@\S+\.\S+/.test(email)) found["rcv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uB2E4\uC2DC \uD655\uC778\uD574 \uC8FC\uC138\uC694. (\uC608: you@mail.kr)";
+    return found;
+  };
   const submit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !file) return;
+    const found = validate();
+    setErrors(found);
+    if (!file) setFileError("\uD3EC\uD2B8\uD3F4\uB9AC\uC624 \uD30C\uC77C\uC744 \uCCA8\uBD80\uD574 \uC8FC\uC138\uC694.");
+    if (Object.keys(found).length > 0 || !file) {
+      setBlocked(null);
+      if (Object.keys(found).length > 0) focusFirstError(found, ["rcv2-name", "rcv2-email"]);
+      else document.getElementById("rcv2-file")?.parentElement?.querySelector(".file-drop")?.focus();
+      return;
+    }
     setSending(true);
-    setError("");
+    setBlocked(null);
     try {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
       formData.append("file", file);
+      formData.append("company_site", document.getElementById("company_site")?.value || "");
+      formData.append("form_ts", String(startedAt));
       const res = await fetch("/api/recruit", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "\uC804\uC1A1 \uC2E4\uD328");
+      const payload = await readJson(res);
+      if (!res.ok) {
+        setBlocked(describeFailure(res.status, payload));
+        return;
+      }
       setSent(true);
       setTimeout(() => {
         setSent(false);
         clearFile();
         setName("");
         setEmail("");
+        setErrors({});
       }, 4e3);
-    } catch (err) {
-      setError(err.message || "\uC804\uC1A1 \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+    } catch {
+      setBlocked(describeFailure(0, null));
     } finally {
       setSending(false);
     }
@@ -719,7 +892,17 @@ function TeamPage({ setRoute }) {
   return /* @__PURE__ */ React.createElement("div", { "data-screen-label": "02 Team" }, /* @__PURE__ */ React.createElement("section", { className: "page-hero", "data-section-label": "\uD300 \uC18C\uAC1C" }, /* @__PURE__ */ React.createElement("div", { className: "hero-bg" }), /* @__PURE__ */ React.createElement("div", { className: "container", style: { position: "relative" } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "TEAM \xB7 \uC0C8\uACB0\uC744 \uB9CC\uB4DC\uB294 \uC0AC\uB78C\uB4E4"), /* @__PURE__ */ React.createElement("h1", null, "AI \uBCF4\uC548\uC744", /* @__PURE__ */ React.createElement("br", null), "\uBBFF\uACE0 \uB9E1\uAE38 \uC218 \uC788\uB294 \uD300"), /* @__PURE__ */ React.createElement("p", null, "\uC624\uD39C\uC2DC\uBE0C \uC2DC\uD050\uB9AC\uD2F0 \xB7 LLM \uC5F0\uAD6C \xB7 \uD55C\uAD6D\uD615 \uCEF4\uD50C\uB77C\uC774\uC5B8\uC2A4 \u2014 \uC0C8\uACB0\uC758 \uD300\uC740 \uD55C\uAD6D AI \uC5D0\uC774\uC804\uD2B8 \uD658\uACBD\uC744 \uAE4A\uC774 \uC5F0\uAD6C\uD574 \uC628 \uC0AC\uB78C\uB4E4\uB85C \uAD6C\uC131\uB429\uB2C8\uB2E4."))), /* @__PURE__ */ React.createElement("section", { className: "block", "data-section-label": "\uAD6C\uC131\uC6D0" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "team-grid" }, TEAM_MEMBERS_V2.map((m) => {
     const content = /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "photo" }, m.initials), /* @__PURE__ */ React.createElement("div", { className: "role" }, m.role), /* @__PURE__ */ React.createElement("h3", null, m.name), /* @__PURE__ */ React.createElement("p", { className: "bio" }, m.bio), m.link && /* @__PURE__ */ React.createElement("div", { className: "visit" }, "VIEW PORTFOLIO"));
     return m.link ? /* @__PURE__ */ React.createElement("a", { key: m.initials, className: "member", href: m.link, target: "_blank", rel: "noreferrer" }, content) : /* @__PURE__ */ React.createElement("article", { key: m.initials, className: "member" }, content);
-  })))), /* @__PURE__ */ React.createElement("section", { className: "block", id: "recruit", "data-section-label": "\uCC44\uC6A9" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "recruit" }, /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "JOIN US \xB7 \uCC44\uC6A9"), /* @__PURE__ */ React.createElement("h2", null, "\uD568\uAED8\uD560 \uC0AC\uB78C\uC744", /* @__PURE__ */ React.createElement("br", null), "\uCC3E\uC2B5\uB2C8\uB2E4."), /* @__PURE__ */ React.createElement("p", null, "\uC774\uB825\uC11C, \uD504\uB85C\uC81D\uD2B8, \uAE00, \uBC1C\uD45C \uC601\uC0C1 \u2014 \uD615\uC2DD\uC740 \uC790\uC720\uC785\uB2C8\uB2E4. \uC0C8\uACB0\uC774 \uD480\uACE0 \uC788\uB294 \uBB38\uC81C\uC5D0 \uD765\uBBF8\uAC00 \uC788\uB2E4\uBA74 \uAC00\uBCCD\uAC8C\uB77C\uB3C4 \uBCF4\uB0B4\uC8FC\uC138\uC694. \uC790\uC720 \uD615\uC2DD\uC758 \uD3EC\uD2B8\uD3F4\uB9AC\uC624\uB97C contact@saegyeol.ai.kr \uB85C \uC804\uB2EC\uD569\uB2C8\uB2E4."), /* @__PURE__ */ React.createElement("div", { className: "tags" }, /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Offensive Eng."), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "LLM Researcher"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Compliance"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Product Design"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Open Application"))), /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true, style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement(FormStatus, { sent, error, successText: "\uC9C0\uC6D0\uC11C\uAC00 \uC804\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." }), /* @__PURE__ */ React.createElement(
+  })))), /* @__PURE__ */ React.createElement("section", { className: "block", id: "recruit", "data-section-label": "\uCC44\uC6A9" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "recruit" }, /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "JOIN US \xB7 \uCC44\uC6A9"), /* @__PURE__ */ React.createElement("h2", null, "\uD568\uAED8\uD560 \uC0AC\uB78C\uC744", /* @__PURE__ */ React.createElement("br", null), "\uCC3E\uC2B5\uB2C8\uB2E4."), /* @__PURE__ */ React.createElement("p", null, "\uC774\uB825\uC11C, \uD504\uB85C\uC81D\uD2B8, \uAE00, \uBC1C\uD45C \uC601\uC0C1 \u2014 \uD615\uC2DD\uC740 \uC790\uC720\uC785\uB2C8\uB2E4. \uC0C8\uACB0\uC774 \uD480\uACE0 \uC788\uB294 \uBB38\uC81C\uC5D0 \uD765\uBBF8\uAC00 \uC788\uB2E4\uBA74 \uAC00\uBCCD\uAC8C\uB77C\uB3C4 \uBCF4\uB0B4\uC8FC\uC138\uC694. \uC790\uC720 \uD615\uC2DD\uC758 \uD3EC\uD2B8\uD3F4\uB9AC\uC624\uB97C contact@saegyeol.ai.kr \uB85C \uC804\uB2EC\uD569\uB2C8\uB2E4."), /* @__PURE__ */ React.createElement("div", { className: "tags" }, /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Offensive Eng."), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "LLM Researcher"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Compliance"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Product Design"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Open Application"))), /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true, style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement(FormStatus, { sent, successText: "\uC9C0\uC6D0\uC11C\uAC00 \uC804\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." }), blocked && /* @__PURE__ */ React.createElement(
+    FormBlocked,
+    {
+      ...blocked,
+      mailSubject: `[Saegyeol \uC9C0\uC6D0] ${name || ""}`.trim(),
+      mailBody: `\uC9C0\uC6D0\uC790: ${name}
+\uC774\uBA54\uC77C: ${email}
+
+\uD3EC\uD2B8\uD3F4\uB9AC\uC624 \uD30C\uC77C\uC744 \uCCA8\uBD80\uD574 \uC8FC\uC138\uC694.`
+    }
+  ), /* @__PURE__ */ React.createElement(Honeypot, { startedAt }), /* @__PURE__ */ React.createElement(
     TextField,
     {
       id: "rcv2-name",
@@ -727,7 +910,11 @@ function TeamPage({ setRoute }) {
       placeholder: "\uD64D\uAE38\uB3D9",
       autoComplete: "name",
       value: name,
-      onChange: setName
+      error: errors["rcv2-name"],
+      onChange: (v) => {
+        setName(v);
+        setErrors((p) => p["rcv2-name"] ? { ...p, "rcv2-name": "" } : p);
+      }
     }
   ), /* @__PURE__ */ React.createElement(
     TextField,
@@ -738,7 +925,11 @@ function TeamPage({ setRoute }) {
       placeholder: "you@mail.kr",
       autoComplete: "email",
       value: email,
-      onChange: setEmail
+      error: errors["rcv2-email"],
+      onChange: (v) => {
+        setEmail(v);
+        setErrors((p) => p["rcv2-email"] ? { ...p, "rcv2-email": "" } : p);
+      }
     }
   ), /* @__PURE__ */ React.createElement(
     FileField,
@@ -748,9 +939,10 @@ function TeamPage({ setRoute }) {
       file,
       fileRef,
       onSelect: selectFile,
-      note: `\uC601\uC0C1 \uD30C\uC77C\uC774\uB098 ${MAX_UPLOAD_LABEL}\uB97C \uCD08\uACFC\uD558\uB294 \uD30C\uC77C\uC740 `
+      error: fileError,
+      note: `\uD55C \uAC1C\uB9CC \uCCA8\uBD80\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC601\uC0C1\uC774\uAC70\uB098 ${MAX_UPLOAD_LABEL}\uB97C \uB118\uC73C\uBA74 \uB4DC\uB77C\uC774\uBE0C \uB4F1\uC5D0 \uC62C\uB9B0 \uB9C1\uD06C\uB97C ${CONTACT_MAIL}\uB85C \uBCF4\uB0B4\uC8FC\uC138\uC694.`
     }
-  ), /* @__PURE__ */ React.createElement(FormActions, { sending, disabled: !name || !email || !file, label: "\uC9C0\uC6D0\uD558\uAE30" }))))), /* @__PURE__ */ React.createElement(ClosingCTA, { onContact: goContact, prefill: "\uC0C8\uACB0 \uD300\uC5D0 \uBB38\uC758\uD569\uB2C8\uB2E4." }));
+  ), /* @__PURE__ */ React.createElement(FormActions, { sending, label: "\uC9C0\uC6D0\uD558\uAE30", hint: `\u2192 ${CONTACT_MAIL} \uB85C \uC804\uC1A1\uB429\uB2C8\uB2E4` }))))), /* @__PURE__ */ React.createElement(ClosingCTA, { onContact: goContact, prefill: "\uC0C8\uACB0 \uD300\uC5D0 \uBB38\uC758\uD569\uB2C8\uB2E4." }));
 }
 window.TeamPage = TeamPage;
 

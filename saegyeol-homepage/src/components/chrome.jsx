@@ -614,76 +614,150 @@ function Footer({ setRoute }) {
 // 문의 폼과 채용 지원 폼이 같은 마크업·같은 상태 표시를 쓰도록 모아둔 조각들.
 // 전송 경로(엔드포인트·FormData 키·검증 순서)는 각 폼이 그대로 유지한다.
 
-function FormStatus({ sent, successText, error }) {
-  return (
-    <React.Fragment>
-      {sent && <div className="form-success" role="status">{successText}</div>}
-      {error && <div className="form-error" role="alert">{error}</div>}
-    </React.Fragment>
-  );
+// 첨부 허용 형식. 서버(api/_config.js ALLOWED_UPLOADS)와 같이 고쳐야 한다.
+// 여기서 막는 건 파일 선택 창을 좁혀 주는 편의일 뿐이고, 실제 판정은 서버가 한다.
+const UPLOAD_ACCEPT = ".pdf,.docx,.pptx,.png,.jpg,.jpeg";
+const UPLOAD_TYPES_LABEL = "PDF · DOCX · PPTX · PNG · JPG";
+
+const CONTACT_MAIL = "contact@saegyeol.ai.kr";
+
+// 폼이 막혔을 때 쓸 대체 경로. 지금까지 쓴 내용을 그대로 담아 메일 앱을 연다.
+function mailtoHref(subject, body) {
+  const trimmed = (body || "").slice(0, 1500);
+  return `mailto:${CONTACT_MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(trimmed)}`;
 }
 
-function FormField({ id, label, optional, children }) {
+function formatSeconds(total) {
+  if (total <= 0) return "곧";
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m > 0 ? `${m}분 ${String(s).padStart(2, "0")}초` : `${s}초`;
+}
+
+// 남은 시간을 1초마다 다시 그린다.
+function useCountdown(until) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!until) return undefined;
+    const id = setInterval(() => tick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [until]);
+  if (!until) return null;
+  return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+}
+
+function FormStatus({ sent, successText }) {
+  if (!sent) return null;
+  return <div className="form-success" role="status">{successText}</div>;
+}
+
+// 폼이 막혔을 때 보여주는 블록.
+// 세 가지를 반드시 함께 보여준다 — 왜 막혔는지, 언제 다시 되는지, 지금 당장 쓸 대체 경로.
+// 입력한 내용은 지우지 않으므로 그 사실도 같이 알린다.
+function FormBlocked({ reason, retryText, retryAt, mailSubject, mailBody }) {
+  const left = useCountdown(retryAt);
   return (
-    <div className="row">
-      <label htmlFor={id}>
-        {label}
-        {optional && <span style={{ fontWeight: 400, opacity: 0.5 }}> (선택)</span>}
-      </label>
-      {children}
+    <div className="form-blocked">
+      <div role="alert">
+        <p className="form-blocked-reason">{reason}</p>
+        {retryText && <p className="form-blocked-retry">{retryText}</p>}
+        <p className="form-blocked-fallback">
+          급하시면 <a href={mailtoHref(mailSubject, mailBody)}>{CONTACT_MAIL}</a>로 직접 보내주세요.
+          적어주신 내용은 그대로 남아 있습니다.
+        </p>
+      </div>
+      {left !== null && left > 0 && (
+        <p className="form-blocked-countdown" aria-hidden="true">{formatSeconds(left)} 남음</p>
+      )}
     </div>
   );
 }
 
-function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete }) {
+// 봇 걸러내기용. 사람에게는 보이지 않고 탭으로도 닿지 않는다.
+// 판정은 서버(api/_utils.js detectBot)가 한다.
+function Honeypot({ startedAt }) {
   return (
-    <FormField id={id} label={label}>
-      <input
-        id={id}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        autoComplete={autoComplete}
-        onChange={(e) => onChange(e.target.value)}
-      />
+    <div className="hp-field" aria-hidden="true">
+      <label htmlFor="company_site">회사 홈페이지</label>
+      <input id="company_site" name="company_site" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+      <input type="hidden" name="form_ts" value={startedAt} readOnly />
+    </div>
+  );
+}
+
+function FormField({ id, label, optional, error, children }) {
+  const describedBy = error ? `${id}-error` : undefined;
+  return (
+    <div className={`row${error ? " row-invalid" : ""}`}>
+      <label htmlFor={id}>
+        {label}
+        {optional && <span style={{ fontWeight: 400, opacity: 0.5 }}> (선택)</span>}
+      </label>
+      {children({ describedBy, invalid: !!error })}
+      {error && <p className="field-error" id={`${id}-error`}>{error}</p>}
+    </div>
+  );
+}
+
+function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error }) {
+  return (
+    <FormField id={id} label={label} error={error}>
+      {({ describedBy, invalid }) => (
+        <input
+          id={id}
+          name={id}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          autoComplete={autoComplete}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
     </FormField>
   );
 }
 
-function FileField({ id, label, optional, file, fileRef, onSelect, note }) {
+function FileField({ id, label, optional, file, fileRef, onSelect, note, error }) {
   return (
-    <FormField id={id} label={label} optional={optional}>
-      <input
-        ref={fileRef}
-        id={id}
-        type="file"
-        accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.png,.jpg,.jpeg"
-        style={{ display: "none" }}
-        onChange={(e) => onSelect(e.target.files?.[0] || null)}
-      />
-      <div className="file-drop" role="button" tabIndex={0}
-        onClick={() => fileRef.current?.click()}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => { e.preventDefault(); onSelect(e.dataTransfer.files?.[0] || null); }}>
-        <div className="icon">{file ? "✓" : "↑"}</div>
-        <div className="meta">
-          <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-          <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `PDF · PPT · DOC · ZIP · 이미지 등 (최대 ${MAX_UPLOAD_LABEL})`}</div>
-        </div>
-      </div>
-      <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
-        {note}<span className="mono" style={{ fontSize: 12 }}>contact@saegyeol.ai.kr</span>로 직접 보내주세요.
-      </p>
+    <FormField id={id} label={label} optional={optional} error={error}>
+      {({ describedBy, invalid }) => (
+        <React.Fragment>
+          <input
+            ref={fileRef}
+            id={id}
+            type="file"
+            accept={UPLOAD_ACCEPT}
+            style={{ display: "none" }}
+            onChange={(e) => onSelect(e.target.files?.[0] || null)}
+          />
+          <div className={`file-drop${invalid ? " file-drop-invalid" : ""}`} role="button" tabIndex={0}
+            aria-describedby={describedBy}
+            onClick={() => fileRef.current?.click()}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => { e.preventDefault(); onSelect(e.dataTransfer.files?.[0] || null); }}>
+            <div className="icon">{file ? "✓" : "↑"}</div>
+            <div className="meta">
+              <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
+              <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `${UPLOAD_TYPES_LABEL} (최대 ${MAX_UPLOAD_LABEL}, 한 개)`}</div>
+            </div>
+          </div>
+          <p className="field-note">{note}</p>
+        </React.Fragment>
+      )}
     </FormField>
   );
 }
 
-function FormActions({ sending, disabled, label }) {
+// 버튼은 잠그지 않는다. 눌러야 무엇이 잘못됐는지 알 수 있기 때문이다.
+// 예전에는 빈 칸으로 제출하면 아무 설명 없이 버튼만 회색이 됐다.
+function FormActions({ sending, label, hint }) {
   return (
     <div className="actions">
-      <span className="hint">→ contact@saegyeol.ai.kr 로 전송됩니다</span>
-      <button type="submit" className="btn btn-accent" disabled={disabled || sending}>
+      <span className="hint">{hint}</span>
+      <button type="submit" className="btn btn-accent" disabled={sending}>
         {sending ? "전송 중…" : <>{label} <span className="arrow">→</span></>}
       </button>
     </div>
@@ -691,39 +765,117 @@ function FormActions({ sending, disabled, label }) {
 }
 
 // 파일 선택 공통 처리. 두 폼 모두 같은 한도(백엔드 FILE_LIMIT과 동일)를 쓴다.
+// 크기 초과는 alert 대신 필드 에러로 돌려준다.
 function useFileSelect() {
   const [file, setFile] = useState(null);
+  const [fileError, setFileError] = useState("");
   const fileRef = useRef(null);
 
   const selectFile = (nextFile) => {
     if (!nextFile) return;
     if (nextFile.size > MAX_UPLOAD_BYTES) {
-      alert(`파일 크기는 ${MAX_UPLOAD_LABEL}를 초과할 수 없습니다.`);
+      setFileError(`파일이 너무 큽니다. ${MAX_UPLOAD_LABEL} 이하로 줄이거나, 링크로 보내주세요.`);
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
+    setFileError("");
     setFile(nextFile);
   };
 
   const clearFile = () => {
     setFile(null);
+    setFileError("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
-  return { file, fileRef, selectFile, clearFile };
+  return { file, fileRef, fileError, setFileError, selectFile, clearFile };
+}
+
+// 서버 응답을 사람이 읽을 수 있는 차단 안내로 바꾼다.
+// "10분에 5번" 같은 숫자는 여기서 만들지 않는다 — 서버가 준 문구를 그대로 쓴다.
+// 그래야 나중에 한도를 바꿔도 화면 문구가 어긋나지 않는다.
+function describeFailure(status, payload) {
+  const fromServer = payload && typeof payload.error === "string" ? payload.error : "";
+  const retryAfter = payload && Number(payload.retryAfter);
+  const retryAt = Number.isFinite(retryAfter) && retryAfter > 0 ? Date.now() + retryAfter * 1000 : null;
+
+  if (status === 429) {
+    return {
+      reason: fromServer || "짧은 시간에 너무 많이 보내셨습니다.",
+      retryText: retryAt
+        ? `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있습니다.`
+        : "잠시 후 다시 시도해 주세요.",
+      retryAt,
+    };
+  }
+  if (status === 503) {
+    return { reason: fromServer || "문의 접수가 일시적으로 중단되어 있습니다.",
+      retryText: "복구되는 대로 다시 받습니다. 그전까지는 아래 주소로 보내주세요." };
+  }
+  if (status === 403) {
+    return { reason: fromServer || "지금 이 페이지에서는 문의를 보낼 수 없습니다.",
+      retryText: "페이지를 새로고침한 뒤 다시 시도해 주세요." };
+  }
+  if (status === 413) {
+    return { reason: "첨부파일이 너무 커서 보내지 못했습니다.",
+      retryText: `파일을 빼거나 ${MAX_UPLOAD_LABEL} 이하로 줄여 다시 보내주세요.` };
+  }
+  if (status >= 500) {
+    return { reason: fromServer || "서버에서 문제가 생겨 보내지 못했습니다.",
+      retryText: "잠시 후 다시 시도해 주세요." };
+  }
+  if (status === 0) {
+    return { reason: "네트워크에 연결하지 못했습니다.",
+      retryText: "인터넷 연결을 확인하고 다시 시도해 주세요." };
+  }
+  return { reason: fromServer || "보내지 못했습니다.",
+    retryText: "내용을 확인하고 다시 시도해 주세요." };
+}
+
+// 응답이 JSON이 아닐 수 있다. Vercel의 413 같은 플랫폼 오류는 HTML을 돌려주는데,
+// 예전에는 res.json()이 거기서 터져 "Unexpected token '<'" 같은 문구가 그대로 보였다.
+async function readJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 /* ---------------- Inline contact form ---------------- */
 const SUBMIT_COOLDOWN_MS = 60_000;
 const lastSubmitKey = "saegyeol-last-submit";
 
+// 어느 칸이 왜 비었는지 알려주려고, 필드별로 따로 검사한다.
+// 예전에는 세 조건을 하나의 불리언으로 묶어서 "뭔가 잘못됐다"는 것밖에 알 수 없었다.
+function validateContact(data) {
+  const errors = {};
+  if (!data.name.trim()) errors["cfv2-name"] = "이름을 적어주세요.";
+  if (!data.email.trim()) errors["cfv2-email"] = "이메일 주소를 적어주세요.";
+  else if (!/\S+@\S+\.\S+/.test(data.email)) errors["cfv2-email"] = "이메일 주소를 다시 확인해 주세요. (예: you@company.kr)";
+  if (!data.message.trim()) errors["cfv2-msg"] = "문의 내용을 적어주세요.";
+  else if (data.message.trim().length < 4) errors["cfv2-msg"] = "조금만 더 자세히 적어주세요. (네 글자 이상)";
+  return errors;
+}
+
+// 첫 번째 문제 칸으로 옮겨 준다. 고정 nav에 가리지 않도록 화면 가운데로 맞춘 뒤 포커스한다.
+function focusFirstError(errors, order) {
+  const firstId = order.find((id) => errors[id]);
+  if (!firstId) return;
+  const el = document.getElementById(firstId);
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  el.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+}
+
 function ContactForm() {
   const [data, setData] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [touched, setTouched] = useState(false);
-  const { file, fileRef, selectFile, clearFile } = useFileSelect();
+  const [errors, setErrors] = useState({});
+  const [blocked, setBlocked] = useState(null);
+  const startedAt = useRef(Date.now()).current;
+  const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
 
   // 다른 페이지의 문의 버튼이 넘긴 문구를 받아 채운다.
   // 사용자가 이미 입력한 내용이 있으면 덮어쓰지 않는다.
@@ -738,36 +890,61 @@ function ContactForm() {
     return () => window.removeEventListener(CONTACT_PREFILL_EVENT, apply);
   }, []);
 
-  const valid = data.name.trim() && /\S+@\S+\.\S+/.test(data.email) && data.message.trim().length > 3;
+  // 고친 칸의 에러는 타이핑하는 즉시 지운다.
+  const update = (key, id) => (value) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => (prev[id] ? { ...prev, [id]: "" } : prev));
+  };
 
   const submit = async (e) => {
     e.preventDefault();
-    setTouched(true);
-    if (!valid) return;
 
-    const lastSubmit = parseInt(localStorage.getItem(lastSubmitKey) || "0", 10);
-    if (Date.now() - lastSubmit < SUBMIT_COOLDOWN_MS) {
-      setError("잠시 후 다시 시도해 주세요. (1분 쿨다운)");
+    const found = validateContact(data);
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      setBlocked(null);
+      focusFirstError(found, ["cfv2-name", "cfv2-email", "cfv2-msg"]);
+      return;
+    }
+
+    let lastSubmit = 0;
+    try {
+      lastSubmit = parseInt(localStorage.getItem(lastSubmitKey) || "0", 10) || 0;
+    } catch { lastSubmit = 0; }
+    const waited = Date.now() - lastSubmit;
+    if (waited < SUBMIT_COOLDOWN_MS) {
+      const retryAt = lastSubmit + SUBMIT_COOLDOWN_MS;
+      setBlocked({
+        reason: "방금 보내신 문의가 접수됐습니다. 연달아 보내는 것만 잠깐 막고 있습니다.",
+        retryText: `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있습니다.`,
+        retryAt,
+      });
       return;
     }
 
     setSending(true);
-    setError("");
+    setBlocked(null);
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("message", data.message);
+      formData.append("company_site", document.getElementById("company_site")?.value || "");
+      formData.append("form_ts", String(startedAt));
       if (file) formData.append("file", file);
 
       const res = await fetch("/api/contact", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "전송 실패");
-      localStorage.setItem(lastSubmitKey, String(Date.now()));
+      const payload = await readJson(res);
+      if (!res.ok) {
+        setBlocked(describeFailure(res.status, payload));
+        return;
+      }
+      try { localStorage.setItem(lastSubmitKey, String(Date.now())); } catch { /* 저장 못 해도 전송은 끝났다 */ }
       setSent(true);
-      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); clearFile(); setTouched(false); }, 5000);
-    } catch (err) {
-      setError(err.message || "전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); clearFile(); setErrors({}); }, 5000);
+    } catch {
+      // fetch 자체가 실패한 경우(오프라인·DNS 등). 브라우저 영문 메시지는 쓰지 않는다.
+      setBlocked(describeFailure(0, null));
     } finally {
       setSending(false);
     }
@@ -775,20 +952,26 @@ function ContactForm() {
 
   return (
     <form className="form" onSubmit={submit} noValidate>
-      <FormStatus sent={sent} error={error}
-        successText="문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다." />
+      <FormStatus sent={sent} successText="문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다." />
+      {blocked && <FormBlocked {...blocked}
+        mailSubject={`[새결 문의] ${data.name || ""}`.trim()}
+        mailBody={data.message} />}
+      <Honeypot startedAt={startedAt} />
       <TextField id="cfv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
-        value={data.name} onChange={(v) => setData({ ...data, name: v })} />
+        value={data.name} onChange={update("name", "cfv2-name")} error={errors["cfv2-name"]} />
       <TextField id="cfv2-email" label="이메일 / EMAIL" type="email" placeholder="you@company.kr" autoComplete="email"
-        value={data.email} onChange={(v) => setData({ ...data, email: v })} />
-      <FormField id="cfv2-msg" label="문의 내용 / MESSAGE">
-        <textarea id="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요."
-          value={data.message} onChange={(e) => setData({ ...data, message: e.target.value })} />
+        value={data.email} onChange={update("email", "cfv2-email")} error={errors["cfv2-email"]} />
+      <FormField id="cfv2-msg" label="문의 내용 / MESSAGE" error={errors["cfv2-msg"]}>
+        {({ describedBy, invalid }) => (
+          <textarea id="cfv2-msg" name="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요."
+            aria-invalid={invalid || undefined} aria-describedby={describedBy}
+            value={data.message} onChange={(e) => update("message", "cfv2-msg")(e.target.value)} />
+        )}
       </FormField>
       <FileField id="cfv2-file" label="첨부파일 / ATTACHMENT" optional
-        file={file} fileRef={fileRef} onSelect={selectFile}
-        note={`${MAX_UPLOAD_LABEL}를 초과하는 파일은 `} />
-      <FormActions sending={sending} disabled={touched && !valid} label="문의 보내기" />
+        file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
+        note={`한 개만 첨부할 수 있습니다. 여러 개이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 문의 내용에 적어주세요.`} />
+      <FormActions sending={sending} label="문의 보내기" hint={`→ ${CONTACT_MAIL} 로 전송됩니다`} />
     </form>
   );
 }
@@ -797,4 +980,5 @@ Object.assign(window, {
   useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon,
   SectionDots, BackButton, ContactButton, createContactNav, SNAP_ROUTES,
   FormStatus, FormField, TextField, FileField, FormActions, useFileSelect,
+  FormBlocked, Honeypot, describeFailure, readJson, focusFirstError, formatSeconds, CONTACT_MAIL,
 });
