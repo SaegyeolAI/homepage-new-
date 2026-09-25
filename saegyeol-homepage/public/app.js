@@ -220,11 +220,29 @@ function useReveal(route) {
     };
   }, [route]);
 }
+const THEME_KEY = "saegyeol-theme-v3";
+const DEFAULT_THEME = "dark";
+function readStoredTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    return saved === "light" || saved === "dark" ? saved : DEFAULT_THEME;
+  } catch {
+    return DEFAULT_THEME;
+  }
+}
+document.documentElement.setAttribute("data-theme", readStoredTheme());
 function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("saegyeol-theme-v3") || "light");
+  const [theme, setTheme] = useState(readStoredTheme);
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("saegyeol-theme-v3", theme);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+    }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const bg = getComputedStyle(root).getPropertyValue("--bg").trim();
+    if (meta && bg) meta.setAttribute("content", bg);
   }, [theme]);
   return [theme, setTheme];
 }

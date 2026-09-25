@@ -279,11 +279,44 @@ function useReveal(route) {
 }
 
 /* ---------------- Theme ---------------- */
+
+// 처음 온 방문자는 다크모드를 보게 한다.
+// 한 번이라도 토글을 누른 사람은 저장된 선택을 그대로 따른다.
+const THEME_KEY = "saegyeol-theme-v3";
+const DEFAULT_THEME = "dark";
+
+function readStoredTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    return saved === "light" || saved === "dark" ? saved : DEFAULT_THEME;
+  } catch {
+    // 시크릿 모드나 쿠키 차단 환경에서는 localStorage 접근 자체가 예외를 던진다.
+    // 최상단에서 호출하므로 여기서 막지 않으면 앱 전체가 뜨지 않는다.
+    return DEFAULT_THEME;
+  }
+}
+
+// React가 그리기 전에 <html data-theme>을 맞춰 둔다.
+// index.html이 이미 dark로 시작하므로, 라이트를 저장해 둔 재방문자만 여기서 바뀐다.
+// CSP가 script-src 'self'라 인라인 스크립트를 쓸 수 없어서, 번들에서 가장 먼저
+// 실행되는 이 파일 최상단에 둔다. (build.js의 FILES 첫 번째가 chrome.jsx)
+document.documentElement.setAttribute("data-theme", readStoredTheme());
+
 function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("saegyeol-theme-v3") || "light");
+  const [theme, setTheme] = useState(readStoredTheme);
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("saegyeol-theme-v3", theme);
+    const root = document.documentElement;
+    root.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // 저장에 실패해도 이번 세션 화면은 정상 동작한다.
+    }
+    // 모바일 브라우저 주소창 색도 같이 맞춘다. 값은 CSS 토큰에서 그대로 읽어
+    // 색을 두 곳에 적어두지 않는다.
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const bg = getComputedStyle(root).getPropertyValue("--bg").trim();
+    if (meta && bg) meta.setAttribute("content", bg);
   }, [theme]);
   return [theme, setTheme];
 }
