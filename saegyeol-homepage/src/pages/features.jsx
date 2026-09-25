@@ -14,7 +14,7 @@ function FeatureShadowPage({ setRoute }) {
           <h1>보안팀도 모르는<br/>AI 에이전트를<br/>먼저 찾아냅니다.</h1>
           <p>임직원이 사내 데이터로 만든 개인 AI 에이전트는 IT·보안팀의 가시권 밖에서 작동합니다. 여울은 네트워크 트래픽과 MCP 연결 패턴을 분석해 Shadow Agent를 자동으로 식별하고 데이터 노출 위험도를 평가합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <ContactButton onContact={goContact} prefill="Shadow Agent 탐지 도입을 문의합니다." />
+            <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -111,12 +111,12 @@ function FeatureShadowPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <ContactButton onContact={goContact} prefill="Shadow Agent 점검을 문의합니다." />
+            <ContactButton onContact={goContact} />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }
@@ -168,7 +168,7 @@ function FeaturePiiPage({ setRoute }) {
           <h1>한국식 개인정보<br/>14종, 유출 전에<br/>막습니다.</h1>
           <p>국제 LLM 보안 도구는 한국식 주민번호·사업자번호·운전면허번호·한국식 주소를 제대로 식별하지 못합니다. 여울의 K-PII 탐지기는 한국 개인정보 14종을 전용 패턴과 컨텍스트 인식 ML 모델로 실시간 탐지하고, 에이전트가 외부로 전송하기 전에 차단합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <ContactButton onContact={goContact} prefill="K-PII 차단 도입을 문의합니다." />
+            <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -249,7 +249,7 @@ function FeaturePiiPage({ setRoute }) {
               <code>{selectedPii.sample}</code>
             </div>
             <div className="detail-modal-actions">
-              <ContactButton onContact={goContact} prefill="K-PII 차단 관련 자료를 문의합니다." />
+              <ContactButton onContact={goContact} />
               <button className="btn btn-ghost" onClick={() => setSelectedPii(null)}>닫기</button>
             </div>
           </section>
@@ -285,12 +285,12 @@ function FeaturePiiPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <ContactButton onContact={goContact} prefill="K-PII 차단 도입을 문의합니다." />
+            <ContactButton onContact={goContact} />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }
@@ -322,7 +322,7 @@ function FeatureReportPage({ setRoute }) {
           <h1>무엇을 확인했고<br/>무엇이 남았는지<br/>적어 드립니다.</h1>
           <p>여울의 리포트는 취약점마다 재현할 수 있는 최소한의 증거를 담습니다. 표지에는 이번 검사가 다룬 범위를 적고, 확인하지 못한 부분은 미검사(UNTESTED)로 남깁니다. 관련 기준과의 연결은 참고 자료로 함께 정리합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <ContactButton onContact={goContact} prefill="증거 기반 리포트 도입을 문의합니다." />
+            <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
               여울 전체 보기 <span className="arrow">→</span>
             </button>
@@ -413,12 +413,12 @@ function FeatureReportPage({ setRoute }) {
             </div>
           </div>
           <div style={{marginTop:56, display:"flex", justifyContent:"center"}}>
-            <ContactButton onContact={goContact} prefill="증거 기반 리포트 상세 자료를 문의합니다." />
+            <ContactButton onContact={goContact} />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }

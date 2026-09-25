@@ -1,8 +1,8 @@
 function PricingPage({ setRoute }) {
-  // 예전에는 DOM value setter를 직접 호출해 textarea에 값을 밀어 넣었다.
-  // 이제는 ContactForm이 prefill을 받아 자기 상태로 반영한다.
+  // 문의 칸은 어떤 버튼으로 들어오든 빈 채로 시작한다.
+  // 예전에는 플랜 이름을 문의 내용에 미리 채워 넣었는데, 쓰려던 말을
+  // 지우고 시작해야 해서 오히려 방해가 됐다.
   const goContact = createContactNav(setRoute);
-  const askAbout = (subject) => goContact(`${subject} 요금제 도입을 문의합니다.`);
 
   // 금액은 아직 정해지지 않았다. 플랜 구성만 보여주고 가격은 적지 않는다.
   const plans = [
@@ -69,7 +69,7 @@ function PricingPage({ setRoute }) {
             <a className="btn btn-accent" href="#plans" onClick={(e) => { e.preventDefault(); document.getElementById("plans")?.scrollIntoView({ behavior: "smooth" }); }}>
               플랜 비교 <span className="arrow">↓</span>
             </a>
-            <ContactButton onContact={goContact} prefill="여울 도입을 문의합니다." variant="ghost" />
+            <ContactButton onContact={goContact} variant="ghost" />
           </div>
         </div>
       </section>
@@ -94,7 +94,7 @@ function PricingPage({ setRoute }) {
                 <ul>
                   {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
                 </ul>
-                <ContactButton onContact={() => askAbout(plan.name)}
+                <ContactButton onContact={goContact}
                   variant={plan.featured ? "accent" : "ghost"} />
               </article>
             ))}
@@ -159,7 +159,7 @@ function PricingPage({ setRoute }) {
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }

@@ -22,7 +22,7 @@ function ProductPage({ setRoute }) {
           <h1>내보내도 되는지,<br/>내보내기 전에<br/>확인합니다.</h1>
           <p>여울은 한국어 AI 에이전트 침투 테스트 서비스입니다. 출시를 앞둔 에이전트에 한국어 공격을 넣어보고 배포해도 되는지 판정합니다. 지금은 출시를 준비하고 있습니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
-            <ContactButton onContact={goContact} prefill="여울 도입을 문의합니다." />
+            <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => openRoute("pricing")}>
               요금제 보기 <span className="arrow">→</span>
             </button>
@@ -46,17 +46,19 @@ function ProductPage({ setRoute }) {
             <div className="item">
               <div className="v">97.4<span className="unit">%</span></div>
               <div className="k">탐지율 (recall)</div>
+              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">5.3<span className="unit">%</span></div>
               <div className="k">오탐률</div>
+              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">4<span className="unit">단계</span></div>
               <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
-          <p className="stats-note">내부 회귀 벤치마크 기준입니다. 관련 연구는 ACK2026 학술대회에 논문으로 제출했습니다.</p>
+          <p className="stats-note">관련 연구는 ACK2026 학술대회에 논문으로 제출했습니다.</p>
         </div>
       </section>
 
@@ -135,12 +137,12 @@ function ProductPage({ setRoute }) {
           </div>
 
           <div style={{marginTop: 56, display: "flex", justifyContent: "center"}}>
-            <ContactButton onContact={goContact} prefill="여울 검사 절차에 대해 문의합니다." />
+            <ContactButton onContact={goContact} />
           </div>
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="여울 도입을 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }

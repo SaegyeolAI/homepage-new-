@@ -81,17 +81,18 @@ function HomePage({ setRoute }) {
             <div className="item">
               <div className="v">97.4<span className="unit">%</span></div>
               <div className="k">탐지율 (recall)</div>
+              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">5.3<span className="unit">%</span></div>
               <div className="k">오탐률</div>
+              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">4<span className="unit">단계</span></div>
               <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
-          <p className="stats-note">내부 회귀 벤치마크 기준입니다.</p>
         </div>
       </section>
 

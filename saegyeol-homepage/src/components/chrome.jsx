@@ -33,13 +33,19 @@ function markSnapSections() {
   const sections = [...page.children].filter((el) => el.tagName === "SECTION");
   sections.forEach((el, i) => {
     el.classList.add("snap-section");
+
+    // 화면보다 긴 섹션은 CSS 스냅 지점에서 뺀다.
+    // 안 그러면 섹션 안에서 조금 내렸을 때 proximity가 윗변으로 도로 끌어당긴다.
+    // 이런 섹션의 이동은 아래 휠 핸들러가 한 화면씩 직접 처리한다.
+    el.classList.toggle("snap-tall", el.offsetHeight > window.innerHeight + 4);
+
     if (!el.dataset.sectionLabel) {
       const source =
         el.querySelector(".section-label")?.textContent ||
         el.querySelector("h1, h2")?.textContent ||
         `섹션 ${i + 1}`;
       const clean = source.replace(/\s+/g, " ").trim();
-      // 툴팁이므로 길면 자르되, 단어 중간에서 끊기지 않게 마지막 공백까지만 쓴다.
+      // 스크린리더용 이름이므로 길면 자르되, 단어 중간에서 끊기지 않게 한다.
       const MAX = 40;
       el.dataset.sectionLabel = clean.length <= MAX
         ? clean
@@ -64,6 +70,149 @@ function isActivatable(el) {
   return ["BUTTON", "A", "SUMMARY", "DETAILS", "LABEL"].includes(el.tagName);
 }
 
+/* ---------------- 휠 한 번 = 한 섹션 ---------------- */
+
+// CSS scroll-snap만으로는 "한 번에 한 섹션"이 되지 않는다. proximity는
+// 스크롤이 멎은 뒤에야 개입해서, 조금 내리면 제자리로 끌려오는 느낌이 난다.
+// (mandatory로 바꾸면 화면보다 긴 섹션의 내용이 잘린다.)
+// 그래서 스냅은 그대로 두고, 휠 입력만 여기서 가로채 한 섹션씩 옮긴다.
+
+const WHEEL_MIN_DELTA = 4;        // 트랙패드 미세 떨림 무시
+const WHEEL_QUIET_MS = 120;       // 이만큼 휠이 멎어야 관성이 끝난 것으로 본다
+const WHEEL_SETTLE_TIMEOUT = 1200;
+const EDGE_TOLERANCE = 2;
+
+// 휠이 향하는 쪽으로 더 스크롤할 수 있는 조상이 있으면 그대로 둔다.
+// 입력 칸, 가로 스크롤 표, 모달 내부가 여기에 걸린다.
+function scrollableAncestor(start, direction) {
+  let el = start;
+  while (el && el.nodeType === 1 && el !== document.body && el !== document.documentElement) {
+    if (isTextEntry(el)) return el;
+    if (el.getAttribute("role") === "dialog" || el.getAttribute("aria-modal") === "true") return el;
+
+    const style = getComputedStyle(el);
+    // 가로로 스크롤되는 표는 세로로 못 움직여도 건드리지 않는다.
+    if (/(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth + 1) return el;
+
+    if (/(auto|scroll)/.test(style.overflowY) && el.scrollHeight > el.clientHeight + 1) {
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      if (direction > 0 ? !atBottom : !atTop) return el;
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
+
+function snapGeometry() {
+  const sections = [...document.querySelectorAll(".snap-section")];
+  if (sections.length < 2) return null;
+  const tops = sections.map((el) => el.offsetTop);
+  const heights = sections.map((el) => el.offsetHeight);
+  const y = window.scrollY;
+  let index = 0;
+  tops.forEach((top, i) => { if (top <= y + EDGE_TOLERANCE) index = i; });
+  return { tops, heights, index, y, vh: window.innerHeight };
+}
+
+function useWheelSnap(route) {
+  useEffect(() => {
+    if (!SNAP_ROUTES.has(route)) return undefined;
+
+    let locked = false;      // 이동 애니메이션이 끝날 때까지 추가 입력을 막는다
+    let settled = true;      // 목표 위치에 도착했는가
+    let frame = 0;
+    let quietTimer = 0;
+
+    const releaseWhenQuiet = () => {
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(() => { if (settled) locked = false; }, WHEEL_QUIET_MS);
+    };
+
+    const glideTo = (target) => {
+      locked = true;
+      settled = false;
+      window.scrollTo({ top: target, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      const startedAt = Date.now();
+      const check = () => {
+        const arrived = Math.abs(window.scrollY - target) <= EDGE_TOLERANCE;
+        if (arrived || Date.now() - startedAt > WHEEL_SETTLE_TIMEOUT) {
+          settled = true;
+          releaseWhenQuiet();
+          return;
+        }
+        frame = requestAnimationFrame(check);
+      };
+      frame = requestAnimationFrame(check);
+    };
+
+    const onWheel = (e) => {
+      if (!snapActive(route)) return;
+      if (e.ctrlKey) return;                                    // 브라우저 확대
+      if (Math.abs(e.deltaY) < WHEEL_MIN_DELTA) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;      // 가로 제스처
+
+      const direction = e.deltaY > 0 ? 1 : -1;
+      if (scrollableAncestor(e.target, direction)) return;
+
+      // 애니메이션 중이거나 관성이 아직 남아 있으면 삼킨다.
+      // 트랙패드 한 번에 휠 이벤트가 수십 개 들어와도 한 섹션만 움직이는 이유다.
+      if (locked) {
+        e.preventDefault();
+        releaseWhenQuiet();
+        return;
+      }
+
+      const g = snapGeometry();
+      if (!g) return;
+
+      const { tops, heights, index, y, vh } = g;
+      const top = tops[index];
+      const bottom = top + heights[index];
+      const maxScroll = document.documentElement.scrollHeight - vh;
+      let target;
+
+      // 화면보다 긴 섹션은 섹션 안에서 먼저 한 화면씩 움직인다.
+      // 끝(또는 시작)에 닿은 다음 휠에서 옆 섹션으로 넘어간다.
+      if (heights[index] > vh + EDGE_TOLERANCE) {
+        if (direction > 0 && y + vh < bottom - EDGE_TOLERANCE) {
+          target = Math.min(y + vh, bottom - vh);
+        } else if (direction < 0 && y > top + EDGE_TOLERANCE) {
+          target = Math.max(y - vh, top);
+        }
+      }
+
+      if (target === undefined) {
+        const next = index + direction;
+        if (next < 0) {
+          if (y <= EDGE_TOLERANCE) return;
+          target = 0;
+        } else if (next >= tops.length) {
+          // 마지막 섹션 뒤에는 푸터가 있다. 더 내려갈 데가 없으면 브라우저에 넘긴다.
+          if (y >= maxScroll - EDGE_TOLERANCE) return;
+          target = maxScroll;
+        } else {
+          target = tops[next];
+        }
+      }
+
+      target = Math.max(0, Math.min(target, maxScroll));
+      if (Math.abs(target - y) < 1) return;
+
+      e.preventDefault();
+      glideTo(target);
+    };
+
+    // preventDefault를 쓰므로 passive가 아니어야 한다.
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      cancelAnimationFrame(frame);
+      clearTimeout(quietTimer);
+    };
+  }, [route]);
+}
+
 function useFullScroll(route) {
   // 라우트가 바뀌면 맨 위로. (해시 라우팅이라 브라우저가 대신 해주지 않는다)
   useEffect(() => {
@@ -79,8 +228,24 @@ function useFullScroll(route) {
     else delete root.dataset.snap;
 
     const t = setTimeout(markSnapSections, 60);
-    return () => { clearTimeout(t); delete root.dataset.snap; };
+
+    // 창 크기가 바뀌면 "화면보다 긴 섹션"의 판정도 달라진다. 다시 잰다.
+    let resizeTimer = 0;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(markSnapSections, 150);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      clearTimeout(t);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
+      delete root.dataset.snap;
+    };
   }, [route]);
+
+  useWheelSnap(route);
 
   // 키보드 이동
   useEffect(() => {
@@ -197,8 +362,8 @@ function SectionDots({ route }) {
               aria-current={i === active ? "true" : undefined}
               onClick={() => goTo(i)}
             >
+              {/* 눈에 보이는 툴팁은 두지 않는다. 섹션 이름은 aria-label로만 전달한다. */}
               <span className="section-dot-mark" aria-hidden="true" />
-              <span className="section-dot-tip" aria-hidden="true">{item.label}</span>
             </button>
           </li>
         ))}
@@ -532,36 +697,23 @@ function Nav({ route, setRoute, theme, setTheme }) {
 // 예전에는 페이지마다 goContact가 따로 있었고 setTimeout 지연도 60/80/100ms로
 // 제각각이었다. 모든 "문의" CTA는 이 한 곳을 통해 홈의 #contact로 간다.
 const CONTACT_SCROLL_DELAY = 100;
-const CONTACT_PREFILL_EVENT = "saegyeol:contact-prefill";
-
-// 라우트 전환 직후에는 ContactForm이 아직 마운트 전일 수 있다.
-// 이벤트를 놓치더라도 마운트 시점에 집어갈 수 있도록 값을 잠시 보관한다.
-let pendingContactPrefill = "";
-
-function takeContactPrefill() {
-  const value = pendingContactPrefill;
-  pendingContactPrefill = "";
-  return value;
-}
 
 // 페이지 컴포넌트는 `const goContact = createContactNav(setRoute)` 로 받아 쓴다.
-// 인자로 넘긴 문구는 문의 내용 칸에 미리 채워진다(사용자가 이미 쓴 내용은 건드리지 않음).
+//
+// 어떤 버튼으로 들어오든 문의 칸은 빈 채로 시작한다.
+// 예전에는 CTA마다 맥락 문구를 문의 내용에 미리 채워 넣었는데,
+// 쓰려던 말을 지우고 시작해야 해서 오히려 방해가 됐다.
 function createContactNav(setRoute) {
-  return (prefillMessage) => {
+  return () => {
     setRoute("home");
     setTimeout(() => {
       document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      if (prefillMessage) {
-        pendingContactPrefill = prefillMessage;
-        window.dispatchEvent(new CustomEvent(CONTACT_PREFILL_EVENT));
-      }
     }, CONTACT_SCROLL_DELAY);
   };
 }
 
 // 모든 페이지가 같은 모양의 문의 버튼을 쓰도록 한 컴포넌트로 모았다.
-// 문구는 "문의하기"로 통일하고, 맥락은 prefill로 전달한다.
-function ContactButton({ onContact, prefill, variant = "accent", onDark = false }) {
+function ContactButton({ onContact, variant = "accent", onDark = false }) {
   const className = [
     "btn",
     variant === "accent" ? "btn-accent" : "btn-ghost",
@@ -569,14 +721,14 @@ function ContactButton({ onContact, prefill, variant = "accent", onDark = false 
   ].filter(Boolean).join(" ");
 
   return (
-    <button type="button" className={className} onClick={() => onContact(prefill)}>
+    <button type="button" className={className} onClick={() => onContact()}>
       문의하기 <span className="arrow">→</span>
     </button>
   );
 }
 
 /* ---------------- Closing CTA (full-bleed) ---------------- */
-function ClosingCTA({ onContact, prefill }) {
+function ClosingCTA({ onContact }) {
   return (
     <section className="closing-cta" data-section-label="문의하기">
       <div className="closing-cta-inner">
@@ -584,7 +736,7 @@ function ClosingCTA({ onContact, prefill }) {
         <h2>지금 새결과<br />함께하세요.</h2>
         <p>AI 에이전트를 내보내기 전에 한국어 공격 관점으로 한 번 점검해 보세요. 어디까지 확인했고 무엇이 남았는지 함께 정리해 드립니다.</p>
         <div className="hero-cta">
-          <ContactButton onContact={onContact} prefill={prefill} />
+          <ContactButton onContact={onContact} />
         </div>
       </div>
     </section>
@@ -933,18 +1085,8 @@ function ContactForm() {
   const startedAt = useRef(Date.now()).current;
   const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
 
-  // 다른 페이지의 문의 버튼이 넘긴 문구를 받아 채운다.
-  // 사용자가 이미 입력한 내용이 있으면 덮어쓰지 않는다.
-  useEffect(() => {
-    const apply = () => {
-      const message = takeContactPrefill();
-      if (!message) return;
-      setData((prev) => (prev.message.trim() ? prev : { ...prev, message }));
-    };
-    apply();
-    window.addEventListener(CONTACT_PREFILL_EVENT, apply);
-    return () => window.removeEventListener(CONTACT_PREFILL_EVENT, apply);
-  }, []);
+  // 어떤 경로로 들어오든 세 칸 모두 빈 채로 시작한다.
+  // (자동 채움을 쓰지 않으므로 마운트 시 따로 할 일이 없다.)
 
   // 고친 칸의 에러는 타이핑하는 즉시 지운다.
   const update = (key, id) => (value) => {

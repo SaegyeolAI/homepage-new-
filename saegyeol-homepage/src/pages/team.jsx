@@ -134,7 +134,7 @@ function TeamPage({ setRoute }) {
         </div>
       </section>
 
-      <ClosingCTA onContact={goContact} prefill="새결 팀에 문의합니다." />
+      <ClosingCTA onContact={goContact} />
     </div>
   );
 }

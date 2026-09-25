@@ -1764,6 +1764,14 @@ html[data-snap="on"] .snap-section {
   scroll-snap-stop: normal;
 }
 
+/* 화면보다 긴 섹션은 스냅 지점에서 뺀다(2026-09-25).
+   안 그러면 섹션 안에서 한 화면 내렸을 때 proximity가 윗변으로 도로 끌어당긴다.
+   이런 섹션은 chrome.jsx의 휠 핸들러가 한 화면씩 직접 옮기고,
+   끝에 닿은 다음 휠에서 옆 섹션으로 넘어간다. 클래스는 JS가 실측해서 붙인다. */
+html[data-snap="on"] .snap-section.snap-tall {
+  scroll-snap-align: none;
+}
+
 /* 섹션이 한 화면을 채워야 "한 번에 한 섹션"으로 읽힌다.
    위쪽 v2 레이어가 min-height를 auto로 풀어 두었기 때문에, 스냅이 켜진
    페이지에서만 다시 한 화면 높이로 되돌린다. min-height라서 내용이 더
@@ -1861,30 +1869,8 @@ html[data-snap="on"] .closing-cta {
   border-radius: 50%;
 }
 
-/* 툴팁 — 기존 .hero-tag와 같은 pill 모양·모노 서체를 따른다. */
-.section-dot-tip {
-  position: absolute;
-  right: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%) translateX(6px);
-  white-space: nowrap;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--nav-bg);
-  color: var(--nav-text);
-  border: 1px solid var(--nav-border);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-.section-dot:hover .section-dot-tip,
-.section-dot:focus-visible .section-dot-tip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
+/* 호버 툴팁은 두지 않는다(2026-09-25).
+   섹션 이름은 각 도트의 aria-label로만 전달한다. */
 
 /* =========================================================
    Back link (개인정보처리방침 · 이용약관)
@@ -2098,6 +2084,44 @@ html[data-theme="dark"] .back-float { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42)
 @media (prefers-reduced-motion: reduce) {
   .back-float,
   .back-float.is-visible { transition: none; transform: none; }
+}
+
+/* 측정 수치의 근거 꼬리표 (2026-09-25)
+   "내부 회귀 벤치마크 기준입니다."를 통째로 빼는 대신,
+   측정값 바로 아래에 근거를 붙인다. 숫자가 설명 없이 혼자 남지 않게. */
+.stats .basis {
+  margin-top: 6px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  opacity: 0.78;
+}
+
+/* 한국어 어절 단위 줄바꿈 (2026-09-25)
+   ---------------------------------------------------------
+   기본값(word-break: normal)은 한국어를 글자 단위로 끊어서
+   "기능입니 / 다", "에이전트 / 를" 처럼 어절 중간에서 줄이 바뀐다.
+   keep-all은 CJK를 어절째 넘긴다.
+
+   대신 keep-all은 띄어쓰기 없는 긴 문자열(이메일·URL·영문 식별자)도
+   통째로 유지해서 좁은 화면에서 가로로 넘친다.
+   그래서 overflow-wrap으로 "정 안 되면 끊어라"를 함께 건다.
+   prose에 word-break: break-all을 쓰지 않는 이유이기도 하다. */
+html {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 끊을 자리가 아예 없는 값들. 여기서는 어디서든 끊는 편이 넘치는 것보다 낫다. */
+.mono,
+code,
+a[href^="mailto:"],
+a[href^="http"],
+.form-blocked-fallback a,
+.file-drop .meta .name,
+.privacy-contact-box .row {
+  overflow-wrap: anywhere;
 }
 
 /* [8] 좁은 화면에서만 보이는 안내 (예: 표 좌우 스크롤) */
