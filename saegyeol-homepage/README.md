@@ -78,16 +78,39 @@ netstat -ano | grep ":3000.*LISTENING"
 
 ### 보안
 
+> ⚠️ **운영에서 환경변수가 없으면 폼이 막힙니다(fail-closed).**
+> `VERCEL_ENV=production` 인데 `ALLOWED_ORIGIN` 또는 `UPSTASH_REDIS_REST_URL`/`_TOKEN`
+> 이 비어 있으면 문의·채용 API가 **503**을 돌려주고 접수를 받지 않습니다.
+> 예전에는 둘 다 "없으면 통과"라서 오타 하나로 CSRF 방어와 rate limit이 동시에
+> 조용히 사라졌습니다. 프리뷰·로컬(`VERCEL_ENV` 미설정)은 그대로 동작합니다.
+
+- **폼 정책 값은 `api/_config.js` 한 곳에만 적습니다.** 한도(10분 5회), 업로드 크기,
+  허용 형식, 사용자에게 보여줄 한글 문구가 전부 여기 있습니다. 화면 문구도 서버가
+  이 값으로 만들어 내려보내므로, 한도를 바꿔도 안내 문구가 따라 바뀝니다.
+  프론트엔드에 숫자를 직접 적지 마세요.
 - **CSRF는 토큰이 아니라 Origin/Referer 허용목록 대조**입니다(`api/_utils.js` 의
   `checkOrigin`). 클라이언트가 보낼 토큰이 없습니다. 폼 `fetch` 에 커스텀 헤더를
   추가하면 preflight가 생기니 `FormData` 를 그대로 보내세요.
-- rate limit은 Upstash Redis 기반(10분 5회, fail-open)입니다. 환경변수가 없으면
-  비활성화되니 운영 배포 전 `UPSTASH_REDIS_REST_URL` / `_TOKEN` 을 확인하세요.
+- rate limit은 Upstash Redis 기반(10분 5회)이고 **엔드포인트마다 버킷이 다릅니다**
+  (`saegyeol_rl:contact` / `:recruit`). Redis가 죽으면 제한을 놓지 않고 **인메모리로
+  강등**됩니다 — 인스턴스별로 세므로 분산되면 실효 한도가 늘어나지만, 문의를 막지도
+  않고 제한을 통째로 놓지도 않는 절충입니다.
+- **업로드는 내용까지 검사합니다.** MIME과 확장자는 클라이언트가 적어 보내는 값이라
+  믿지 않고, 파일 앞머리 바이트로 실제 종류를 판별해 셋이 모두 일치할 때만 통과시킵니다.
+  `.docx`/`.pptx` 는 시그니처가 일반 zip과 같아서, zip 중앙 디렉터리를 훑어
+  `[Content_Types].xml` 과 `word/`·`ppt/` 가 있는지까지 봅니다(`detectFileKind`).
+  허용 형식을 늘릴 때는 `ALLOWED_UPLOADS` 와 판별 로직을 **같이** 고쳐야 합니다.
+- 허니팟은 `company_site` 필드와 `form_ts` 타임스탬프입니다. 걸리면 메일을 보내지
+  않고 **200을 돌려줍니다**(봇에게 실패를 알리지 않기 위해). 로그에는 건수만 남기고
+  입력값은 남기지 않습니다.
 - 보안 헤더는 **운영에서는 `vercel.json`, 로컬에서는 `server.js` 의 helmet** 이
   각각 적용하며 값이 서로 다릅니다. 한쪽만 고치면 환경 간 차이가 생깁니다.
-- 업로드 한도 4.5MB는 Vercel 서버리스 request body 한도입니다. 세 곳
-  (`src/components/chrome.jsx` 의 `MAX_UPLOAD_BYTES`, `api/_utils.js` 의 `FILE_LIMIT`,
-  `server.js` 의 `FILE_LIMIT`)을 반드시 같이 유지하세요.
+- 업로드 한도 4.5MB는 Vercel 서버리스 request body 한도입니다. `api/_config.js` 의
+  `FILE_LIMIT` 이 서버 쪽 단일 출처이고, 프론트엔드의 `MAX_UPLOAD_BYTES`
+  (`src/components/chrome.jsx`)와 `UPLOAD_ACCEPT` 만 따로 있으니 같이 유지하세요.
+- `nodemailer` 는 8.x에 머물러 있습니다. 취약점 수정본이 10.x라 메이저 업그레이드가
+  필요한데, 우리는 `raw` 옵션도 `resolveContent()` 도 쓰지 않아 현재 악용 경로가
+  없습니다. 전송 경로를 건드리는 변경이라 별도로 검증하고 올리세요.
 
 ### CSS
 

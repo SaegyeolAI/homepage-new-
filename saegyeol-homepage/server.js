@@ -1,17 +1,29 @@
 require("dotenv").config();
 const express = require("express");
-const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 const helmet = require("helmet");
 const { rateLimit, ipKeyGenerator } = require("express-rate-limit");
+
+// 정책 값과 검증 로직은 서버리스 쪽(api/)과 같은 모듈을 쓴다.
+// 예전에는 두 구현이 따로 놀아서, 로컬에서 통과한 요청이 운영에서 403으로 막혔다.
+const {
+  RATE_LIMIT, FILE_LIMIT, MAX_NAME, MAX_MESSAGE, ALLOWED_UPLOADS, MESSAGES,
+} = require("./api/_config");
+const {
+  RECIPIENT,
+  sanitizeHeader, sanitizeFilename, escapeHtml,
+  validateUpload, checkOrigin, checkConfigured,
+  detectBot, logBot,
+  EXTERNAL_BANNER_TEXT, EXTERNAL_BANNER_HTML, transporter,
+} = require("./api/_utils");
 
 const app = express();
 
 // Cloudflare 등 리버스 프록시 뒤에서도 실제 클라이언트 IP로 rate limit 적용
 app.set("trust proxy", 1);
 
-// [FIX-1] CORS 설정: 허용 오리진 목록은 환경변수 CORS_ORIGINS(쉼표 구분)로 관리
+// [FIX-1] CORS 설정: 허용 오리진 목록은 환경변수 ALLOWED_ORIGIN(쉼표 구분)으로 관리
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN || "")
   .split(",")
   .map((o) => o.trim());
@@ -54,105 +66,101 @@ app.use(express.json({ limit: "32kb" }));
 
 const PUBLIC_DIR = path.join(__dirname, "public");
 
-
-// [FIX-4] rate limit keyGenerator: IPv6 정규화 + IP·이메일 조합으로 우회 방지
-const apiLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10분
-  max: 5,                    // 최대 5회
+// rate limiter는 엔드포인트마다 따로 둔다.
+// 하나를 공유하면 지원서를 낸 사람이 곧바로 문의를 보낼 때 한도를 나눠 쓰게 된다.
+//
+// 키는 IP만 쓴다. 예전에는 `ip:email`을 썼는데, 이 미들웨어가 multer보다 먼저 돌아
+// req.body가 아직 비어 있어서 email이 항상 빈 문자열이었다(= 죽은 코드).
+// 게다가 키가 잘게 쪼개지면 한 사람이 이메일만 바꿔 한도를 늘릴 수 있어,
+// IP 단위로 묶는 쪽이 제한으로서 더 강하다.
+const makeLimiter = () => rateLimit({
+  windowMs: RATE_LIMIT.windowMs,
+  max: RATE_LIMIT.max,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." },
-  keyGenerator: (req) => {
-    const ip = ipKeyGenerator(req);
-    const email = (req.body?.email || "").trim().toLowerCase().slice(0, 254);
-    return `${ip}:${email}`;
+  keyGenerator: (req) => ipKeyGenerator(req),
+  handler: (req, res) => {
+    const retryAfter = Math.max(1, Math.ceil(RATE_LIMIT.windowMs / 1000));
+    res.setHeader("Retry-After", String(retryAfter));
+    res.status(429).json({ error: MESSAGES.rateLimited, retryAfter });
   },
 });
 
-const RECIPIENT = process.env.CONTACT_RECIPIENT || "contact@saegyeol.ai.kr";
-const MAX_NAME = 100;
-const MAX_MESSAGE = 5000;
-// 파일 업로드 크기 제한: Vercel 서버리스 함수의 request body 한도(4.5MB)에 맞춘다.
-// 프론트엔드(MAX_UPLOAD_BYTES) 및 서버리스 핸들러(api/_utils.js의 FILE_LIMIT)와 동일하게 유지할 것.
-const FILE_LIMIT = 4.5 * 1024 * 1024;
+const contactLimiter = makeLimiter();
+const recruitLimiter = makeLimiter();
 
-// SMTP 헤더 인젝션 방지: 개행문자 제거
-const sanitizeHeader = (s) => String(s).replace(/[\r\n]/g, "");
-
-// [FIX-2] 파일명 sanitize: 경로 순회 문자 및 비허용 문자 제거
-const sanitizeFilename = (name) =>
-  path.basename(String(name)).replace(/[^\w\s.\-]/g, "_").trim() || "attachment";
-
-// 이메일 HTML 본문용 이스케이프
-const escapeHtml = (s) =>
-  String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-
-// [FIX-3] SMTP transporter 싱글턴: 매 요청마다 새 연결을 맺지 않음
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: String(process.env.SMTP_SECURE).toLowerCase() === "true",
-  requireTLS: String(process.env.SMTP_SECURE).toLowerCase() !== "true",
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-const MIME_EXT_MAP = {
-  "application/pdf": [".pdf"],
-  "application/vnd.ms-powerpoint": [".ppt"],
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
-  "application/msword": [".doc"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-  "application/zip": [".zip"],
-  "application/x-zip-compressed": [".zip"],
-  "image/png": [".png"],
-  "image/jpeg": [".jpg", ".jpeg"],
+// 운영과 같은 순서로 검사한다: 환경변수 → Origin → rate limit.
+const guard = (req, res, next) => {
+  const configError = checkConfigured();
+  if (configError) return res.status(503).json({ error: configError });
+  const originError = checkOrigin(req);
+  if (originError) return res.status(403).json({ error: originError });
+  next();
 };
-const ALLOWED_MIMES = new Set(Object.keys(MIME_EXT_MAP));
 
-const mimeFilter = (req, file, cb) => {
-  if (!ALLOWED_MIMES.has(file.mimetype)) {
-    return cb(Object.assign(new Error("허용되지 않는 파일 형식입니다."), { status: 400 }));
-  }
+// multer는 스트리밍 중이라 파일 내용을 볼 수 없다.
+// 여기서는 MIME·확장자만 거르고, 실제 바이트 검사는 핸들러에서 한다.
+const declaredTypeFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (!(MIME_EXT_MAP[file.mimetype] || []).includes(ext)) {
-    return cb(Object.assign(new Error("파일 확장자와 형식이 일치하지 않습니다."), { status: 400 }));
-  }
+  const ok = ALLOWED_UPLOADS.some((u) => u.mime.includes(file.mimetype) && u.ext.includes(ext));
+  if (!ok) return cb(Object.assign(new Error(MESSAGES.uploadBadType), { status: 400 }));
   cb(null, true);
 };
 
-// POST /api/contact — 일반 문의 (파일 첨부 선택)
-const uploadContact = multer({
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: FILE_LIMIT },
-  fileFilter: mimeFilter,
+  fileFilter: declaredTypeFilter,
 });
 
-app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, res) => {
-  const { name, email, message } = req.body || {};
+// multer의 originalname은 latin1로 들어온다. 한글 파일명을 살리려면
+// utf8로 다시 읽어야 한다. (api/ 쪽 formidable은 이미 utf8로 준다.)
+const decodeUploadName = (file) =>
+  sanitizeFilename(Buffer.from(file.originalname, "latin1").toString("utf8"));
+
+// multer의 req.body는 값이 문자열이지만, api/ 쪽 formidable은 배열로 준다.
+// 공용 검증 함수(detectBot, validateUpload)가 같은 모양을 보도록 맞춰 준다.
+const asFields = (body) => {
+  const out = {};
+  for (const [k, v] of Object.entries(body || {})) out[k] = [v];
+  return out;
+};
+
+// POST /api/contact — 일반 문의 (파일 첨부 선택)
+app.post("/api/contact", guard, contactLimiter, upload.single("file"), async (req, res) => {
   const file = req.file;
 
-  if (!name?.trim() || !email?.trim() || !message?.trim()) {
-    return res.status(400).json({ error: "필수 항목이 누락되었습니다." });
+  const botReason = detectBot(asFields(req.body));
+  if (botReason) {
+    logBot("contact", botReason);
+    return res.json({ ok: true });
   }
-  if (name.trim().length > MAX_NAME) {
-    return res.status(400).json({ error: "이름이 너무 깁니다." });
+
+  const name = (req.body?.name ?? "").trim();
+  const email = (req.body?.email ?? "").trim();
+  const message = (req.body?.message ?? "").trim();
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: MESSAGES.missingFields });
+  }
+  if (name.length > MAX_NAME) {
+    return res.status(400).json({ error: MESSAGES.nameTooLong });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return res.status(400).json({ error: "이메일 형식이 올바르지 않습니다." });
+    return res.status(400).json({ error: MESSAGES.badEmail });
   }
-  if (message.trim().length < 4) {
-    return res.status(400).json({ error: "문의 내용이 너무 짧습니다." });
+  if (message.length < 4) {
+    return res.status(400).json({ error: MESSAGES.messageTooShort });
   }
-  if (message.trim().length > MAX_MESSAGE) {
-    return res.status(400).json({ error: "문의 내용이 너무 깁니다. (5,000자 이내로 작성하세요.)" });
+  if (message.length > MAX_MESSAGE) {
+    return res.status(400).json({ error: MESSAGES.messageTooLong });
+  }
+  if (file) {
+    const fileError = validateUpload(
+      { originalFilename: Buffer.from(file.originalname, "latin1").toString("utf8"), mimetype: file.mimetype },
+      file.buffer
+    );
+    if (fileError) return res.status(400).json({ error: fileError });
   }
 
   const safeName = sanitizeHeader(name);
@@ -163,13 +171,13 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
     to: RECIPIENT,
     replyTo: safeEmail,
     subject: `[새결 문의] ${safeName}`,
-    text: `이름: ${name}\n이메일: ${email}\n\n${message}`,
-    html: `<p><strong>이름:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p><hr/><p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>`,
+    text: `${EXTERNAL_BANNER_TEXT}이름: ${name}\n이메일: ${email}\n\n${message}`,
+    html: `${EXTERNAL_BANNER_HTML}<p><strong>이름:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p><hr/><p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>`,
   };
 
   if (file) {
     mailOptions.attachments = [{
-      filename: sanitizeFilename(Buffer.from(file.originalname, "latin1").toString("utf8")),
+      filename: decodeUploadName(file),
       content: file.buffer,
       contentType: file.mimetype,
     }];
@@ -179,47 +187,57 @@ app.post("/api/contact", apiLimiter, uploadContact.single("file"), async (req, r
     await transporter.sendMail(mailOptions);
     res.json({ ok: true });
   } catch (err) {
-    console.error("문의 전송 오류:", err);
-    res.status(500).json({ error: "메일 전송 중 오류가 발생했습니다." });
+    console.error("[contact] 메일 전송 오류:", err.message);
+    res.status(500).json({ error: MESSAGES.sendFailed });
   }
 });
 
 // POST /api/recruit — 채용 지원 (파일 첨부)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: FILE_LIMIT },
-  fileFilter: mimeFilter,
-});
-
-app.post("/api/recruit", apiLimiter, upload.single("file"), async (req, res) => {
-  const { name, email } = req.body || {};
+app.post("/api/recruit", guard, recruitLimiter, upload.single("file"), async (req, res) => {
   const file = req.file;
 
-  if (!name?.trim() || !email?.trim()) {
-    return res.status(400).json({ error: "이름과 이메일은 필수입니다." });
+  const botReason = detectBot(asFields(req.body));
+  if (botReason) {
+    logBot("recruit", botReason);
+    return res.json({ ok: true });
   }
-  if (name.trim().length > MAX_NAME) {
-    return res.status(400).json({ error: "이름이 너무 깁니다." });
+
+  const name = (req.body?.name ?? "").trim();
+  const email = (req.body?.email ?? "").trim();
+
+  if (!name || !email) {
+    return res.status(400).json({ error: MESSAGES.missingFields });
+  }
+  if (name.length > MAX_NAME) {
+    return res.status(400).json({ error: MESSAGES.nameTooLong });
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return res.status(400).json({ error: "이메일 형식이 올바르지 않습니다." });
+    return res.status(400).json({ error: MESSAGES.badEmail });
+  }
+  if (file) {
+    const fileError = validateUpload(
+      { originalFilename: Buffer.from(file.originalname, "latin1").toString("utf8"), mimetype: file.mimetype },
+      file.buffer
+    );
+    if (fileError) return res.status(400).json({ error: fileError });
   }
 
   const safeName = sanitizeHeader(name);
   const safeEmail = sanitizeHeader(email);
+  const attachmentName = file ? decodeUploadName(file) : null;
 
   const mailOptions = {
     from: `"새결 채용" <${process.env.SMTP_USER}>`,
     to: RECIPIENT,
     replyTo: safeEmail,
     subject: `[Saegyeol 지원] ${safeName}`,
-    text: `지원자: ${name}\n이메일: ${email}${file ? `\n첨부파일: ${file.originalname}` : ""}`,
-    html: `<p><strong>지원자:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p>`,
+    text: `${EXTERNAL_BANNER_TEXT}지원자: ${name}\n이메일: ${email}${attachmentName ? `\n첨부파일: ${attachmentName}` : ""}`,
+    html: `${EXTERNAL_BANNER_HTML}<p><strong>지원자:</strong> ${escapeHtml(name)}</p><p><strong>이메일:</strong> ${escapeHtml(email)}</p>`,
   };
 
   if (file) {
     mailOptions.attachments = [{
-      filename: sanitizeFilename(Buffer.from(file.originalname, "latin1").toString("utf8")),
+      filename: attachmentName,
       content: file.buffer,
       contentType: file.mimetype,
     }];
@@ -229,8 +247,8 @@ app.post("/api/recruit", apiLimiter, upload.single("file"), async (req, res) => 
     await transporter.sendMail(mailOptions);
     res.json({ ok: true });
   } catch (err) {
-    console.error("채용 지원 전송 오류:", err);
-    res.status(500).json({ error: "메일 전송 중 오류가 발생했습니다." });
+    console.error("[recruit] 메일 전송 오류:", err.message);
+    res.status(500).json({ error: MESSAGES.sendFailed });
   }
 });
 
@@ -246,14 +264,15 @@ app.use(express.static(PUBLIC_DIR, {
   },
 }));
 
+// 사용자에게는 고정 한글 문구만 내보낸다. 내부 메시지는 로그에만 남긴다.
 app.use((err, _req, res, next) => {
   if (!err) return next();
   if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-    return res.status(413).json({ error: `파일 크기는 ${Math.floor(FILE_LIMIT / 1024 / 1024 * 10) / 10}MB를 초과할 수 없습니다.` });
+    return res.status(413).json({ error: MESSAGES.uploadTooLarge });
   }
-  if (err.status) return res.status(err.status).json({ error: err.message });
-  console.error("요청 처리 오류:", err);
-  return res.status(500).json({ error: "요청 처리 중 오류가 발생했습니다." });
+  if (err.status === 400) return res.status(400).json({ error: err.message });
+  console.error("요청 처리 오류:", err.message);
+  return res.status(500).json({ error: MESSAGES.parseFailed });
 });
 
 // SPA fallback
