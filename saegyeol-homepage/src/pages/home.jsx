@@ -104,7 +104,7 @@ function HomePage({ setRoute }) {
             <div>
               <span className="section-label">TEAM · 새결을 만드는 사람들</span>
               <h3>한국 AI 보안을 가장 가까이서<br />다뤄온 사람들.</h3>
-              <p>오펜시브 시큐리티, LLM 평가, 한국형 컴플라이언스 — 세 영역에서 전문성을 쌓은 팀이 새결의 기술을 만들고 있습니다.</p>
+              <p>오펜시브 시큐리티, LLM 평가, 한국형 컴플라이언스. 이 세 영역을 다뤄온 사람들이 새결의 기술을 만듭니다.</p>
               <div className="av-stack">
                 <span className="av">JH</span>
                 <span className="av">YS</span>

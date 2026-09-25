@@ -208,13 +208,59 @@ function SectionDots({ route }) {
 }
 
 /* ---------------- Back button (법적 고지 페이지용) ---------------- */
+const BackArrow = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+    fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 5l-7 7 7 7" />
+  </svg>
+);
+
 function BackButton({ onBack }) {
   return (
     <button type="button" className="back-link" aria-label="이전 페이지로 돌아가기" onClick={onBack}>
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-        fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 5l-7 7 7 7" />
-      </svg>
+      <BackArrow />
+      <span>뒤로</span>
+    </button>
+  );
+}
+
+// 개인정보처리방침은 4,600px(5화면)이 넘는다. 위쪽 .back-link는 문서 흐름에
+// 놓여 있어서, 아래까지 읽고 나면 나가려고 네 화면을 거슬러 올라가야 했다.
+//
+// 항상 떠 있는 버튼 대신 스크롤 감지형으로 둔다. 이 사이트는 얇은 테두리와
+// 낮은 대비로 조용하게 끌고 가는 톤이라, 법적 문서 위에 상시 떠 있는 알약은
+// 계속 거슬린다. 위쪽에서는 원래 버튼이 바로 보이므로 띄울 이유도 없다.
+// 그래서 원래 버튼이 화면 밖으로 나간 뒤에만 나타나고, 푸터에 닿으면 다시 숨는다.
+const BACK_FLOAT_SHOW_AT = 480;   // 위쪽 .back-link가 확실히 화면을 벗어나는 지점
+const BACK_FLOAT_FOOTER_GAP = 180; // 푸터 링크를 가리지 않도록 미리 비켜난다
+
+function FloatingBackButton({ onBack }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const atBottom = y + window.innerHeight > document.documentElement.scrollHeight - BACK_FLOAT_FOOTER_GAP;
+      setVisible(y > BACK_FLOAT_SHOW_AT && !atBottom);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(measure); };
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  // 숨을 때 visibility: hidden 이라 탭 순서와 접근성 트리에서도 빠진다.
+  return (
+    <button type="button" className={`back-float${visible ? " is-visible" : ""}`}
+      aria-label="이전 페이지로 돌아가기" onClick={onBack}>
+      <BackArrow />
       <span>뒤로</span>
     </button>
   );
@@ -685,15 +731,20 @@ function Honeypot({ startedAt }) {
   );
 }
 
+// 필수/선택을 누르기 전에 알 수 있게 한다.
+// 별표는 눈으로만 보는 표시라 aria-hidden으로 감추고,
+// 스크린리더에는 입력 요소의 aria-required로 알린다.
 function FormField({ id, label, optional, error, children }) {
   const describedBy = error ? `${id}-error` : undefined;
   return (
     <div className={`row${error ? " row-invalid" : ""}`}>
       <label htmlFor={id}>
         {label}
-        {optional && <span style={{ fontWeight: 400, opacity: 0.5 }}> (선택)</span>}
+        {optional
+          ? <span className="field-optional"> (선택)</span>
+          : <span className="field-required" aria-hidden="true"> *</span>}
       </label>
-      {children({ describedBy, invalid: !!error })}
+      {children({ describedBy, invalid: !!error, required: !optional })}
       {error && <p className="field-error" id={`${id}-error`}>{error}</p>}
     </div>
   );
@@ -702,7 +753,7 @@ function FormField({ id, label, optional, error, children }) {
 function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error }) {
   return (
     <FormField id={id} label={label} error={error}>
-      {({ describedBy, invalid }) => (
+      {({ describedBy, invalid, required }) => (
         <input
           id={id}
           name={id}
@@ -710,6 +761,7 @@ function TextField({ id, label, type = "text", placeholder, value, onChange, aut
           placeholder={placeholder}
           value={value}
           autoComplete={autoComplete}
+          aria-required={required || undefined}
           aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
           onChange={(e) => onChange(e.target.value)}
@@ -722,7 +774,7 @@ function TextField({ id, label, type = "text", placeholder, value, onChange, aut
 function FileField({ id, label, optional, file, fileRef, onSelect, note, error }) {
   return (
     <FormField id={id} label={label} optional={optional} error={error}>
-      {({ describedBy, invalid }) => (
+      {({ describedBy, invalid, required }) => (
         <React.Fragment>
           <input
             ref={fileRef}
@@ -732,7 +784,11 @@ function FileField({ id, label, optional, file, fileRef, onSelect, note, error }
             style={{ display: "none" }}
             onChange={(e) => onSelect(e.target.files?.[0] || null)}
           />
+          {/* role="button" 이라 이름이 없으면 스크린리더가 안쪽 글을 통째로 읽는다.
+              선택한 파일이 있으면 그 이름까지 이름에 담아 상태를 알 수 있게 한다. */}
           <div className={`file-drop${invalid ? " file-drop-invalid" : ""}`} role="button" tabIndex={0}
+            aria-label={file ? `첨부파일 선택됨: ${file.name}. 다시 선택하려면 누르세요` : "첨부파일 선택"}
+            aria-required={required || undefined}
             aria-describedby={describedBy}
             onClick={() => fileRef.current?.click()}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click(); }}
@@ -962,8 +1018,9 @@ function ContactForm() {
       <TextField id="cfv2-email" label="이메일 / EMAIL" type="email" placeholder="you@company.kr" autoComplete="email"
         value={data.email} onChange={update("email", "cfv2-email")} error={errors["cfv2-email"]} />
       <FormField id="cfv2-msg" label="문의 내용 / MESSAGE" error={errors["cfv2-msg"]}>
-        {({ describedBy, invalid }) => (
+        {({ describedBy, invalid, required }) => (
           <textarea id="cfv2-msg" name="cfv2-msg" placeholder="자세한 문의 내용을 적어주세요."
+            aria-required={required || undefined}
             aria-invalid={invalid || undefined} aria-describedby={describedBy}
             value={data.message} onChange={(e) => update("message", "cfv2-msg")(e.target.value)} />
         )}
@@ -978,7 +1035,7 @@ function ContactForm() {
 
 Object.assign(window, {
   useTheme, useFullScroll, useReveal, Nav, Footer, Brand, ContactForm, ClosingCTA, Icon,
-  SectionDots, BackButton, ContactButton, createContactNav, SNAP_ROUTES,
+  SectionDots, BackButton, FloatingBackButton, ContactButton, createContactNav, SNAP_ROUTES,
   FormStatus, FormField, TextField, FileField, FormActions, useFileSelect,
   FormBlocked, Honeypot, describeFailure, readJson, focusFirstError, formatSeconds, CONTACT_MAIL,
 });

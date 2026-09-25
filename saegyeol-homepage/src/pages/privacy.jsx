@@ -2,6 +2,9 @@
 function PrivacyPage({ onBack }) {
   return (
     <main className="privacy-page">
+      {/* 긴 문서라 위쪽 버튼이 금방 화면 밖으로 나간다. 스크롤을 내리면 따라온다.
+          position: fixed가 .container의 영향을 받지 않도록 바깥에 둔다. */}
+      <FloatingBackButton onBack={onBack} />
       <div className="container">
         <BackButton onBack={onBack} />
 

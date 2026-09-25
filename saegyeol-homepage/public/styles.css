@@ -2047,3 +2047,83 @@ html[data-theme="dark"] .row-invalid textarea {
   letter-spacing: 0.04em;
   color: var(--text-3);
 }
+
+/* =========================================================
+   디자인 감사 반영 (2026-09-25)
+   ========================================================= */
+
+/* [1] 긴 법적 문서용 스크롤 감지형 뒤로가기.
+   개인정보처리방침이 5화면이 넘어, 위쪽 .back-link는 다 읽고 나면 닿을 수 없었다.
+   상시 떠 있는 버튼 대신 스크롤을 내렸을 때만 나타나게 한다 —
+   이 사이트는 얇은 테두리와 낮은 대비로 조용히 끌고 가는 톤이라,
+   법적 문서 위에 알약이 계속 떠 있으면 그 톤을 깬다.
+   숨을 때 visibility: hidden 이라 탭 순서·접근성 트리에서도 빠진다.
+   z-index는 도트 내비와 같은 45 — 둘은 같은 페이지에 함께 나오지 않는다. */
+.back-float {
+  position: fixed;
+  right: 22px;
+  bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px));
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 18px 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--card-bg, var(--bg));
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(12, 18, 28, 0.14);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0.22s,
+              color 0.2s ease, border-color 0.2s ease;
+}
+.back-float.is-visible {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s,
+              color 0.2s ease, border-color 0.2s ease;
+}
+.back-float svg { width: 16px; height: 16px; }
+.back-float:hover { color: var(--text); border-color: var(--text-3); }
+.back-float:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+html[data-theme="dark"] .back-float { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42); }
+
+@media (prefers-reduced-motion: reduce) {
+  .back-float,
+  .back-float.is-visible { transition: none; transform: none; }
+}
+
+/* [8] 좁은 화면에서만 보이는 안내 (예: 표 좌우 스크롤) */
+.only-mobile { display: none; }
+
+/* [6] 필수·선택 표시 */
+.field-optional { font-weight: 400; opacity: 0.5; }
+.field-required { color: #d13b3b; font-weight: 700; }
+html[data-theme="dark"] .field-required { color: #ff8585; }
+
+@media (max-width: 800px) {
+  .only-mobile { display: block; }
+
+  /* [2] iOS 사파리는 16px 미만 입력 칸에 포커스하면 화면을 확대한다.
+     데스크톱은 기존 15px 그대로 두고 모바일에서만 올린다. */
+  .form input,
+  .form textarea { font-size: 16px; }
+
+  /* [4] 모바일 터치 영역 44px 이상 (Apple HIG) */
+  .back-link {
+    min-height: 44px;
+    padding: 11px 18px 11px 14px;
+  }
+  .back-float {
+    right: 16px;
+    min-height: 48px;
+    padding: 12px 20px 12px 16px;
+  }
+}

@@ -69,7 +69,7 @@ function TeamPage({ setRoute }) {
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">TEAM · 새결을 만드는 사람들</span>
           <h1>AI 보안을<br/>믿고 맡길 수 있는 팀</h1>
-          <p>오펜시브 시큐리티 · LLM 연구 · 한국형 컴플라이언스 — 새결의 팀은 한국 AI 에이전트 환경을 깊이 연구해 온 사람들로 구성됩니다.</p>
+          <p>오펜시브 시큐리티, LLM 연구, 한국형 컴플라이언스. 한국 AI 에이전트 환경을 오래 들여다본 사람들이 모였습니다.</p>
         </div>
       </section>
 
@@ -102,7 +102,7 @@ function TeamPage({ setRoute }) {
             <div style={{position:"relative", zIndex:1}}>
               <span className="section-label">JOIN US · 채용</span>
               <h2>함께할 사람을<br/>찾습니다.</h2>
-              <p>이력서, 프로젝트, 글, 발표 영상 — 형식은 자유입니다. 새결이 풀고 있는 문제에 흥미가 있다면 가볍게라도 보내주세요. 자유 형식의 포트폴리오를 contact@saegyeol.ai.kr 로 전달합니다.</p>
+              <p>이력서든 프로젝트든, 써둔 글이나 발표 영상이든 형식은 자유입니다. 새결이 푸는 문제에 흥미가 있다면 가볍게라도 보내주세요. contact@saegyeol.ai.kr 로 전달됩니다.</p>
               <div className="tags">
                 <span className="tag">Offensive Eng.</span>
                 <span className="tag">LLM Researcher</span>

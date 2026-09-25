@@ -63,6 +63,9 @@ function App() {
   return (
     <React.Fragment>
       <Nav route={route} setRoute={setRoute} theme={theme} setTheme={setTheme} />
+      {/* 도트 내비는 화면 오른쪽에 고정돼 있지만 탭 순서는 DOM 순서를 따른다.
+          페이지 뒤에 두었을 때는 Tab을 26번 눌러야 닿았다. Nav 바로 뒤로 옮긴다. */}
+      <SectionDots route={route} />
       {route === "home" && <HomePage setRoute={setRoute} />}
       {route === "team" && <TeamPage setRoute={setRoute} />}
       {route === "product" && <ProductPage setRoute={setRoute} />}
@@ -72,7 +75,6 @@ function App() {
       {route === "feature-shadow" && <FeatureShadowPage setRoute={setRoute} />}
       {route === "feature-pii" && <FeaturePiiPage setRoute={setRoute} />}
       {route === "feature-report" && <FeatureReportPage setRoute={setRoute} />}
-      <SectionDots route={route} />
       <Footer setRoute={setRoute} />
     </React.Fragment>
   );

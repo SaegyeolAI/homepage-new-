@@ -9,7 +9,7 @@ function PricingPage({ setRoute }) {
     {
       id: "free",
       name: "무료",
-      caption: "한 번 검사하고 결과를 받아보는 단계",
+      caption: "처음 한 번 검사해 볼 때",
       features: [
         "전체 탐지 + 형태 변형 공격",
         "재현 가능한 증거가 담긴 리포트",
@@ -21,7 +21,7 @@ function PricingPage({ setRoute }) {
     {
       id: "pro",
       name: "프로",
-      caption: "고치고 다시 확인하기를 반복하는 단계",
+      caption: "고친 뒤 다시 검사하는 일이 잦을 때",
       featured: true,
       features: [
         "무료 기능 전부 포함",
@@ -62,7 +62,7 @@ function PricingPage({ setRoute }) {
         <div className="hero-bg" />
         <div className="container" style={{ position: "relative" }}>
           <span className="section-label">PRODUCT · 여울 · PRICING</span>
-          <h1>뚫는 능력은 같고,<br />다시 보는 횟수가 다릅니다.</h1>
+          <h1>뚫는 능력은 같고,<br />다시 검사하는 횟수가 다릅니다.</h1>
           <p>비싼 플랜이라고 더 잘 찾아내지는 않습니다. 어느 플랜이든 같은 엔진으로 검사합니다. 갈리는 건 몇 번이나 다시 검사할 수 있는지, 인증서를 받는지, 어디에 설치하는지입니다.</p>
           <p className="pricing-pending">요금제는 출시와 함께 공개합니다.</p>
           <div className="hero-cta" style={{ marginTop: 36 }}>
@@ -113,7 +113,9 @@ function PricingPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">COMPARE</span>
             <h2>어떻게 운영할지에 맞춰 고르세요.</h2>
-            <p>모바일에서는 표를 좌우로 움직여 확인할 수 있습니다.</p>
+            <p>검사 성능은 세 플랜이 같습니다. 표에서 갈리는 건 횟수와 인증서, 설치 위치입니다.</p>
+            {/* 좌우 스크롤 안내는 표가 잘리는 좁은 화면에서만 의미가 있다. */}
+            <p className="only-mobile">표를 좌우로 밀어서 보세요.</p>
           </div>
           <div className="pricing-table-wrap" role="region" aria-label="여울 요금제 비교표" tabIndex={0}>
             <table className="pricing-table">
