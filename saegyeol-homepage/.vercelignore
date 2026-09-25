@@ -3,6 +3,10 @@ server.js
 .env.example
 node_modules/
 
+# 검토용 문서. 빌드 입력이 아니라 제외해도 안전하다.
+# (아래 src/ 와 혼동하지 말 것 — src/ 는 빌드 입력이라 제외하면 배포가 깨진다.)
+docs/
+
 # src/ 는 제외하지 않는다.
 # Vercel이 배포 때 `npm run build`(build.js)를 실행하는데, 그 입력이 src/*.jsx다.
 # 여기에 src/를 다시 넣으면 빌드가 ENOENT로 실패해 배포 자체가 깨진다.

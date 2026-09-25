@@ -10,6 +10,14 @@ const { RATE_LIMIT, MESSAGES } = require("./_config");
 //   UPSTASH_REDIS_REST_URL
 //   UPSTASH_REDIS_REST_TOKEN
 //
+// ⚠️ Vercel Marketplace(Storage)로 Upstash Redis를 연결하면 변수가 KV_ 이름으로
+//    자동 생성된다 — KV_REST_API_URL / KV_REST_API_TOKEN.
+//    이 코드는 UPSTASH_ 이름만 읽으므로, 연동 후 그 값을 UPSTASH_REDIS_REST_URL /
+//    UPSTASH_REDIS_REST_TOKEN 으로 직접 옮겨 넣어야 한다. 옮기지 않으면 환경변수가
+//    있는 것처럼 보여도 rate limit이 꺼진 채로 남는다.
+//    읽기 전용 토큰(KV_REST_API_READ_ONLY_TOKEN)을 넣으면 카운터를 쓰지 못해
+//    매 요청이 Redis 오류로 떨어지고 인메모리 폴백으로 강등된다.
+//
 // 둘이 비어 있으면 운영에서는 _utils.checkConfigured가 폼을 막는다(fail-closed).
 // 프리뷰·로컬에서는 아래 인메모리 구현으로 동작한다.
 
