@@ -673,7 +673,7 @@ function Nav({ route, setRoute, theme, setTheme }) {
                 <h5>여울 기능</h5>
                 <a className="mega-item" role="menuitem" tabIndex={0} onClick={() => go("feature-shadow")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") go("feature-shadow"); }}>
                   <div className="t">Shadow Agent 탐지</div>
-                  <div className="d">사각지대의 개인 AI 에이전트 발견</div>
+                  <div className="d">사각지대의 개인 AI&nbsp;에이전트 발견</div>
                 </a>
                 <a className="mega-item" role="menuitem" tabIndex={0} onClick={() => go("feature-pii")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") go("feature-pii"); }}>
                   <div className="t">K-PII 차단</div>

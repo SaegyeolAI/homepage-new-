@@ -17,12 +17,12 @@ function HomePage({ setRoute }) {
         <div className="hero-inner">
           <span className="hero-tag"><span className="blink" />KOREAN AI AGENT SECURITY · SINCE 2026</span>
           <h1>
-            Securing the Future<br />
+            Securing the Future<br className="wide-only" />{" "}
             of <span className="accent-w">Korean AI Agents.</span>
           </h1>
           <p className="hero-sub">
             AI 에이전트, 내보내도 괜찮은 상태인지 먼저 확인하세요.<br />
-            여울은 출시 직전의 한국어 AI 에이전트에 실제 공격을 넣어보고 배포 여부를 판정합니다.<br />
+            여울은 출시 직전의 한국어 AI 에이전트에 실제 공격을 넣어보고 배포 여부를 판정합니다.
           </p>
           <div className="hero-cta">
             <button className="btn btn-accent" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
@@ -52,7 +52,7 @@ function HomePage({ setRoute }) {
               <span className="num">01</span>
               <div className="ico"><Icon.shadow /></div>
               <h3>Shadow Agent 탐지</h3>
-              <p>임직원이 사내 데이터로 만든 개인 AI 에이전트가 만드는 보안 사각지대를 자동으로 발견하고 위험도를 평가합니다.</p>
+              <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트가 만드는 보안 사각지대를 자동으로 발견하고 위험도를 평가합니다.</p>
               <span className="more">자세히 보기</span>
             </article>
             <article className="card card-link" role="link" tabIndex={0}
@@ -104,7 +104,7 @@ function HomePage({ setRoute }) {
             onKeyDown={(e) => { if (e.key === "Enter") { setRoute("team"); window.scrollTo({ top: 0 }); } }}>
             <div>
               <span className="section-label">TEAM · 새결을 만드는 사람들</span>
-              <h3>한국 AI 보안을 가장 가까이서<br />다뤄온 사람들.</h3>
+              <h3>한국 AI 보안을 가장 가까이서<br className="wide-only" />{" "}다뤄온 사람들.</h3>
               <p>오펜시브 시큐리티, LLM 평가, 한국형 컴플라이언스. 이 세 영역을 다뤄온 사람들이 새결의 기술을 만듭니다.</p>
               <div className="av-stack">
                 <span className="av">JH</span>

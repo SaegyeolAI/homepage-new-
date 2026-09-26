@@ -12,7 +12,7 @@ function FeatureShadowPage({ setRoute }) {
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">CAPABILITY 01 · SHADOW AGENT 탐지</span>
           <h1>보안팀도 모르는<br/>AI 에이전트를<br/>먼저 찾아냅니다.</h1>
-          <p>임직원이 사내 데이터로 만든 개인 AI 에이전트는 IT·보안팀의 가시권 밖에서 작동합니다. 여울은 네트워크 트래픽과 MCP 연결 패턴을 분석해 Shadow Agent를 자동으로 식별하고 데이터 노출 위험도를 평가합니다.</p>
+          <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트는 IT·보안팀의 가시권 밖에서 작동합니다. 여울은 네트워크 트래픽과 MCP 연결 패턴을 분석해 Shadow Agent를 자동으로 식별하고 데이터 노출 위험도를 평가합니다.</p>
           <div className="hero-cta" style={{marginTop:36}}>
             <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>

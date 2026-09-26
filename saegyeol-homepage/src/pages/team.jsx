@@ -68,7 +68,7 @@ function TeamPage({ setRoute }) {
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">TEAM · 새결을 만드는 사람들</span>
-          <h1>AI 보안을<br/>믿고 맡길 수 있는 팀</h1>
+          <h1>AI 보안을<br className="wide-only" />{" "}믿고 맡길 수 있는 팀</h1>
           <p>오펜시브 시큐리티, LLM 연구, 한국형 컴플라이언스. 한국 AI 에이전트 환경을 오래 들여다본 사람들이 모였습니다.</p>
         </div>
       </section>

@@ -77,7 +77,7 @@ function ProductPage({ setRoute }) {
               <span className="num">01</span>
               <div className="ico"><Icon.shadow /></div>
               <h3>Shadow Agent 탐지</h3>
-              <p>임직원이 사내 데이터로 만든 개인 AI 에이전트(ChatGPT GPTs, MCP 클라이언트 등)가 만드는 보안 사각지대를 자동으로 발견하고, 데이터 노출 위험도를 평가합니다.</p>
+              <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트(ChatGPT GPTs, MCP 클라이언트 등)가 만드는 보안 사각지대를 자동으로 발견하고, 데이터 노출 위험도를 평가합니다.</p>
               <span className="more">자세히 보기</span>
             </article>
             <article className="card card-link" role="link" tabIndex={0}

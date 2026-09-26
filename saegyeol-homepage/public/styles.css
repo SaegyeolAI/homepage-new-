@@ -1656,7 +1656,8 @@ html[data-theme="dark"] .recruit {
 }
 .honesty-note .section-label { color: rgba(255,255,255,0.62); }
 .honesty-note h3 { margin: 18px 0 10px; font-size: clamp(24px, 3vw, 36px); }
-.honesty-note p { margin: 0; color: rgba(255,255,255,0.72); line-height: 1.75; max-width: 900px; }
+/* max-width는 위 "줄바꿈 모양" 블록의 --measure-ko가 맡는다(900px = 약 53자였다). */
+.honesty-note p { margin: 0; color: rgba(255,255,255,0.72); line-height: 1.75; }
 .pricing-compare-section { background: var(--bg-2); }
 .pricing-table-wrap {
   overflow-x: auto;
@@ -2111,6 +2112,43 @@ html[data-theme="dark"] .back-float { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42)
 html {
   word-break: keep-all;
   overflow-wrap: break-word;
+}
+
+/* 줄바꿈 모양 (2026-09-26)
+   ---------------------------------------------------------
+   어절 단위로 끊는 것(위 keep-all)과는 별개로, "끊긴 자리가 보기 좋은가"는
+   따로 손대야 한다. 측정에서 나온 두 가지를 잡는다.
+
+   balance — 제목. 줄 길이를 고르게 나눈다. 390px에서 "믿고 맡길 수 있는 /
+     팀"처럼 마지막 줄에 한 글자만 남던 것을 없앤다. 브라우저가 지원하지
+     않으면 그냥 지금처럼 보인다(점진적 개선). 줄 수가 많은 블록에서는
+     브라우저가 스스로 포기하므로 제목에만 건다.
+
+   pretty — 본문. 마지막 줄에 한 어절만 떨어지는 것을 줄인다.
+     balance와 달리 긴 문단에도 쓸 수 있다. */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+p, li, dd, figcaption, summary, .k, .v, .d {
+  text-wrap: pretty;
+}
+
+/* 한국어 본문 한 줄 길이.
+   한글 글자 폭이 대략 1em이라 em으로 재면 값이 곧 글자 수가 된다.
+   42em ≈ 한 줄 42자. 35~45자가 눈이 줄을 되짚지 않는 범위다.
+   .section-head p는 이미 640px(약 37자)라 그대로 둔다. */
+:root { --measure-ko: 42em; }
+.honesty-note p,
+.faq-list details p,
+.faq-list summary {
+  max-width: min(100%, var(--measure-ko));
+}
+
+/* 제목의 강제 줄바꿈을 좁은 화면에서만 푼다.
+   측정에서 390px에 한 글자·반 줄짜리 조각을 만든 세 곳에만 붙였다.
+   나머지 <br>은 모든 폭에서 모양이 멀쩡해 그대로 둔다. */
+@media (max-width: 800px) {
+  br.wide-only { display: none; }
 }
 
 /* 끊을 자리가 아예 없는 값들. 여기서는 어디서든 끊는 편이 넘치는 것보다 낫다. */
