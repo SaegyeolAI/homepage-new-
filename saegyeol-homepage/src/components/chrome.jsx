@@ -867,8 +867,8 @@ function ClosingCTA({ onContact }) {
     <section className="closing-cta" data-section-label="문의하기">
       <div className="closing-cta-inner">
         <span className="label">점검 문의</span>
-        <h2>내보내기 전에<br className="wide-only" />{" "}한 번 두드려 봐요.</h2>
-        <p>어디까지 확인했고 무엇이 남았는지 같이 정리해 드려요. 범위와 일정부터 편하게 물어보세요.</p>
+        <h2>내보내기 전에<br className="wide-only" />{" "}한 번 점검해 봐요.</h2>
+        <p>어디까지 확인했고 무엇이 남았는지 같이 정리해 드려요.<br />범위와 일정부터 편하게 물어보세요.</p>
         <div className="hero-cta">
           <ContactButton onContact={onContact} />
         </div>
