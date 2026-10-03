@@ -158,7 +158,7 @@ function TeamPage({ setRoute }) {
                 onChange={(v) => { setEmail(v); setErrors((p) => (p["rcv2-email"] ? { ...p, "rcv2-email": "" } : p)); }} />
               <FileField id="rcv2-file" label="포트폴리오 / FREE FORMAT"
                 file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
-                note={`한 개만 첨부할 수 있어요. 영상이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 ${CONTACT_MAIL}로 보내주세요.`} />
+                note={`한 개만 첨부할 수 있어요. 영상이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 ${CONTACT_MAIL}로 보내주세요.`} />
               <FormActions sending={sending} label="지원하기" hint={`→ ${CONTACT_MAIL} 로 전송돼요`} />
             </form>
           </div>

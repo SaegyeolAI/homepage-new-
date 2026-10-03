@@ -14,7 +14,7 @@ function HomePage({ setRoute }) {
   // 했으므로 둘을 겹쳐 쓰지 않고, 물결선은 히어로 끝에 한 번만 둔다.
   return (
     <div data-screen-label="01 Home">
-      {/* 히어로 — 물보라 면, 왼쪽 정렬, 큰 문장 한 줄 + 짧은 설명 + 버튼 두 개 */}
+      {/* 히어로 — 물보라 면, 왼쪽 정렬, 큰 문장 한 줄 + 짧은 설명 + 버튼 두 개 */}
       <section className="hero" data-section-label="인트로">
         <div className="hero-inner">
           <span className="hero-tag">한국어 AI 에이전트 보안</span>
@@ -117,18 +117,17 @@ function HomePage({ setRoute }) {
             <div className="item">
               <div className="v">97.4<span className="unit">%</span></div>
               <div className="k">찾아낸 비율</div>
-              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">5.3<span className="unit">%</span></div>
               <div className="k">잘못 짚은 비율</div>
-              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">4<span className="unit">단계</span></div>
               <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
+          <p className="stats-basis">찾아낸 비율과 잘못 짚은 비율은 자체 테스트 기준이에요.</p>
         </div>
       </section>
 
@@ -155,7 +154,7 @@ function HomePage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">3단계</span>
               <h4>판정과 리포트</h4>
-              <p>결과를 확정·의심·통과·미검사 네 단계로 나눠 드려요. 고치는 방법을 항목마다 같이 적어요.</p>
+              <p>결과를 확정·의심·통과·미검사 네 단계로 나눠 드려요. 고치는 방법을 항목마다 같이 적어요.</p>
             </div>
           </div>
         </div>
@@ -170,7 +169,7 @@ function HomePage({ setRoute }) {
             <div>
               <span className="section-label">새결을 만드는 사람들</span>
               <h3>한국 AI 보안을 가장 가까이서<br className="wide-only" />{" "}다뤄온 사람들.</h3>
-              <p>공격 쪽 보안, AI 성능 평가, 한국형 컴플라이언스. 이 세 가지를 다뤄온 사람들이 새결의 기술을 만들어요.</p>
+              <p>공격 쪽 보안, AI 성능 평가, 한국형 컴플라이언스. 이 세 가지를 다뤄온 사람들이 새결의 기술을 만들어요.</p>
               <div className="av-stack">
                 <span className="av">JH</span>
                 <span className="av">YS</span>

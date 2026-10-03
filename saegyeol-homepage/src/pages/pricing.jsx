@@ -9,7 +9,7 @@ function PricingPage({ setRoute }) {
     {
       id: "free",
       name: "무료",
-      caption: "처음 한 번 검사해 볼 때",
+      caption: "처음 한 번 검사해 볼 때",
       features: [
         "전체 탐지 + 형태 변형 공격",
         "재현 가능한 증거가 담긴 리포트",
@@ -79,7 +79,7 @@ function PricingPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">플랜 3가지</span>
             <h2>세 플랜, 한눈에.</h2>
-            <p>우선 무료로 한 번 검사해 보세요. 고치고 다시 확인하는 일이 잦아지면 프로예요. 에이전트가 여럿이거나 내부망에 둬야 한다면 프랜차이즈를 보시면 돼요.</p>
+            <p>우선 무료로 한 번 검사해 보세요. 고치고 다시 확인하는 일이 잦아지면 프로예요. 에이전트가 여럿이거나 내부망(<Term k="온프레미스">온프레미스</Term>)에 둬야 한다면 프랜차이즈를 보시면 돼요.</p>
             <p className="pricing-pending">금액은 아직 정하는 중이에요.</p>
           </div>
 

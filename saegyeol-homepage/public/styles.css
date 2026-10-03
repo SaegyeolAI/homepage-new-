@@ -2745,3 +2745,67 @@ html[data-theme="dark"] .field-required { color: var(--text); }
 
 @media (max-width: 980px) { .about-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .about-grid { grid-template-columns: 1fr; } }
+
+/* ═══ 5장 용어 툴팁 ═══════════════════════════════════════════════════
+   표시는 글자색과 같은 점선 밑줄. (문서 기본값은 물결 블루지만, 본문 속에서
+   파란 밑줄이 여러 개 보이면 링크로 읽혀서 색을 글자색으로 맞췄다.)
+   말풍선은 position: fixed — .card에 overflow: hidden이 있어 absolute로는
+   카드 안에서 잘린다. 위치는 JS가 계산해 넣는다. */
+
+.sg-term {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: help;
+  text-decoration: underline dotted currentColor;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.sg-term:hover,
+.sg-term[aria-expanded="true"] { text-decoration-style: solid; }
+.sg-term:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.sg-tip {
+  position: fixed;
+  z-index: 120;
+  max-width: 280px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--sg-navy);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-float);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-align: left;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-decoration: none;
+  pointer-events: none;   /* 말풍선 위로 마우스가 올라가도 닫히게 둔다 */
+}
+/* 어두운 배경에서는 반전 (2장 반전 색 규칙) */
+html[data-theme="dark"] .sg-tip {
+  background: #FFFFFF;
+  color: var(--sg-navy);
+}
+/* 이미 어두운 면 위에 놓인 용어(정직 블록 등)도 같은 규칙 */
+.honesty-note .sg-tip,
+.closing-cta .sg-tip {
+  background: #FFFFFF;
+  color: var(--sg-navy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-tip { transition: none; }
+}

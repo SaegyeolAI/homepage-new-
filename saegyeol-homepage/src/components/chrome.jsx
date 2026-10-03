@@ -70,7 +70,7 @@ function isActivatable(el) {
   return ["BUTTON", "A", "SUMMARY", "DETAILS", "LABEL"].includes(el.tagName);
 }
 
-/* ---------------- 휠 한 번 = 한 섹션 ---------------- */
+/* ---------------- 휠 한 번 = 한 섹션 ---------------- */
 
 // CSS scroll-snap만으로는 "한 번에 한 섹션"이 되지 않는다. proximity는
 // 스크롤이 멎은 뒤에야 개입해서, 조금 내리면 제자리로 끌려오는 느낌이 난다.
@@ -517,6 +517,110 @@ function useReveal(route) {
   }, [route]);
 }
 
+/* ---------------- 용어 툴팁 ----------------
+   디자인 시스템 5장.
+   - 홈·랜딩에는 달지 않는다. 상세 페이지에만, 한 페이지에 2~3개 이하,
+     같은 용어는 첫 등장에 한 번만.
+   - "모의해킹", "재현", "취약점"처럼 글자만 봐도 뜻이 짐작되는 말에는 달지 않는다.
+   - 설명 문구는 아래 용어집 하나에서만 가져온다. 매체마다 다르게 쓰지 않는다.
+
+   말풍선을 position: fixed로 띄운다. .card에 overflow: hidden이 걸려 있어서
+   absolute로 두면 카드 안에서 잘린다. */
+
+const GLOSSARY = {
+  "레드티밍": "실제 공격자처럼 목표를 하나 정하고, 회사 전체를 대상으로 끝까지 공격해 보는 훈련이에요.",
+  "프롬프트 인젝션": "AI에게 몰래 다른 지시를 끼워 넣어서, 하면 안 되는 일을 시키는 공격이에요.",
+  "위험도": "얼마나 급한지를 나타내요. Critical은 지금 바로, High는 되도록 빨리, Medium은 일정을 잡아서, Low는 여유 있을 때 고치면 돼요.",
+  "Shadow Agent": "회사가 모르는 사이에 직원이 직접 만들어 쓰는 AI예요. 사내 자료를 쥐고 있는데 관리 목록에는 없어요.",
+  "MCP": "AI를 외부 도구나 자료에 연결할 때 쓰는 규격이에요. 연결이 늘어날수록 자료가 새어 나갈 길도 늘어나요.",
+  "교착어": "한국어처럼 낱말 뒤에 조사와 어미가 줄줄이 붙는 언어예요. 같은 말을 쓰는 방법이 아주 많아져요.",
+  "핑거프린팅": "오가는 통신의 생김새를 보고 무엇이 연결됐는지 알아내는 방법이에요. 일일이 신고받지 않아도 돼요.",
+  "오탐": "문제가 아닌 것을 문제라고 잘못 짚는 거예요. 많아지면 경고를 믿지 않게 돼요.",
+  "체크섬": "번호가 규칙에 맞게 만들어진 것인지 계산해 보는 검사예요. 아무 숫자나 적은 것을 걸러낼 수 있어요.",
+  "온프레미스": "회사 안에 있는 서버에 직접 설치해서 쓰는 방식이에요. 자료가 바깥으로 나가지 않아요.",
+  "컴플라이언스": "법이나 인증 기준을 지키고 있는지 챙기는 일이에요.",
+};
+
+function Term({ k, children }) {
+  const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [box, setBox] = useState(null);
+  const ref = useRef(null);
+  const tipId = "sgtip-" + encodeURIComponent(k).replace(/%/g, "");
+  const text = GLOSSARY[k];
+
+  const place = () => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const w = Math.min(280, window.innerWidth - 32);
+    const left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 16));
+    // 위쪽에 자리가 없으면 아래로 연다.
+    const above = r.top > 150;
+    setBox({ left, w, above, top: above ? r.top : r.bottom });
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    place();
+    const outside = (e) => { if (!ref.current || !ref.current.contains(e.target)) { setOpen(false); setPinned(false); } };
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      setOpen(false); setPinned(false);
+      if (ref.current) ref.current.focus();
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open]);
+
+  if (!text) return <>{children || k}</>;   // 용어집에 없으면 그냥 글자로 둔다
+
+  const style = box ? {
+    left: box.left + "px",
+    width: box.w + "px",
+    ...(box.above
+      ? { top: (box.top - 10) + "px", transform: "translateY(-100%)" }
+      : { top: (box.top + 10) + "px" }),
+  } : { opacity: 0 };
+
+  return (
+    <button
+      type="button"
+      ref={ref}
+      className="sg-term"
+      aria-describedby={open ? tipId : undefined}
+      aria-expanded={open}
+      onClick={(e) => {
+        // 카드 전체가 링크인 자리에도 들어가므로 카드 클릭으로 번지지 않게 막는다.
+        e.stopPropagation();
+        e.preventDefault();
+        setPinned((p) => !p);
+        setOpen((o) => !o || !pinned);
+      }}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") e.stopPropagation(); }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => { if (!pinned) setOpen(false); }}
+      onFocus={() => setOpen(true)}
+      onBlur={() => { if (!pinned) setOpen(false); }}
+    >
+      {children || k}
+      {open && (
+        <span className="sg-tip" id={tipId} role="tooltip" style={style}>{text}</span>
+      )}
+    </button>
+  );
+}
+window.Term = Term;
+window.GLOSSARY = GLOSSARY;
+
 /* ---------------- Theme ---------------- */
 
 // 처음 온 방문자는 라이트모드를 보게 한다.
@@ -763,7 +867,7 @@ function ClosingCTA({ onContact }) {
     <section className="closing-cta" data-section-label="문의하기">
       <div className="closing-cta-inner">
         <span className="label">점검 문의</span>
-        <h2>내보내기 전에<br className="wide-only" />{" "}한 번 두드려 봐요.</h2>
+        <h2>내보내기 전에<br className="wide-only" />{" "}한 번 두드려 봐요.</h2>
         <p>어디까지 확인했고 무엇이 남았는지 같이 정리해 드려요. 범위와 일정부터 편하게 물어보세요.</p>
         <div className="hero-cta">
           <ContactButton onContact={onContact} />
@@ -981,7 +1085,7 @@ function FileField({ id, label, optional, file, fileRef, onSelect, note, error }
             <div className="icon">{file ? "✓" : "↑"}</div>
             <div className="meta">
               <div className="name">{file ? file.name : "파일을 선택하거나 여기로 끌어다 놓으세요"}</div>
-              <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `${UPLOAD_TYPES_LABEL} (최대 ${MAX_UPLOAD_LABEL}, 한 개)`}</div>
+              <div className="sub">{file ? `${(file.size / 1024).toFixed(1)} KB` : `${UPLOAD_TYPES_LABEL} (최대 ${MAX_UPLOAD_LABEL}, 한 개)`}</div>
             </div>
           </div>
           <p className="field-note">{note}</p>
@@ -1201,7 +1305,7 @@ function ContactForm() {
       </FormField>
       <FileField id="cfv2-file" label="첨부파일 / ATTACHMENT" optional
         file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
-        note={`한 개만 첨부할 수 있어요. 여러 개이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 문의 내용에 적어주세요.`} />
+        note={`한 개만 첨부할 수 있어요. 여러 개이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 문의 내용에 적어주세요.`} />
       <FormActions sending={sending} label="문의 보내기" hint={`→ ${CONTACT_MAIL} 로 전송돼요`} />
     </form>
   );

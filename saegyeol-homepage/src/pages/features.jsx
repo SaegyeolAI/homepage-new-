@@ -12,7 +12,7 @@ function FeatureShadowPage({ setRoute }) {
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">CAPABILITY 01 · SHADOW AGENT 탐지</span>
           <h1>보안팀도 모르는<br/>AI 에이전트를<br/>먼저 찾아냅니다.</h1>
-          <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트는 IT·보안팀의 가시권 밖에서 작동해요. 여울은 네트워크 트래픽과 MCP 연결 패턴을 분석해 Shadow Agent를 자동으로 식별하고 데이터 노출 위험도를 평가해요.</p>
+          <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트는 IT·보안팀의 가시권 밖에서 작동해요. 여울은 네트워크 트래픽과 <Term k="MCP">MCP</Term> 연결 패턴을 분석해 <Term k="Shadow Agent">Shadow Agent</Term>를 자동으로 식별하고 데이터 노출 위험도를 평가해요.</p>
           <div className="hero-cta" style={{marginTop:36}}>
             <ContactButton onContact={goContact} />
             <button className="btn btn-ghost" onClick={() => { setRoute("product"); window.scrollTo({ top: 0 }); }}>
@@ -28,7 +28,7 @@ function FeatureShadowPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">문제</span>
             <h2>AI 에이전트 위협의<br/>80%는 내부에서 시작돼요.</h2>
-            <p>생성형 AI 도구가 대중화되면서 임직원들은 보안 검토 없이 사내 데이터를 연결한 개인 AI 워크플로우를 구축하고 있어요. 이 Shadow Agent들은 승인되지 않은 경로로 고객 정보, 내부 코드, 금융 데이터를 처리하고 외부 LLM 서비스로 전송해요.</p>
+            <p>생성형 AI 도구가 대중화되면서 임직원들은 보안 검토 없이 사내 데이터를 연결한 개인 AI 워크플로우를 구축하고 있어요. 이 Shadow Agent들은 승인되지 않은 경로로 고객 정보, 내부 코드, 금융 데이터를 처리하고 외부 LLM 서비스로 전송해요.</p>
           </div>
           <div className="stats">
             <div className="item">
@@ -57,7 +57,7 @@ function FeatureShadowPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">그림자 에이전트 유형</span>
             <h2>어떤 형태로 숨어있는가.</h2>
-            <p>Shadow Agent는 세 가지 유형으로 분류돼요. 각 유형은 서로 다른 공격 표면과 데이터 노출 경로를 가집니다.</p>
+            <p>Shadow Agent는 세 가지 유형으로 분류돼요. 각 유형은 서로 다른 공격 표면과 데이터 노출 경로를 가집니다.</p>
           </div>
           <div className="cards">
             <article className="card">
@@ -93,7 +93,7 @@ function FeatureShadowPage({ setRoute }) {
           <div className="flow">
             <div className="flow-step">
               <span className="step-num">1단계</span>
-              <h4>트래픽 핑거프린팅</h4>
+              <h4>트래픽 <Term k="핑거프린팅">핑거프린팅</Term></h4>
               <p>외부 LLM API 엔드포인트(OpenAI, Anthropic, Google 등)로 향하는 비인가 트래픽 패턴과 MCP SSE/WebSocket 핸드셰이크를 수동 개입 없이 탐지해요.</p>
               <div className="terminal">detect llm_api · mcp_handshake · sse_stream</div>
             </div>
@@ -268,13 +268,13 @@ function FeaturePiiPage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">1단</span>
               <h4>정규식 패턴 매칭</h4>
-              <p>주민번호 체크섬·카드 Luhn 알고리즘·계좌번호 형식 등 구조적으로 검증 가능한 패턴을 0ms 지연으로 1차 필터링해요.</p>
+              <p>주민번호 <Term k="체크섬">체크섬</Term>·카드 Luhn 알고리즘·계좌번호 형식 등 구조적으로 검증 가능한 패턴을 0ms 지연으로 1차 필터링해요.</p>
               <div className="terminal">regex · checksum · luhn · bank_bin</div>
             </div>
             <div className="flow-step">
               <span className="step-num">2단</span>
               <h4>ML 분류 모델</h4>
-              <p>문맥 없이 숫자 나열만으로는 구분하기 어려운 패턴을 한국어 NER 모델이 주변 문장과 함께 판단해요. 오탐률 2% 미만.</p>
+              <p>문맥 없이 숫자 나열만으로는 구분하기 어려운 패턴을 한국어 NER 모델이 주변 문장과 함께 판단해요. <Term k="오탐">오탐</Term>률 2% 미만.</p>
               <div className="terminal">ner · context_window · false_positive_filter</div>
             </div>
             <div className="flow-step">
@@ -336,7 +336,7 @@ function FeatureReportPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">지금의 문제</span>
             <h2>보안 결과물이<br/>법무팀에 닿지 않는 문제.</h2>
-            <p>기존 모의해킹 리포트는 CVSS 점수와 기술적 재현 방법만 담겨있어, 법무·컴플라이언스팀이 이를 법적 의무 이행에 활용하기 어려워요. 여울은 동일한 취약점 데이터를 기술적 PoC와 법적 매핑 두 형태로 동시에 산출해요.</p>
+            <p>기존 모의해킹 리포트는 CVSS 점수와 기술적 재현 방법만 담겨있어, 법무·<Term k="컴플라이언스">컴플라이언스</Term>팀이 이를 법적 의무 이행에 활용하기 어려워요. 여울은 동일한 취약점 데이터를 기술적 PoC와 법적 매핑 두 형태로 동시에 산출해요.</p>
           </div>
           <div className="stats">
             <div className="item">
@@ -396,7 +396,7 @@ function FeatureReportPage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">가</span>
               <h4>재현 가능한 증거</h4>
-              <p>발견된 취약점을 그대로 재현할 수 있는 프롬프트·API 요청·재현 절차를 담아요. 판정은 확정·의심·통과·미검사 네 단계로 구분해 표시해요.</p>
+              <p>발견된 취약점을 그대로 재현할 수 있는 프롬프트·API 요청·재현 절차를 담아요. 판정은 확정·의심·통과·미검사 네 단계로 구분해 표시해요.</p>
               <div className="terminal">poc_prompt · api_request · replay_steps</div>
             </div>
             <div className="flow-step">
@@ -408,7 +408,7 @@ function FeatureReportPage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">다</span>
               <h4>우선순위 조치 로드맵</h4>
-              <p>위험도·피해 규모·조치 난이도를 기반으로 단기·중기·장기 조치 항목을 우선순위화하여 실행 가능한 체크리스트로 제공해요.</p>
+              <p><Term k="위험도">위험도</Term>·피해 규모·조치 난이도를 기반으로 단기·중기·장기 조치 항목을 우선순위화하여 실행 가능한 체크리스트로 제공해요.</p>
               <div className="terminal">priority_high · action_plan · timeline</div>
             </div>
           </div>

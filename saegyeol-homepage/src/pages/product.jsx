@@ -36,7 +36,7 @@ function ProductPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">WHY 여울</span>
             <h2>조사 하나만 바꿔도<br/>필터는 그냥 지나가요.</h2>
-            <p>한국어는 조사와 어미가 붙어 같은 요구를 수없이 다르게 쓸 수 있어요. 여울은 이 교착어 형태론을 공격 방법론으로 삼아, 조사·어미·동의어를 바꿔가며 같은 공격을 다시 시도해요. 영어 기준으로 만든 필터가 놓치는 구조적 취약점이 여기서 드러나요.</p>
+            <p>한국어는 조사와 어미가 붙어 같은 요구를 수없이 다르게 쓸 수 있어요. 여울은 이 <Term k="교착어">교착어</Term> 형태론을 공격 방법론으로 삼아, 조사·어미·동의어를 바꿔가며 같은 공격을 다시 시도해요. 영어 기준으로 만든 필터가 놓치는 구조적 취약점이 여기서 드러나요.</p>
           </div>
           <div className="stats">
             <div className="item">
@@ -46,18 +46,17 @@ function ProductPage({ setRoute }) {
             <div className="item">
               <div className="v">97.4<span className="unit">%</span></div>
               <div className="k">탐지율 (recall)</div>
-              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">5.3<span className="unit">%</span></div>
               <div className="k">오탐률</div>
-              <div className="basis">자체 테스트 기준</div>
             </div>
             <div className="item">
               <div className="v">4<span className="unit">단계</span></div>
               <div className="k">판정 구분 (확정·의심·통과·미검사)</div>
             </div>
           </div>
+          <p className="stats-basis">찾아낸 비율과 잘못 짚은 비율은 자체 테스트 기준이에요.</p>
           <p className="stats-note">관련 연구는 ACK2026 학술대회에 논문으로 제출했어요.</p>
         </div>
       </section>
@@ -67,8 +66,8 @@ function ProductPage({ setRoute }) {
         <div className="container">
           <div className="section-head">
             <span className="section-label">핵심 기능 3가지</span>
-            <h2>핵심 기능 세 가지.</h2>
-            <p>한국 기업 환경에서 가장 자주 발견되는 보안 사각지대를 정면으로 다루는 세 가지 기능이에요.</p>
+            <h2>핵심 기능 세 가지.</h2>
+            <p>한국 기업 환경에서 가장 자주 발견되는 보안 사각지대를 정면으로 다루는 세 가지 기능이에요.</p>
           </div>
 
           <div className="cards">
@@ -76,8 +75,8 @@ function ProductPage({ setRoute }) {
               onClick={() => openRoute("feature-shadow")} onKeyDown={(e) => cardKey(e, "feature-shadow")}>
               <span className="num">01</span>
               <div className="ico"><Icon.shadow /></div>
-              <h3>Shadow Agent 탐지</h3>
-              <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트(ChatGPT GPTs, MCP 클라이언트 등)가 만드는 보안 사각지대를 자동으로 발견하고, 데이터 노출 위험도를 평가해요.</p>
+              <h3><Term k="Shadow Agent">Shadow Agent</Term> 탐지</h3>
+              <p>임직원이 사내 데이터로 만든 개인 AI&nbsp;에이전트(ChatGPT GPTs, <Term k="MCP">MCP</Term> 클라이언트 등)가 만드는 보안 사각지대를 자동으로 발견하고, 데이터 노출 위험도를 평가해요.</p>
               <span className="more">자세히 보기</span>
             </article>
             <article className="card card-link" role="link" tabIndex={0}
@@ -113,7 +112,7 @@ function ProductPage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">1단계</span>
               <h4>권한 확인</h4>
-              <p>도메인 소유권을 검증한 뒤에만 검사할 수 있어요. 검사를 시작하기 직전에 한 번 더 개별 승낙을 받아요.</p>
+              <p>도메인 소유권을 검증한 뒤에만 검사할 수 있어요. 검사를 시작하기 직전에 한 번 더 개별 승낙을 받아요.</p>
               <div className="terminal">verify domain · confirm consent</div>
             </div>
             <div className="flow-step">
@@ -125,7 +124,7 @@ function ProductPage({ setRoute }) {
             <div className="flow-step">
               <span className="step-num">3단계</span>
               <h4>판정과 리포트</h4>
-              <p>결과를 확정·의심·통과·미검사 네 단계로 나눠 알려드려요. 저장 전 개인정보는 마스킹하고, 데이터 유형별로 자동 파기해요.</p>
+              <p>결과를 확정·의심·통과·미검사 네 단계로 나눠 알려드려요. 저장 전 개인정보는 마스킹하고, 데이터 유형별로 자동 파기해요.</p>
               <div className="verdict-row">확정 · 의심 · 통과 · 미검사</div>
             </div>
           </div>
