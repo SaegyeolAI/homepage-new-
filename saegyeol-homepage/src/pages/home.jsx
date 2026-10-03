@@ -32,7 +32,6 @@ function HomePage({ setRoute }) {
             </button>
           </div>
         </div>
-        <hr className="wave-rule" aria-hidden="true" />
       </section>
 
       {/* 새결이 하는 일 — 주 업은 레드티밍·모의해킹. 지금 할 수 있는 것부터 적는다. */}

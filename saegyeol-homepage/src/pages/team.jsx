@@ -69,7 +69,7 @@ function TeamPage({ setRoute }) {
         <div className="container" style={{position:"relative"}}>
           <span className="section-label">새결을 만드는 사람들</span>
           <h1>AI 보안을<br className="wide-only" />{" "}믿고 맡길 수 있는 팀</h1>
-          <p>오펜시브 시큐리티, LLM 연구, 한국형 컴플라이언스. 한국 AI 에이전트 환경을 오래 들여다본 사람들이 모였어요.</p>
+          <p>정보보안, LLM 연구, 한국 AI 에이전트 환경을 연구하는 사람들이 모였어요.</p>
         </div>
       </section>
 
@@ -88,17 +88,17 @@ function TeamPage({ setRoute }) {
             <div className="about-item">
               <span className="k">비전</span>
               <strong>정보보안의 단순화·간편화·보편화</strong>
-              <p>보안은 원래 어렵고 겁주는 분야예요. 새결은 그 반대로 가요.</p>
+              <p>보안은 원래 어려운 분야예요. 이것을 쉽게 풀거에요.</p>
             </div>
             <div className="about-item">
               <span className="k">하는 일</span>
               <strong>레드티밍 및 모의해킹</strong>
-              <p>지금은 AI 에이전트 점검(여울)부터 해 드려요. 나머지는 준비하고 있어요.</p>
+              <p>지금은 AI 에이전트 점검부터 해 드려요. 나머지는 준비하고 있어요.</p>
             </div>
             <div className="about-item">
               <span className="k">목표</span>
               <strong>안전하고 편리한 정보사회</strong>
-              <p>만드는 데 기여하고 앞장서는 것.</p>
+              <p>안전한 정보사회를 만드는 데 기여하고 앞장서는 것.</p>
             </div>
           </div>
         </div>

@@ -2809,3 +2809,25 @@ html[data-theme="dark"] .sg-tip {
 @media (prefers-reduced-motion: reduce) {
   .sg-tip { transition: none; }
 }
+
+/* ═══ .container 가 섹션 폭을 채우지 못하던 버그 ═══════════════════════
+   스냅이 켜진 섹션은 display: flex; flex-direction: column 이다.
+   그 안에서 .container의 margin: 0 auto 가 교차축 auto 마진이 되어
+   stretch를 무효화하고 shrink-to-fit으로 줄어든다.
+   그래서 1440px 화면인데도 .container가 383px까지 좁아졌고,
+   "탐지 대상 14종"의 auto-fit 그리드가 최소 폭으로 접혀 1열이 됐다.
+   width: 100%를 주면 블록 문맥에서는 지금과 똑같이 동작하고
+   flex 문맥에서만 제 폭을 찾는다. */
+.container { width: 100%; }
+
+/* 탐지 대상 14종 — 한 줄로 쌓지 않고 넓게 편다. */
+.info-card-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.info-card {
+  min-height: 0;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  gap: 6px;
+}
+@media (max-width: 1100px) { .info-card-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px)  { .info-card-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px)  { .info-card-grid { grid-template-columns: 1fr; } }

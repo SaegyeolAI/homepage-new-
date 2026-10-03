@@ -57,7 +57,6 @@ function ProductPage({ setRoute }) {
             </div>
           </div>
           <p className="stats-basis">찾아낸 비율과 잘못 짚은 비율은 자체 테스트 기준이에요.</p>
-          <p className="stats-note">관련 연구는 ACK2026 학술대회에 논문으로 제출했어요.</p>
         </div>
       </section>
 
