@@ -67,9 +67,40 @@ function TeamPage({ setRoute }) {
       <section className="page-hero" data-section-label="팀 소개">
         <div className="hero-bg" />
         <div className="container" style={{position:"relative"}}>
-          <span className="section-label">TEAM · 새결을 만드는 사람들</span>
+          <span className="section-label">새결을 만드는 사람들</span>
           <h1>AI 보안을<br className="wide-only" />{" "}믿고 맡길 수 있는 팀</h1>
-          <p>오펜시브 시큐리티, LLM 연구, 한국형 컴플라이언스. 한국 AI 에이전트 환경을 오래 들여다본 사람들이 모였습니다.</p>
+          <p>오펜시브 시큐리티, LLM 연구, 한국형 컴플라이언스. 한국 AI 에이전트 환경을 오래 들여다본 사람들이 모였어요.</p>
+        </div>
+      </section>
+
+      <section className="block" data-section-label="회사">
+        <div className="container">
+          <div className="section-head">
+            <span className="section-label">회사</span>
+            <h2>보안을 더 쉽게,<br className="wide-only" />{" "}안전한 디지털 세상을 위하여.</h2>
+          </div>
+          <div className="about-grid">
+            <div className="about-item">
+              <span className="k">모토</span>
+              <strong>Think Better Act Smarter</strong>
+              <p>더 좋은 생각으로, 똑똑하게 행동하는 것.</p>
+            </div>
+            <div className="about-item">
+              <span className="k">비전</span>
+              <strong>정보보안의 단순화·간편화·보편화</strong>
+              <p>보안은 원래 어렵고 겁주는 분야예요. 새결은 그 반대로 가요.</p>
+            </div>
+            <div className="about-item">
+              <span className="k">하는 일</span>
+              <strong>레드티밍 및 모의해킹</strong>
+              <p>지금은 AI 에이전트 점검(여울)부터 해 드려요. 나머지는 준비하고 있어요.</p>
+            </div>
+            <div className="about-item">
+              <span className="k">목표</span>
+              <strong>안전하고 편리한 정보사회</strong>
+              <p>만드는 데 기여하고 앞장서는 것.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -83,7 +114,7 @@ function TeamPage({ setRoute }) {
                   <div className="role">{m.role}</div>
                   <h3>{m.name}</h3>
                   <p className="bio">{m.bio}</p>
-                  {m.link && <div className="visit">VIEW PORTFOLIO</div>}
+                  {m.link && <div className="visit">포트폴리오 보기</div>}
                 </>
               );
               return m.link ? (
@@ -100,9 +131,9 @@ function TeamPage({ setRoute }) {
         <div className="container">
           <div className="recruit">
             <div style={{position:"relative", zIndex:1}}>
-              <span className="section-label">JOIN US · 채용</span>
-              <h2>함께할 사람을<br/>찾습니다.</h2>
-              <p>이력서든 프로젝트든, 써둔 글이나 발표 영상이든 형식은 자유입니다. 새결이 푸는 문제에 흥미가 있다면 가볍게라도 보내주세요. contact@saegyeol.ai.kr 로 전달됩니다.</p>
+              <span className="section-label">채용</span>
+              <h2>함께할 사람을<br/>찾아요.</h2>
+              <p>이력서든 프로젝트든, 써둔 글이나 발표 영상이든 형식은 자유예요. 새결이 푸는 문제에 흥미가 있다면 가볍게라도 보내주세요. contact@saegyeol.ai.kr 로 전달돼요.</p>
               <div className="tags">
                 <span className="tag">Offensive Eng.</span>
                 <span className="tag">LLM Researcher</span>
@@ -114,7 +145,7 @@ function TeamPage({ setRoute }) {
 
             {/* 문의 폼(ContactForm)과 같은 조각들로 구성한다. 전송 경로는 /api/recruit 그대로. */}
             <form className="form" onSubmit={submit} noValidate style={{position:"relative", zIndex:1}}>
-              <FormStatus sent={sent} successText="지원서가 전송되었습니다." />
+              <FormStatus sent={sent} successText="지원서가 전송됐어요." />
               {blocked && <FormBlocked {...blocked}
                 mailSubject={`[Saegyeol 지원] ${name || ""}`.trim()}
                 mailBody={`지원자: ${name}\n이메일: ${email}\n\n포트폴리오 파일을 첨부해 주세요.`} />}
@@ -127,8 +158,8 @@ function TeamPage({ setRoute }) {
                 onChange={(v) => { setEmail(v); setErrors((p) => (p["rcv2-email"] ? { ...p, "rcv2-email": "" } : p)); }} />
               <FileField id="rcv2-file" label="포트폴리오 / FREE FORMAT"
                 file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
-                note={`한 개만 첨부할 수 있습니다. 영상이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 ${CONTACT_MAIL}로 보내주세요.`} />
-              <FormActions sending={sending} label="지원하기" hint={`→ ${CONTACT_MAIL} 로 전송됩니다`} />
+                note={`한 개만 첨부할 수 있어요. 영상이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 ${CONTACT_MAIL}로 보내주세요.`} />
+              <FormActions sending={sending} label="지원하기" hint={`→ ${CONTACT_MAIL} 로 전송돼요`} />
             </form>
           </div>
         </div>

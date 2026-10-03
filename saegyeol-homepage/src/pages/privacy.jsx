@@ -9,7 +9,7 @@ function PrivacyPage({ onBack }) {
         <BackButton onBack={onBack} />
 
         <div className="privacy-header">
-          <span className="label">LEGAL</span>
+          <span className="label">안내</span>
           <h1>개인정보처리방침</h1>
           <p className="privacy-meta">시행일: 2026년 5월 24일</p>
         </div>

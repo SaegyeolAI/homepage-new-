@@ -519,10 +519,12 @@ function useReveal(route) {
 
 /* ---------------- Theme ---------------- */
 
-// 처음 온 방문자는 다크모드를 보게 한다.
-// 한 번이라도 토글을 누른 사람은 저장된 선택을 그대로 따른다.
+// 처음 온 방문자는 라이트모드를 보게 한다.
+// 디자인 시스템 6.3이 홈페이지 히어로를 물보라(밝은 면)로 정해 두었고,
+// 3.2의 색 비율도 물보라·흰색이 45%다. 다크는 토글로만 들어간다.
+// OS의 prefers-color-scheme은 보지 않는다 — 저장된 선택만 따른다.
 const THEME_KEY = "saegyeol-theme-v3";
-const DEFAULT_THEME = "dark";
+const DEFAULT_THEME = "light";
 
 function readStoredTheme() {
   try {
@@ -536,7 +538,7 @@ function readStoredTheme() {
 }
 
 // React가 그리기 전에 <html data-theme>을 맞춰 둔다.
-// index.html이 이미 dark로 시작하므로, 라이트를 저장해 둔 재방문자만 여기서 바뀐다.
+// index.html이 이미 light로 시작하므로, 다크를 저장해 둔 재방문자만 여기서 바뀐다.
 // CSP가 script-src 'self'라 인라인 스크립트를 쓸 수 없어서, 번들에서 가장 먼저
 // 실행되는 이 파일 최상단에 둔다. (build.js의 FILES 첫 번째가 chrome.jsx)
 document.documentElement.setAttribute("data-theme", readStoredTheme());
@@ -685,10 +687,10 @@ function Nav({ route, setRoute, theme, setTheme }) {
                 </a>
               </div>
               <div className="mega-col">
-                <h5>RESOURCES</h5>
+                <h5>자료</h5>
                 <a className="mega-item" role="menuitem" tabIndex={0} onClick={() => go("contact")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") go("contact"); }}>
                   <div className="t">도입 상담</div>
-                  <div className="d">서비스 적용 범위와 도입 절차를 안내합니다</div>
+                  <div className="d">서비스 적용 범위와 도입 절차를 안내해요</div>
                 </a>
                 <a className="mega-item" role="menuitem" tabIndex={0} onClick={() => go("team")} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") go("team"); }}>
                   <div className="t">팀 만나기</div>
@@ -760,9 +762,9 @@ function ClosingCTA({ onContact }) {
   return (
     <section className="closing-cta" data-section-label="문의하기">
       <div className="closing-cta-inner">
-        <span className="label">JOIN US</span>
-        <h2>지금 새결과<br />함께하세요.</h2>
-        <p>AI 에이전트를 내보내기 전에 한국어 공격 관점으로 한 번 점검해 보세요. 어디까지 확인했고 무엇이 남았는지 함께 정리해 드립니다.</p>
+        <span className="label">점검 문의</span>
+        <h2>내보내기 전에<br className="wide-only" />{" "}한 번 두드려 봐요.</h2>
+        <p>어디까지 확인했고 무엇이 남았는지 같이 정리해 드려요. 범위와 일정부터 편하게 물어보세요.</p>
         <div className="hero-cta">
           <ContactButton onContact={onContact} />
         </div>
@@ -790,6 +792,8 @@ function Footer({ setRoute }) {
         <div className="footer-grid">
           <div className="footer-left">
             <Brand onClick={() => go("home")} />
+            {/* 6.3 푸터에는 모토가 들어간다. 회사가 정한 문구라 고치지 않는다. */}
+            <p className="footer-motto">Think Better Act Smarter</p>
             <div className="footer-legal">
               <div className="row"><span className="k">회사명</span><span>새결 (Saegyeol)</span></div>
               <div className="row"><span className="k">대표자</span><span>황지후</span></div>
@@ -800,14 +804,14 @@ function Footer({ setRoute }) {
           </div>
           <div className="footer-right">
             <div>
-              <h5>PRODUCT</h5>
+              <h5>제품</h5>
               <ul>
                 <li onClick={() => go("product")}>여울</li>
                 <li onClick={() => go("pricing")}>요금제</li>
               </ul>
             </div>
             <div>
-              <h5>COMPANY</h5>
+              <h5>회사</h5>
               <ul>
                 <li onClick={() => go("team")}>팀 소개</li>
                 <li onClick={() => go("team", "recruit")}>채용</li>
@@ -815,7 +819,7 @@ function Footer({ setRoute }) {
               </ul>
             </div>
             <div>
-              <h5>FOLLOW</h5>
+              <h5>더 보기</h5>
               <ul>
                 <li><a href="https://www.instagram.com/saegyeol_official" target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>Instagram</a></li>
                 <li><a href="mailto:contact@saegyeol.ai.kr" style={{ color: "inherit", textDecoration: "none" }}>Email</a></li>
@@ -889,7 +893,7 @@ function FormBlocked({ reason, retryText, retryAt, mailSubject, mailBody }) {
         {retryText && <p className="form-blocked-retry">{retryText}</p>}
         <p className="form-blocked-fallback">
           급하시면 <a href={mailtoHref(mailSubject, mailBody)}>{CONTACT_MAIL}</a>로 직접 보내주세요.
-          적어주신 내용은 그대로 남아 있습니다.
+          적어주신 내용은 그대로 남아 있어요.
         </p>
       </div>
       {left !== null && left > 0 && (
@@ -1010,7 +1014,7 @@ function useFileSelect() {
   const selectFile = (nextFile) => {
     if (!nextFile) return;
     if (nextFile.size > MAX_UPLOAD_BYTES) {
-      setFileError(`파일이 너무 큽니다. ${MAX_UPLOAD_LABEL} 이하로 줄이거나, 링크로 보내주세요.`);
+      setFileError(`파일이 너무 커요. ${MAX_UPLOAD_LABEL} 이하로 줄이거나, 링크로 보내주세요.`);
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -1037,34 +1041,34 @@ function describeFailure(status, payload) {
 
   if (status === 429) {
     return {
-      reason: fromServer || "짧은 시간에 너무 많이 보내셨습니다.",
+      reason: fromServer || "짧은 시간에 너무 많이 보내셨어요.",
       retryText: retryAt
-        ? `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있습니다.`
+        ? `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있어요.`
         : "잠시 후 다시 시도해 주세요.",
       retryAt,
     };
   }
   if (status === 503) {
-    return { reason: fromServer || "문의 접수가 일시적으로 중단되어 있습니다.",
-      retryText: "복구되는 대로 다시 받습니다. 그전까지는 아래 주소로 보내주세요." };
+    return { reason: fromServer || "문의 접수가 일시적으로 중단되어 있어요.",
+      retryText: "복구되는 대로 다시 받아요. 그전까지는 아래 주소로 보내주세요." };
   }
   if (status === 403) {
-    return { reason: fromServer || "지금 이 페이지에서는 문의를 보낼 수 없습니다.",
+    return { reason: fromServer || "지금 이 페이지에서는 문의를 보낼 수 없어요.",
       retryText: "페이지를 새로고침한 뒤 다시 시도해 주세요." };
   }
   if (status === 413) {
-    return { reason: "첨부파일이 너무 커서 보내지 못했습니다.",
+    return { reason: "첨부파일이 너무 커서 보내지 못했어요.",
       retryText: `파일을 빼거나 ${MAX_UPLOAD_LABEL} 이하로 줄여 다시 보내주세요.` };
   }
   if (status >= 500) {
-    return { reason: fromServer || "서버에서 문제가 생겨 보내지 못했습니다.",
+    return { reason: fromServer || "서버에서 문제가 생겨 보내지 못했어요.",
       retryText: "잠시 후 다시 시도해 주세요." };
   }
   if (status === 0) {
-    return { reason: "네트워크에 연결하지 못했습니다.",
+    return { reason: "네트워크에 연결하지 못했어요.",
       retryText: "인터넷 연결을 확인하고 다시 시도해 주세요." };
   }
-  return { reason: fromServer || "보내지 못했습니다.",
+  return { reason: fromServer || "보내지 못했어요.",
     retryText: "내용을 확인하고 다시 시도해 주세요." };
 }
 
@@ -1141,8 +1145,8 @@ function ContactForm() {
     if (waited < SUBMIT_COOLDOWN_MS) {
       const retryAt = lastSubmit + SUBMIT_COOLDOWN_MS;
       setBlocked({
-        reason: "방금 보내신 문의가 접수됐습니다. 연달아 보내는 것만 잠깐 막고 있습니다.",
-        retryText: `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있습니다.`,
+        reason: "방금 보내신 문의가 접수됐어요. 연달아 보내는 것만 잠깐 막고 있어요.",
+        retryText: `약 ${formatSeconds(Math.ceil((retryAt - Date.now()) / 1000))} 뒤에 다시 보낼 수 있어요.`,
         retryAt,
       });
       return;
@@ -1178,7 +1182,7 @@ function ContactForm() {
 
   return (
     <form className="form" onSubmit={submit} noValidate>
-      <FormStatus sent={sent} successText="문의가 전송되었습니다. 영업일 기준 1일 내 회신드립니다." />
+      <FormStatus sent={sent} successText="문의가 전송됐어요. 영업일 기준 1일 내 회신드려요." />
       {blocked && <FormBlocked {...blocked}
         mailSubject={`[새결 문의] ${data.name || ""}`.trim()}
         mailBody={data.message} />}
@@ -1197,8 +1201,8 @@ function ContactForm() {
       </FormField>
       <FileField id="cfv2-file" label="첨부파일 / ATTACHMENT" optional
         file={file} fileRef={fileRef} onSelect={selectFile} error={fileError}
-        note={`한 개만 첨부할 수 있습니다. 여러 개이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 문의 내용에 적어주세요.`} />
-      <FormActions sending={sending} label="문의 보내기" hint={`→ ${CONTACT_MAIL} 로 전송됩니다`} />
+        note={`한 개만 첨부할 수 있어요. 여러 개이거나 ${MAX_UPLOAD_LABEL}를 넘으면 드라이브 등에 올린 링크를 문의 내용에 적어주세요.`} />
+      <FormActions sending={sending} label="문의 보내기" hint={`→ ${CONTACT_MAIL} 로 전송돼요`} />
     </form>
   );
 }

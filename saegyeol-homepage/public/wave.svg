@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="10" viewBox="0 0 48 10">
+  <!-- 새결 물결선. 로고 파도 곡선을 한 주기로 단순화한 것.
+       색은 CSS가 mask + background-color로 칠하므로 여기서는 검정으로 둔다. -->
+  <path d="M0 5 C 6 1, 18 1, 24 5 S 42 9, 48 5"
+        fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
