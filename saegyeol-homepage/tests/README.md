@@ -49,7 +49,7 @@ node tests/servers/api-harness.js   # 4321  api/ 핸들러 직접 + 목 SMTP
 | `ui/design-system.js` | `saegyeol_design.md` 9장 출고 전 체크리스트 — 한국어가 고정폭 서체에 들어갔는지, 전부 대문자 영문 라벨, 레드팀 레드가 화면당 1곳 이하, 본문 대비 4.5:1, 평면 카드 그림자 | 3220 |
 | `ui/tooltips.js` | 용어 툴팁 — 홈·랜딩에는 없고 상세 페이지에만 2~3개, 호버·클릭·키보드·Esc, 카드 바깥으로 잘리지 않음, `aria-describedby`, 모바일 | 3220 |
 | `ui/line-breaks.js` | 어절 중간 분리, 고아 어절, 한 줄 길이, 의미 단위(숫자+단위) 분리, 가로 넘침. 실제 렌더 좌표를 글자 단위로 잰다 | 3220 |
-| `ui/contact-form.js` | 문의 폼이 `POST /api/contact` 로 전과 같이 전송되는지 | 3210 |
+| `ui/contact-form.js` | 문의 폼이 `POST /api/contact` 로 전과 같이 전송되는지, 전송 뒤 사이트 안 알림창(`.sg-dialog`)이 뜨는지. 브라우저 기본 팝업(alert)이 뜨면 실패 | 3210 |
 | `ui/section-fit.js` | 모든 섹션이 네 데스크톱 크기(1366×768 / 1440×900 / 1536×864 / 1920×1080)에서 한 화면에 들어가는지. 그보다 작은 창에서는 잘리지 않고 섹션 안에서 스크롤되는지 | 3220 |
 
 ## 공용

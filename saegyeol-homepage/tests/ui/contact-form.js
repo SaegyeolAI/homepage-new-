@@ -21,6 +21,9 @@ async function fill(page, sel, value) {
   page.on("request", (r) => { if (r.url().includes("/api/")) reqs.push({ url: r.url(), method: r.method() }); });
   const errs = [];
   page.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
+  // 브라우저 기본 팝업(alert/confirm)은 쓰지 않기로 했다. 뜨면 여기서 잡힌다.
+  let nativeDialog = null;
+  page.on("dialog", async (d) => { nativeDialog = `${d.type()}: ${d.message()}`; await d.dismiss(); });
 
   /* 문의 폼 */
   console.log("\n[1] 문의 폼");
@@ -43,17 +46,43 @@ async function fill(page, sel, value) {
   await page.waitForTimeout(2500);
 
   const res = await page.evaluate(() => {
-    const okEl = document.querySelector(".form-success");
+    const dlg = document.querySelector(".sg-dialog");
+    const okEl = dlg && dlg.querySelector(".form-success");
     const blocked = document.querySelector(".form-blocked .form-blocked-reason");
     const err = document.querySelector(".field-error");
+    const r = dlg && dlg.getBoundingClientRect();
     return {
       success: okEl ? okEl.textContent.trim() : null,
       blocked: blocked ? blocked.textContent.trim() : null,
       fieldError: err ? err.textContent.trim() : null,
+      role: dlg ? dlg.getAttribute("role") : null,
+      modal: dlg ? dlg.getAttribute("aria-modal") : null,
+      // 포털로 body 바로 아래 붙어야 폼 쪽 transform·overflow에 안 끌려간다
+      atBody: dlg ? dlg.parentElement.parentElement === document.body : false,
+      inView: r ? (r.top >= 0 && r.bottom <= window.innerHeight && r.left >= 0 && r.right <= window.innerWidth) : false,
+      focusedOk: document.activeElement === (dlg && dlg.querySelector(".sg-dialog-ok")),
     };
   });
   console.log("      결과:", JSON.stringify(res));
-  res.success ? ok(`성공 표시: "${res.success}"`) : fail(`성공 표시 없음 (blocked=${res.blocked} / err=${res.fieldError})`);
+  res.success ? ok(`사이트 안 알림창에 성공 문구: "${res.success}"`) : fail(`알림창 없음 (blocked=${res.blocked} / err=${res.fieldError})`);
+  nativeDialog === null ? ok("브라우저 기본 팝업을 띄우지 않음") : fail("브라우저 팝업이 떴다 — " + nativeDialog);
+  res.role === "alertdialog" && res.modal === "true" && res.atBody
+    ? ok("alertdialog · aria-modal · body 포털")
+    : fail(`알림창 속성 이상 (role=${res.role}, modal=${res.modal}, body=${res.atBody})`);
+  res.inView ? ok("알림창이 화면 안에 들어옴") : fail("알림창이 화면 밖으로 나감");
+  res.focusedOk ? ok("포커스가 확인 버튼으로 옮겨감") : fail("포커스가 확인 버튼에 없음");
+
+  // Esc 로 닫으면 폼이 비워진다
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(500);
+  const afterClose = await page.evaluate(() => ({
+    closed: !document.querySelector(".sg-dialog"),
+    name: document.querySelector("#cfv2-name").value,
+    msg: document.querySelector("#cfv2-msg").value,
+  }));
+  afterClose.closed && !afterClose.name && !afterClose.msg
+    ? ok("Esc 로 닫히고 폼이 비워짐")
+    : fail(`닫힘/초기화 실패 ${JSON.stringify(afterClose)}`);
 
   const posted = reqs.filter((r) => r.method === "POST");
   posted.some((r) => r.url.endsWith("/api/contact"))

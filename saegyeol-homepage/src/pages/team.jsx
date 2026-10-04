@@ -13,6 +13,15 @@ function TeamPage({ setRoute }) {
   const startedAt = useRef(Date.now()).current;
   const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
 
+  // 전송 완료 알림창을 닫을 때 폼을 비운다. (문의 폼과 같은 방식)
+  const finishSent = () => {
+    setSent(false);
+    clearFile();
+    setName("");
+    setEmail("");
+    setErrors({});
+  };
+
   // 문의 폼과 같은 방식으로 필드별로 검사한다.
   // 예전에는 버튼이 페이지에 들어온 순간부터 회색이었고, 왜인지는 어디에도 없었다.
   const validate = () => {
@@ -53,7 +62,6 @@ function TeamPage({ setRoute }) {
         return;
       }
       setSent(true);
-      setTimeout(() => { setSent(false); clearFile(); setName(""); setEmail(""); setErrors({}); }, 4000);
     } catch {
       setBlocked(describeFailure(0, null));
     } finally {
@@ -146,7 +154,7 @@ function TeamPage({ setRoute }) {
 
             {/* 문의 폼(ContactForm)과 같은 조각들로 구성한다. 전송 경로는 /api/recruit 그대로. */}
             <form className="form" onSubmit={submit} noValidate style={{position:"relative", zIndex:1}}>
-              <FormStatus sent={sent} successText="지원서가 전송됐어요." />
+              <FormStatus sent={sent} onClose={finishSent} successText="지원서가 전송됐어요." />
               {blocked && <FormBlocked {...blocked}
                 mailSubject={`[Saegyeol 지원] ${name || ""}`.trim()}
                 mailBody={`지원자: ${name}\n이메일: ${email}\n\n포트폴리오 파일을 첨부해 주세요.`} />}

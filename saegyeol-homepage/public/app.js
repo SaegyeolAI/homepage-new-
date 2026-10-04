@@ -629,7 +629,7 @@ function Footer({ setRoute }) {
       if (hash) setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), CONTACT_SCROLL_DELAY);
     }
   };
-  return /* @__PURE__ */ React.createElement("footer", { className: "site-footer" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", { className: "footer-left" }, /* @__PURE__ */ React.createElement(Brand, { onClick: () => go("home") }), /* @__PURE__ */ React.createElement("p", { className: "footer-motto" }, "Think Better Act Smarter"), /* @__PURE__ */ React.createElement("div", { className: "footer-legal" }, /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uD68C\uC0AC\uBA85"), /* @__PURE__ */ React.createElement("span", null, "\uC0C8\uACB0 (Saegyeol)")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uB300\uD45C\uC790"), /* @__PURE__ */ React.createElement("span", null, "\uD669\uC9C0\uD6C4")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC0AC\uC5C5\uC790\uBC88\uD638"), /* @__PURE__ */ React.createElement("span", null, "101-30-53151")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC8FC\uC18C"), /* @__PURE__ */ React.createElement("span", null, "\uBD80\uC0B0\uAD11\uC5ED\uC2DC \uD574\uC6B4\uB300\uAD6C \uC88C\uB3D9\uC21C\uD658\uB85C8\uBC88\uAE38 78, 103\uB3D9 801\uD638(\uC911\uB3D9, \uD574\uC6B4\uB300\uBA54\uD2B8\uB85C\uD558\uC774\uCE20)")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC774\uBA54\uC77C"), /* @__PURE__ */ React.createElement("span", null, "contact@saegyeol.ai.kr")))), /* @__PURE__ */ React.createElement("div", { className: "footer-right" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uC81C\uD488"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", { onClick: () => go("product") }, "\uC5EC\uC6B8"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("pricing") }, "\uC694\uAE08\uC81C"))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uD68C\uC0AC"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", { onClick: () => go("team") }, "\uD300 \uC18C\uAC1C"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("team", "recruit") }, "\uCC44\uC6A9"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("contact") }, "\uBB38\uC758"))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uB354 \uBCF4\uAE30"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("a", { href: "https://www.instagram.com/saegyeol_official", target: "_blank", rel: "noreferrer", style: { color: "inherit", textDecoration: "none" } }, "Instagram")), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@saegyeol.ai.kr", style: { color: "inherit", textDecoration: "none" } }, "Email")))))), /* @__PURE__ */ React.createElement("div", { className: "footer-bottom" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 Saegyeol. All rights reserved."), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("a", { href: "#", style: { marginRight: 24 }, onClick: (e) => {
+  return /* @__PURE__ */ React.createElement("footer", { className: "site-footer" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", { className: "footer-head" }, /* @__PURE__ */ React.createElement(Brand, { onClick: () => go("home") }), /* @__PURE__ */ React.createElement("p", { className: "footer-motto" }, "Think Better Act Smarter")), /* @__PURE__ */ React.createElement("div", { className: "footer-left" }, /* @__PURE__ */ React.createElement("div", { className: "footer-legal" }, /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uD68C\uC0AC\uBA85"), /* @__PURE__ */ React.createElement("span", null, "\uC0C8\uACB0 (Saegyeol)")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uB300\uD45C\uC790"), /* @__PURE__ */ React.createElement("span", null, "\uD669\uC9C0\uD6C4")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC0AC\uC5C5\uC790\uBC88\uD638"), /* @__PURE__ */ React.createElement("span", null, "101-30-53151")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC8FC\uC18C"), /* @__PURE__ */ React.createElement("span", null, "\uBD80\uC0B0\uAD11\uC5ED\uC2DC \uD574\uC6B4\uB300\uAD6C \uC88C\uB3D9\uC21C\uD658\uB85C8\uBC88\uAE38 78, 103\uB3D9 801\uD638(\uC911\uB3D9, \uD574\uC6B4\uB300\uBA54\uD2B8\uB85C\uD558\uC774\uCE20)")), /* @__PURE__ */ React.createElement("div", { className: "row" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uC774\uBA54\uC77C"), /* @__PURE__ */ React.createElement("span", null, "contact@saegyeol.ai.kr")))), /* @__PURE__ */ React.createElement("div", { className: "footer-right" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uC81C\uD488"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", { onClick: () => go("product") }, "\uC5EC\uC6B8"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("pricing") }, "\uC694\uAE08\uC81C"))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uD68C\uC0AC"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", { onClick: () => go("team") }, "\uD300 \uC18C\uAC1C"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("team", "recruit") }, "\uCC44\uC6A9"), /* @__PURE__ */ React.createElement("li", { onClick: () => go("contact") }, "\uBB38\uC758"))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h5", null, "\uB354 \uBCF4\uAE30"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("a", { href: "https://www.instagram.com/saegyeol_official", target: "_blank", rel: "noreferrer", style: { color: "inherit", textDecoration: "none" } }, "Instagram")), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@saegyeol.ai.kr", style: { color: "inherit", textDecoration: "none" } }, "Email")))))), /* @__PURE__ */ React.createElement("div", { className: "footer-bottom" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 Saegyeol. All rights reserved."), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("a", { href: "#", style: { marginRight: 24 }, onClick: (e) => {
     e.preventDefault();
     go("privacy");
   } }, "\uAC1C\uC778\uC815\uBCF4\uCC98\uB9AC\uBC29\uCE68"), /* @__PURE__ */ React.createElement("a", { href: "#", onClick: (e) => {
@@ -660,9 +660,60 @@ function useCountdown(until) {
   if (!until) return null;
   return Math.max(0, Math.ceil((until - Date.now()) / 1e3));
 }
-function FormStatus({ sent, successText }) {
+const SENT_TITLE_ID = "sg-sent-title";
+const SENT_DESC_ID = "sg-sent-desc";
+function FormStatus({ sent, successText, onClose }) {
+  const closeRef = useRef(null);
+  useEffect(() => {
+    if (!sent) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        if (onClose) onClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    const t = setTimeout(() => {
+      if (closeRef.current) closeRef.current.focus();
+    }, 0);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      clearTimeout(t);
+    };
+  }, [sent, onClose]);
   if (!sent) return null;
-  return /* @__PURE__ */ React.createElement("div", { className: "form-success", role: "status" }, successText);
+  const close = () => {
+    if (onClose) onClose();
+  };
+  return ReactDOM.createPortal(
+    /* @__PURE__ */ React.createElement("div", { className: "sg-dialog-backdrop", onClick: close }, /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "sg-dialog",
+        role: "alertdialog",
+        "aria-modal": "true",
+        "aria-labelledby": SENT_TITLE_ID,
+        "aria-describedby": SENT_DESC_ID,
+        onClick: (e) => e.stopPropagation()
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "sg-dialog-mark", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement(
+        "svg",
+        {
+          viewBox: "0 0 24 24",
+          fill: "none",
+          stroke: "currentColor",
+          strokeWidth: "2.4",
+          strokeLinecap: "round",
+          strokeLinejoin: "round"
+        },
+        /* @__PURE__ */ React.createElement("path", { d: "M20 6 9 17l-5-5" })
+      )),
+      /* @__PURE__ */ React.createElement("h3", { id: SENT_TITLE_ID }, "\uBCF4\uB0C8\uC5B4\uC694"),
+      /* @__PURE__ */ React.createElement("p", { id: SENT_DESC_ID, className: "form-success" }, successText),
+      /* @__PURE__ */ React.createElement("button", { type: "button", className: "btn btn-accent sg-dialog-ok", ref: closeRef, onClick: close }, "\uD655\uC778")
+    )),
+    document.body
+  );
 }
 function FormBlocked({ reason, retryText, retryAt, mailSubject, mailBody }) {
   const left = useCountdown(retryAt);
@@ -837,6 +888,12 @@ function ContactForm() {
     setData((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => prev[id] ? { ...prev, [id]: "" } : prev);
   };
+  const finishSent = () => {
+    setSent(false);
+    setData({ name: "", email: "", message: "" });
+    clearFile();
+    setErrors({});
+  };
   const submit = async (e) => {
     e.preventDefault();
     const found = validateContact(data);
@@ -883,19 +940,20 @@ function ContactForm() {
       } catch {
       }
       setSent(true);
-      setTimeout(() => {
-        setSent(false);
-        setData({ name: "", email: "", message: "" });
-        clearFile();
-        setErrors({});
-      }, 5e3);
     } catch {
       setBlocked(describeFailure(0, null));
     } finally {
       setSending(false);
     }
   };
-  return /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true }, /* @__PURE__ */ React.createElement(FormStatus, { sent, successText: "\uBB38\uC758\uAC00 \uC804\uC1A1\uB410\uC5B4\uC694. \uC601\uC5C5\uC77C \uAE30\uC900 1\uC77C \uB0B4 \uD68C\uC2E0\uB4DC\uB824\uC694." }), blocked && /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true }, /* @__PURE__ */ React.createElement(
+    FormStatus,
+    {
+      sent,
+      onClose: finishSent,
+      successText: "\uBB38\uC758\uAC00 \uC804\uC1A1\uB410\uC5B4\uC694. \uC601\uC5C5\uC77C \uAE30\uC900 1\uC77C \uB0B4 \uD68C\uC2E0\uB4DC\uB824\uC694."
+    }
+  ), blocked && /* @__PURE__ */ React.createElement(
     FormBlocked,
     {
       ...blocked,
@@ -1094,6 +1152,13 @@ function TeamPage({ setRoute }) {
   const [blocked, setBlocked] = useState(null);
   const startedAt = useRef(Date.now()).current;
   const { file, fileRef, fileError, setFileError, selectFile, clearFile } = useFileSelect();
+  const finishSent = () => {
+    setSent(false);
+    clearFile();
+    setName("");
+    setEmail("");
+    setErrors({});
+  };
   const validate = () => {
     const found = {};
     if (!name.trim()) found["rcv2-name"] = "\uC774\uB984\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
@@ -1129,13 +1194,6 @@ function TeamPage({ setRoute }) {
         return;
       }
       setSent(true);
-      setTimeout(() => {
-        setSent(false);
-        clearFile();
-        setName("");
-        setEmail("");
-        setErrors({});
-      }, 4e3);
     } catch {
       setBlocked(describeFailure(0, null));
     } finally {
@@ -1146,7 +1204,7 @@ function TeamPage({ setRoute }) {
   return /* @__PURE__ */ React.createElement("div", { "data-screen-label": "02 Team" }, /* @__PURE__ */ React.createElement("section", { className: "page-hero", "data-section-label": "\uD300 \uC18C\uAC1C" }, /* @__PURE__ */ React.createElement("div", { className: "hero-bg" }), /* @__PURE__ */ React.createElement("div", { className: "container", style: { position: "relative" } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "\uC0C8\uACB0\uC744 \uB9CC\uB4DC\uB294 \uC0AC\uB78C\uB4E4"), /* @__PURE__ */ React.createElement("h1", null, "AI \uBCF4\uC548\uC744", /* @__PURE__ */ React.createElement("br", { className: "wide-only" }), " ", "\uBBFF\uACE0 \uB9E1\uAE38 \uC218 \uC788\uB294 \uD300"), /* @__PURE__ */ React.createElement("p", null, "\uC815\uBCF4\uBCF4\uC548, LLM \uC5F0\uAD6C, \uD55C\uAD6D AI \uC5D0\uC774\uC804\uD2B8 \uD658\uACBD\uC744 \uC5F0\uAD6C\uD558\uB294 \uC0AC\uB78C\uB4E4\uC774 \uBAA8\uC600\uC5B4\uC694."))), /* @__PURE__ */ React.createElement("section", { className: "block", "data-section-label": "\uD68C\uC0AC" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "section-head" }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "\uD68C\uC0AC"), /* @__PURE__ */ React.createElement("h2", null, "\uBCF4\uC548\uC744 \uB354 \uC27D\uAC8C,", /* @__PURE__ */ React.createElement("br", { className: "wide-only" }), " ", "\uC548\uC804\uD55C \uB514\uC9C0\uD138 \uC138\uC0C1\uC744 \uC704\uD558\uC5EC.")), /* @__PURE__ */ React.createElement("div", { className: "about-grid" }, /* @__PURE__ */ React.createElement("div", { className: "about-item" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uBAA8\uD1A0"), /* @__PURE__ */ React.createElement("strong", null, "Think Better Act Smarter"), /* @__PURE__ */ React.createElement("p", null, "\uB354 \uC88B\uC740 \uC0DD\uAC01\uC73C\uB85C, \uB611\uB611\uD558\uAC8C \uD589\uB3D9\uD558\uB294 \uAC83.")), /* @__PURE__ */ React.createElement("div", { className: "about-item" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uBE44\uC804"), /* @__PURE__ */ React.createElement("strong", null, "\uC815\uBCF4\uBCF4\uC548\uC758 \uB2E8\uC21C\uD654\xB7\uAC04\uD3B8\uD654\xB7\uBCF4\uD3B8\uD654"), /* @__PURE__ */ React.createElement("p", null, "\uBCF4\uC548\uC740 \uC6D0\uB798 \uC5B4\uB824\uC6B4 \uBD84\uC57C\uC608\uC694. \uC774\uAC83\uC744 \uC27D\uAC8C \uD480\uAC70\uC5D0\uC694.")), /* @__PURE__ */ React.createElement("div", { className: "about-item" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uD558\uB294 \uC77C"), /* @__PURE__ */ React.createElement("strong", null, "\uB808\uB4DC\uD2F0\uBC0D \uBC0F \uBAA8\uC758\uD574\uD0B9"), /* @__PURE__ */ React.createElement("p", null, "\uC9C0\uAE08\uC740 AI \uC5D0\uC774\uC804\uD2B8 \uC810\uAC80\uBD80\uD130 \uD574 \uB4DC\uB824\uC694. \uB098\uBA38\uC9C0\uB294 \uC900\uBE44\uD558\uACE0 \uC788\uC5B4\uC694.")), /* @__PURE__ */ React.createElement("div", { className: "about-item" }, /* @__PURE__ */ React.createElement("span", { className: "k" }, "\uBAA9\uD45C"), /* @__PURE__ */ React.createElement("strong", null, "\uC548\uC804\uD558\uACE0 \uD3B8\uB9AC\uD55C \uC815\uBCF4\uC0AC\uD68C"), /* @__PURE__ */ React.createElement("p", null, "\uC548\uC804\uD55C \uC815\uBCF4\uC0AC\uD68C\uB97C \uB9CC\uB4DC\uB294 \uB370 \uAE30\uC5EC\uD558\uACE0 \uC55E\uC7A5\uC11C\uB294 \uAC83."))))), /* @__PURE__ */ React.createElement("section", { className: "block", "data-section-label": "\uAD6C\uC131\uC6D0" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "team-grid" }, TEAM_MEMBERS_V2.map((m) => {
     const content = /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "photo" }, m.initials), /* @__PURE__ */ React.createElement("div", { className: "role" }, m.role), /* @__PURE__ */ React.createElement("h3", null, m.name), /* @__PURE__ */ React.createElement("p", { className: "bio" }, m.bio), m.link && /* @__PURE__ */ React.createElement("div", { className: "visit" }, "\uD3EC\uD2B8\uD3F4\uB9AC\uC624 \uBCF4\uAE30"));
     return m.link ? /* @__PURE__ */ React.createElement("a", { key: m.initials, className: "member", href: m.link, target: "_blank", rel: "noreferrer" }, content) : /* @__PURE__ */ React.createElement("article", { key: m.initials, className: "member" }, content);
-  })))), /* @__PURE__ */ React.createElement("section", { className: "block", id: "recruit", "data-section-label": "\uCC44\uC6A9" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "recruit" }, /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "\uCC44\uC6A9"), /* @__PURE__ */ React.createElement("h2", null, "\uD568\uAED8\uD560 \uC0AC\uB78C\uC744", /* @__PURE__ */ React.createElement("br", null), "\uCC3E\uC544\uC694."), /* @__PURE__ */ React.createElement("p", null, "\uC774\uB825\uC11C\uB4E0 \uD504\uB85C\uC81D\uD2B8\uB4E0, \uC368\uB454 \uAE00\uC774\uB098 \uBC1C\uD45C \uC601\uC0C1\uC774\uB4E0 \uD615\uC2DD\uC740 \uC790\uC720\uC608\uC694. \uC0C8\uACB0\uC774 \uD478\uB294 \uBB38\uC81C\uC5D0 \uD765\uBBF8\uAC00 \uC788\uB2E4\uBA74 \uAC00\uBCCD\uAC8C\uB77C\uB3C4 \uBCF4\uB0B4\uC8FC\uC138\uC694. contact@saegyeol.ai.kr \uB85C \uC804\uB2EC\uB3FC\uC694."), /* @__PURE__ */ React.createElement("div", { className: "tags" }, /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Offensive Eng."), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "LLM Researcher"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Compliance"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Product Design"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Open Application"))), /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true, style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement(FormStatus, { sent, successText: "\uC9C0\uC6D0\uC11C\uAC00 \uC804\uC1A1\uB410\uC5B4\uC694." }), blocked && /* @__PURE__ */ React.createElement(
+  })))), /* @__PURE__ */ React.createElement("section", { className: "block", id: "recruit", "data-section-label": "\uCC44\uC6A9" }, /* @__PURE__ */ React.createElement("div", { className: "container" }, /* @__PURE__ */ React.createElement("div", { className: "recruit" }, /* @__PURE__ */ React.createElement("div", { style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "section-label" }, "\uCC44\uC6A9"), /* @__PURE__ */ React.createElement("h2", null, "\uD568\uAED8\uD560 \uC0AC\uB78C\uC744", /* @__PURE__ */ React.createElement("br", null), "\uCC3E\uC544\uC694."), /* @__PURE__ */ React.createElement("p", null, "\uC774\uB825\uC11C\uB4E0 \uD504\uB85C\uC81D\uD2B8\uB4E0, \uC368\uB454 \uAE00\uC774\uB098 \uBC1C\uD45C \uC601\uC0C1\uC774\uB4E0 \uD615\uC2DD\uC740 \uC790\uC720\uC608\uC694. \uC0C8\uACB0\uC774 \uD478\uB294 \uBB38\uC81C\uC5D0 \uD765\uBBF8\uAC00 \uC788\uB2E4\uBA74 \uAC00\uBCCD\uAC8C\uB77C\uB3C4 \uBCF4\uB0B4\uC8FC\uC138\uC694. contact@saegyeol.ai.kr \uB85C \uC804\uB2EC\uB3FC\uC694."), /* @__PURE__ */ React.createElement("div", { className: "tags" }, /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Offensive Eng."), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "LLM Researcher"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Compliance"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Product Design"), /* @__PURE__ */ React.createElement("span", { className: "tag" }, "Open Application"))), /* @__PURE__ */ React.createElement("form", { className: "form", onSubmit: submit, noValidate: true, style: { position: "relative", zIndex: 1 } }, /* @__PURE__ */ React.createElement(FormStatus, { sent, onClose: finishSent, successText: "\uC9C0\uC6D0\uC11C\uAC00 \uC804\uC1A1\uB410\uC5B4\uC694." }), blocked && /* @__PURE__ */ React.createElement(
     FormBlocked,
     {
       ...blocked,

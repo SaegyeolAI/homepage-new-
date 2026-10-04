@@ -913,10 +913,14 @@ function Footer({ setRoute }) {
     <footer className="site-footer">
       <div className="container">
         <div className="footer-grid">
-          <div className="footer-left">
+          {/* 로고와 모토는 두 열 위에 걸쳐 둔다. 그래야 아래 줄에서
+              왼쪽 회사 정보와 오른쪽 메뉴 묶음의 첫 줄이 같은 높이에서 시작한다. */}
+          <div className="footer-head">
             <Brand onClick={() => go("home")} />
             {/* 6.3 푸터에는 모토가 들어간다. 회사가 정한 문구라 고치지 않는다. */}
             <p className="footer-motto">Think Better Act Smarter</p>
+          </div>
+          <div className="footer-left">
             <div className="footer-legal">
               <div className="row"><span className="k">회사명</span><span>새결 (Saegyeol)</span></div>
               <div className="row"><span className="k">대표자</span><span>황지후</span></div>
@@ -999,9 +1003,45 @@ function useCountdown(until) {
   return Math.max(0, Math.ceil((until - Date.now()) / 1000));
 }
 
-function FormStatus({ sent, successText }) {
+// 전송이 끝났을 때 사이트 안에서 뜨는 알림창.
+// 브라우저 alert()은 쓰지 않는다 — 생김새를 맞출 수 없고 탭 전체를 멈춘다.
+// 폼을 감싼 상자에 transform이 걸려도 흔들리지 않게 body로 포털한다.
+const SENT_TITLE_ID = "sg-sent-title";
+const SENT_DESC_ID = "sg-sent-desc";
+
+function FormStatus({ sent, successText, onClose }) {
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    if (!sent) return;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); if (onClose) onClose(); } };
+    document.addEventListener("keydown", onKey);
+    // 키보드만 쓰는 사람이 바로 닫을 수 있게 확인 버튼으로 포커스를 옮긴다.
+    const t = setTimeout(() => { if (closeRef.current) closeRef.current.focus(); }, 0);
+    return () => { document.removeEventListener("keydown", onKey); clearTimeout(t); };
+  }, [sent, onClose]);
+
   if (!sent) return null;
-  return <div className="form-success" role="status">{successText}</div>;
+  const close = () => { if (onClose) onClose(); };
+
+  return ReactDOM.createPortal(
+    <div className="sg-dialog-backdrop" onClick={close}>
+      {/* 바깥을 눌러도 닫히지만, 안쪽 클릭은 막는다. */}
+      <div className="sg-dialog" role="alertdialog" aria-modal="true"
+        aria-labelledby={SENT_TITLE_ID} aria-describedby={SENT_DESC_ID}
+        onClick={(e) => e.stopPropagation()}>
+        <span className="sg-dialog-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"
+            strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        </span>
+        <h3 id={SENT_TITLE_ID}>보냈어요</h3>
+        {/* 기존 성공 문구를 그대로 쓴다. 회귀 스위트도 이 자리를 본다. */}
+        <p id={SENT_DESC_ID} className="form-success">{successText}</p>
+        <button type="button" className="btn btn-accent sg-dialog-ok" ref={closeRef} onClick={close}>확인</button>
+      </div>
+    </div>,
+    document.body
+  );
 }
 
 // 폼이 막혔을 때 보여주는 블록.
@@ -1257,6 +1297,15 @@ function ContactForm() {
     setErrors((prev) => (prev[id] ? { ...prev, [id]: "" } : prev));
   };
 
+  // 전송 완료 알림창을 닫을 때 폼을 비운다.
+  // 예전에는 5초 뒤 저절로 지웠는데, 알림창을 읽는 중에 사라지면 곤란하다.
+  const finishSent = () => {
+    setSent(false);
+    setData({ name: "", email: "", message: "" });
+    clearFile();
+    setErrors({});
+  };
+
   const submit = async (e) => {
     e.preventDefault();
 
@@ -1302,7 +1351,6 @@ function ContactForm() {
       }
       try { localStorage.setItem(lastSubmitKey, String(Date.now())); } catch { /* 저장 못 해도 전송은 끝났다 */ }
       setSent(true);
-      setTimeout(() => { setSent(false); setData({ name: "", email: "", message: "" }); clearFile(); setErrors({}); }, 5000);
     } catch {
       // fetch 자체가 실패한 경우(오프라인·DNS 등). 브라우저 영문 메시지는 쓰지 않는다.
       setBlocked(describeFailure(0, null));
@@ -1313,7 +1361,8 @@ function ContactForm() {
 
   return (
     <form className="form" onSubmit={submit} noValidate>
-      <FormStatus sent={sent} successText="문의가 전송됐어요. 영업일 기준 1일 내 회신드려요." />
+      <FormStatus sent={sent} onClose={finishSent}
+        successText="문의가 전송됐어요. 영업일 기준 1일 내 회신드려요." />
       {blocked && <FormBlocked {...blocked}
         mailSubject={`[새결 문의] ${data.name || ""}`.trim()}
         mailBody={data.message} />}
