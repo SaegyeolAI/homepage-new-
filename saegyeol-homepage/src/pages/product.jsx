@@ -128,14 +128,20 @@ function ProductPage({ setRoute }) {
             </div>
           </div>
 
-          <div className="honesty-note" style={{marginTop: 48}}>
+          <div style={{marginTop: 56, display: "flex", justifyContent: "center"}}>
+            <ContactButton onContact={goContact} />
+          </div>
+        </div>
+      </section>
+
+      {/* 하지 않는 말 — 검사 절차 섹션 안에 두면 한 화면에 안 들어간다.
+          문구를 지우는 대신 제 자리를 줬다(문서 1장: 한 화면에 하나의 메시지). */}
+      <section className="block" data-section-label="하지 않는 말">
+        <div className="container">
+          <div className="honesty-note">
             <span className="section-label">하지 않는 말</span>
             <h3>"100% 안전"이라고 말하지 않아요.</h3>
             <p>여울이 확인해 드리는 것은 알려진 공격 범위 안에서 통과했다는 사실이에요. 검사하지 못한 범위는 리포트에 미검사(UNTESTED)로 남기고 표지에 그대로 적어요. 무엇을 확인했는지만큼 무엇을 확인하지 못했는지도 알아야 판단할 수 있기 때문이에요.</p>
-          </div>
-
-          <div style={{marginTop: 56, display: "flex", justifyContent: "center"}}>
-            <ContactButton onContact={goContact} />
           </div>
         </div>
       </section>

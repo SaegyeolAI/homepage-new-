@@ -23,13 +23,11 @@ const SUITES = [
   { name: "화면 · 용어 툴팁",   file: "ui/tooltips.js" },
   { name: "화면 · 줄바꿈",     file: "ui/line-breaks.js" },
   { name: "화면 · 문의 폼",    file: "ui/contact-form.js" },
+  { name: "화면 · 섹션 맞춤",   file: "ui/section-fit.js" },
 ];
 
-// 섹션 높이 맞춤은 아직 통과하지 않는다(재배치 작업이 남아 있다).
-// npm test를 빨간불로 고정시키지 않으려고 기본에서 빼 두고, 따로 돌린다.
-const OPTIONAL = [
-  { name: "화면 · 섹션 맞춤(미완)", file: "ui/section-fit.js" },
-];
+// (2026-10-04) 섹션 맞춤이 네 데스크톱 크기에서 전부 통과해 기본에 넣었다.
+const OPTIONAL = [];
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -94,7 +92,6 @@ function run(file, args = []) {
     console.log(`  ${r.code === 0 ? "통과" : "실패"}  ${r.name}`);
   }
   const failed = results.filter((r) => r.code !== 0);
-  if (!withOptional) console.log("\n  (섹션 높이 맞춤은 재배치 작업이 끝나면 --all 로 포함하세요)");
   console.log(`\n  ${results.length - failed.length} / ${results.length} 통과`);
   process.exit(failed.length ? 1 : 0);
 })();

@@ -2859,3 +2859,99 @@ html[data-theme="dark"] .motto { color: var(--sg-surface-blue); }
 
 /* 회사 소개 칸이 홈에서는 셋이다 (팀 페이지는 넷) */
 .about-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* ═══ 섹션이 한 화면에 들어오게 ════════════════════════════════════════
+   요금제 "플랜" 섹션이 1358px이라 900px 화면에서 잘렸다. 재어 보니
+   높이를 먹는 두 가지가 화면 높이와 무관하게 정해져 있었다.
+
+   1) section.block의 위아래 여백이 9vw — 화면 "너비" 기준이다.
+      넓고 낮은 노트북에서 가장 불리하다(1440x900에서 259px).
+      vh 기준으로 바꾸면 화면이 낮을수록 같이 줄어든다.
+   2) .pricing-card의 min-height: 560px — 내용과 무관한 고정값이다.
+
+   본문 글자 크기는 건드리지 않는다(데스크톱 16px 이상 유지). */
+
+section.block {
+  padding-top: clamp(40px, 6vh, 96px);
+  padding-bottom: clamp(40px, 6vh, 96px);
+}
+/* 고정 nav(77px) 아래로 제목이 들어가지 않을 만큼은 남긴다. */
+html[data-snap="on"] section.block {
+  padding-top: max(clamp(40px, 6vh, 96px), 96px);
+}
+
+/* 제목과 본문 사이도 vw가 아니라 vh로 */
+.section-head { margin-bottom: clamp(20px, 3vh, 48px); }
+
+/* 요금제 카드 — 높이를 내용에 맡긴다. 세 장의 높이는 그리드가 맞춰 준다. */
+.pricing-card {
+  min-height: 0;
+  padding: clamp(22px, 2.6vh, 32px);
+}
+.pricing-card ul { row-gap: clamp(8px, 1.2vh, 14px); }
+.pricing-card-head h3 { margin-bottom: 4px; }
+
+/* 정직 원칙 블록도 같은 기준으로 */
+.honesty-note {
+  margin-top: clamp(16px, 2vh, 28px);
+  padding: clamp(20px, 2.6vh, 40px);
+}
+.honesty-note h3 { margin: 12px 0 8px; }
+
+/* 카드 묶음 사이 간격 */
+.cards, .flow, .pricing-grid, .team-grid { gap: clamp(12px, 1.6vh, 20px); }
+.stats { margin-top: clamp(20px, 3vh, 48px) !important; }
+
+/* 정직 블록이 제 섹션을 갖게 되면서 제목이 과하게 커 보인다. 한 단계 낮춘다. */
+.honesty-note h3 { font-size: clamp(20px, 2.2vw, 28px); }
+/* 카드 최소 높이도 화면에 맞춰 줄인다 (고정 360px이었다) */
+.card { min-height: clamp(220px, 30vh, 320px); }
+
+/* ═══ 낮은 데스크톱 화면 (1366x768 등) ════════════════════════════════
+   세로가 짧은 노트북에서만 여백을 한 단계 더 줄인다.
+   본문 글자 크기는 건드리지 않는다 — 데스크톱 16px 이상 유지(문서 4장).
+   모바일(≤800px)은 스냅이 꺼져 있어 해당 없다. */
+@media (min-width: 801px) and (max-height: 900px) {
+  section.block {
+    padding-top: clamp(28px, 4.5vh, 60px);
+    padding-bottom: clamp(28px, 4.5vh, 60px);
+  }
+  /* 고정 nav(77px) 아래로 제목이 들어가지 않을 최소치는 지킨다 */
+  html[data-snap="on"] section.block { padding-top: max(clamp(28px, 4.5vh, 60px), 92px); }
+
+  .section-head { margin-bottom: clamp(14px, 2.2vh, 30px); }
+  .section-head h2 { margin: 10px 0 12px; }
+  .section-head p { font-size: 16px; line-height: 1.6; }
+
+  .card { min-height: clamp(180px, 26vh, 250px); padding: 22px; gap: 12px; }
+  .card .ico { width: 44px; height: 44px; }
+
+  .stats .item { padding-top: 14px; padding-bottom: 14px; }
+  .flow-step { padding: 20px; }
+  .honesty-note { padding: clamp(18px, 2.4vh, 28px); }
+  .info-card { min-height: 0; padding: 14px 16px; }
+  .faq-list details { padding-top: 12px; padding-bottom: 12px; }
+  .form { padding: 22px; }
+  .form input, .form textarea { padding-top: 10px; padding-bottom: 10px; }
+  .form textarea { min-height: 96px; }
+}
+
+/* 지표 줄 — 숫자는 눈에 띄되 한 섹션을 혼자 밀어내지 않게. */
+.stats .item { padding: clamp(18px, 2.4vh, 32px) 24px; }
+.stats .v { font-size: clamp(32px, 3.4vw, 48px); }
+.stats-basis { margin: clamp(10px, 1.4vh, 18px) 0 0; font-size: 13px; }
+
+/* 더 낮은 화면 (1366x768 등). 위 단계에서 한 번 더 조인다. */
+@media (min-width: 801px) and (max-height: 800px) {
+  .section-head { margin-bottom: clamp(12px, 1.8vh, 24px); }
+  .section-head h2 { margin: 8px 0 10px; }
+  .info-card { padding: 11px 14px; gap: 4px; }
+  .info-card .more, .info-card-desc { font-size: 12.5px; }
+  .pricing-table th, .pricing-table td { padding-top: 10px; padding-bottom: 10px; }
+  .faq-list details { padding-top: 10px; padding-bottom: 10px; }
+  .faq-list { gap: 8px; }
+  .stats .item { padding-top: 14px; padding-bottom: 14px; }
+  .cards, .flow, .pricing-grid, .team-grid, .info-card-grid { gap: 12px; }
+  .honesty-note { padding: 18px 20px; }
+  .card { min-height: clamp(170px, 24vh, 220px); }
+}

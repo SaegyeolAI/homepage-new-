@@ -27,7 +27,6 @@ node tests/ui/theme.js https://<preview>.vercel.app --allow-remote
 npm install
 npx playwright install chromium     # 처음 한 번
 npm test                            # 서버를 띄우고 전부 실행
-npm test -- --all                   # 아직 통과하지 않는 것까지 포함
 npm test -- --only=security         # 일부만
 ```
 
@@ -51,7 +50,7 @@ node tests/servers/api-harness.js   # 4321  api/ 핸들러 직접 + 목 SMTP
 | `ui/tooltips.js` | 용어 툴팁 — 홈·랜딩에는 없고 상세 페이지에만 2~3개, 호버·클릭·키보드·Esc, 카드 바깥으로 잘리지 않음, `aria-describedby`, 모바일 | 3220 |
 | `ui/line-breaks.js` | 어절 중간 분리, 고아 어절, 한 줄 길이, 의미 단위(숫자+단위) 분리, 가로 넘침. 실제 렌더 좌표를 글자 단위로 잰다 | 3220 |
 | `ui/contact-form.js` | 문의 폼이 `POST /api/contact` 로 전과 같이 전송되는지 | 3210 |
-| `ui/section-fit.js` | 모든 섹션이 네 데스크톱 크기에서 한 화면에 들어가는지. **아직 통과하지 않는다** — 섹션 재배치가 남아 있다 | 3220 |
+| `ui/section-fit.js` | 모든 섹션이 네 데스크톱 크기(1366×768 / 1440×900 / 1536×864 / 1920×1080)에서 한 화면에 들어가는지. 그보다 작은 창에서는 잘리지 않고 섹션 안에서 스크롤되는지 | 3220 |
 
 ## 공용
 

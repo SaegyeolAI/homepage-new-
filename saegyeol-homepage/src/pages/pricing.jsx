@@ -79,8 +79,7 @@ function PricingPage({ setRoute }) {
           <div className="section-head">
             <span className="section-label">플랜 3가지</span>
             <h2>세 플랜, 한눈에.</h2>
-            <p>우선 무료로 한 번 검사해 보세요. 고치고 다시 확인하는 일이 잦아지면 프로예요. 에이전트가 여럿이거나 내부망(<Term k="온프레미스">온프레미스</Term>)에 둬야 한다면 프랜차이즈를 보시면 돼요.</p>
-            <p className="pricing-pending">금액은 아직 정하는 중이에요.</p>
+            <p>우선 무료로 한 번 검사해 보세요. 고치고 다시 확인하는 일이 잦아지면 프로예요. 에이전트가 여럿이거나 내부망(<Term k="온프레미스">온프레미스</Term>)에 둬야 한다면 프랜차이즈를 보시면 돼요. 금액은 아직 정하는 중이에요.</p>
           </div>
 
           <div className="pricing-grid">
@@ -100,6 +99,13 @@ function PricingPage({ setRoute }) {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* 정직 원칙 — 플랜 섹션 안에 두면 한 화면에 안 들어간다(1366x768에서 243px 초과).
+          문구를 지우는 대신 제 자리를 줬다. 한 화면에 하나의 메시지(문서 1장)에도 맞다. */}
+      <section className="block" data-section-label="정직 원칙">
+        <div className="container">
           <div className="honesty-note">
             <span className="section-label">정직 원칙</span>
             <h3>탐지 정확도로 등급을 나누지 않아요.</h3>
