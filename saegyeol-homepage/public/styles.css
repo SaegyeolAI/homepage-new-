@@ -2831,3 +2831,30 @@ html[data-theme="dark"] .sg-tip {
 @media (max-width: 1100px) { .info-card-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 760px)  { .info-card-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 460px)  { .info-card-grid { grid-template-columns: 1fr; } }
+
+/* ═══ 홈 회사 소개 — 모토 한 줄 ══════════════════════════════════════
+   여울 이야기를 꺼내기 전에 새결이 어떤 회사인지 먼저 말하는 자리.
+   모토는 문장이 아니라 표지처럼 보여야 해서 본문보다 크게 둔다. */
+.motto-row {
+  margin: 0 0 clamp(28px, 4vh, 44px);
+  padding: 0 0 clamp(24px, 3vh, 36px);
+  border-bottom: 1px solid var(--border);
+}
+.motto {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.motto-ko {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0;
+}
+html[data-theme="dark"] .motto { color: var(--sg-surface-blue); }
+
+/* 회사 소개 칸이 홈에서는 셋이다 (팀 페이지는 넷) */
+.about-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }

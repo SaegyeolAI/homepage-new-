@@ -34,6 +34,42 @@ function HomePage({ setRoute }) {
         </div>
       </section>
 
+      {/* 회사 소개 — 여울 이야기를 꺼내기 전에 새결이 어떤 회사인지 먼저 말한다.
+          모토·비전은 회사가 정한 문구라 해요체로 바꾸지 않는다 (디자인 시스템 7장 예외). */}
+      <section className="block" data-section-label="새결">
+        <div className="container">
+          <div className="section-head">
+            <span className="section-label">새결</span>
+            <h2>보안을 더 쉽게,<br className="wide-only" />{" "}안전한 디지털 세상을 위하여.</h2>
+            <p>보안은 원래 어렵고 겁주는 분야예요. 새결은 그 반대로 가요.
+              어려운 말을 덜어내고, 무엇이 위험한지와 무엇을 고치면 되는지만 남겨 드려요.</p>
+          </div>
+
+          <div className="motto-row">
+            <p className="motto">Think Better Act Smarter</p>
+            <p className="motto-ko">더 좋은 생각으로, 똑똑하게 행동하는 것.</p>
+          </div>
+
+          <div className="about-grid">
+            <div className="about-item">
+              <span className="k">비전</span>
+              <strong>정보보안의 단순화·간편화·보편화</strong>
+              <p>쉽게 보이고, 바로 쓸 수 있고, 누구나 이해하게.</p>
+            </div>
+            <div className="about-item">
+              <span className="k">하는 일</span>
+              <strong>레드티밍 및 모의해킹</strong>
+              <p>지금은 AI 에이전트 점검(여울)부터 해 드려요.</p>
+            </div>
+            <div className="about-item">
+              <span className="k">목표</span>
+              <strong>안전하고 편리한 정보사회</strong>
+              <p>만드는 데 기여하고 앞장서는 것.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 새결이 하는 일 — 주 업은 레드티밍·모의해킹. 지금 할 수 있는 것부터 적는다. */}
       <section className="block" id="what-we-do" data-section-label="하는 일">
         <div className="container">
