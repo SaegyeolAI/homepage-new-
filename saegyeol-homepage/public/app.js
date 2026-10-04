@@ -666,7 +666,7 @@ function FormField({ id, label, optional, error, children }) {
   const describedBy = error ? `${id}-error` : void 0;
   return /* @__PURE__ */ React.createElement("div", { className: `row${error ? " row-invalid" : ""}` }, /* @__PURE__ */ React.createElement("label", { htmlFor: id }, label, optional ? /* @__PURE__ */ React.createElement("span", { className: "field-optional" }, " (\uC120\uD0DD)") : /* @__PURE__ */ React.createElement("span", { className: "field-required", "aria-hidden": "true" }, " *")), children({ describedBy, invalid: !!error, required: !optional }), error && /* @__PURE__ */ React.createElement("p", { className: "field-error", id: `${id}-error` }, error));
 }
-function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error }) {
+function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error, maxLength }) {
   return /* @__PURE__ */ React.createElement(FormField, { id, label, error }, ({ describedBy, invalid, required }) => /* @__PURE__ */ React.createElement(
     "input",
     {
@@ -676,6 +676,7 @@ function TextField({ id, label, type = "text", placeholder, value, onChange, aut
       placeholder,
       value,
       autoComplete,
+      maxLength,
       "aria-required": required || void 0,
       "aria-invalid": invalid || void 0,
       "aria-describedby": describedBy,
@@ -794,12 +795,14 @@ async function readJson(res) {
     return null;
   }
 }
+const MAX_EMAIL_LEN = 254;
 const SUBMIT_COOLDOWN_MS = 6e4;
 const lastSubmitKey = "saegyeol-last-submit";
 function validateContact(data) {
   const errors = {};
   if (!data.name.trim()) errors["cfv2-name"] = "\uC774\uB984\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
   if (!data.email.trim()) errors["cfv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uC801\uC5B4\uC8FC\uC138\uC694.";
+  else if (data.email.trim().length > MAX_EMAIL_LEN) errors["cfv2-email"] = `\uC774\uBA54\uC77C \uC8FC\uC18C\uB294 ${MAX_EMAIL_LEN}\uC790 \uC774\uB0B4\uB85C \uC801\uC5B4\uC8FC\uC138\uC694.`;
   else if (!/\S+@\S+\.\S+/.test(data.email)) errors["cfv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uB2E4\uC2DC \uD655\uC778\uD574 \uC8FC\uC138\uC694. (\uC608: you@company.kr)";
   if (!data.message.trim()) errors["cfv2-msg"] = "\uBB38\uC758 \uB0B4\uC6A9\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
   else if (data.message.trim().length < 4) errors["cfv2-msg"] = "\uC870\uAE08\uB9CC \uB354 \uC790\uC138\uD788 \uC801\uC5B4\uC8FC\uC138\uC694. (\uB124 \uAE00\uC790 \uC774\uC0C1)";
@@ -909,6 +912,7 @@ function ContactForm() {
       type: "email",
       placeholder: "you@company.kr",
       autoComplete: "email",
+      maxLength: MAX_EMAIL_LEN,
       value: data.email,
       onChange: update("email", "cfv2-email"),
       error: errors["cfv2-email"]
@@ -1085,6 +1089,7 @@ function TeamPage({ setRoute }) {
     const found = {};
     if (!name.trim()) found["rcv2-name"] = "\uC774\uB984\uC744 \uC801\uC5B4\uC8FC\uC138\uC694.";
     if (!email.trim()) found["rcv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uC801\uC5B4\uC8FC\uC138\uC694.";
+    else if (email.trim().length > MAX_EMAIL_LEN) found["rcv2-email"] = `\uC774\uBA54\uC77C \uC8FC\uC18C\uB294 ${MAX_EMAIL_LEN}\uC790 \uC774\uB0B4\uB85C \uC801\uC5B4\uC8FC\uC138\uC694.`;
     else if (!/\S+@\S+\.\S+/.test(email)) found["rcv2-email"] = "\uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uB2E4\uC2DC \uD655\uC778\uD574 \uC8FC\uC138\uC694. (\uC608: you@mail.kr)";
     return found;
   };
@@ -1164,6 +1169,7 @@ function TeamPage({ setRoute }) {
       type: "email",
       placeholder: "you@mail.kr",
       autoComplete: "email",
+      maxLength: MAX_EMAIL_LEN,
       value: email,
       error: errors["rcv2-email"],
       onChange: (v) => {

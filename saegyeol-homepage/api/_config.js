@@ -19,6 +19,18 @@ const FILE_LIMIT_LABEL = "4.5MB";
 const MAX_NAME = 100;
 const MAX_MESSAGE = 5000;
 
+// 이메일 주소 전체 길이 상한. RFC 5321이 정한 값이 254자다.
+// 이름·내용에는 상한이 있는데 이메일에만 없어서 20만 자도 통과했다.
+// 그 값은 메일의 replyTo와 본문에 그대로 들어간다.
+const MAX_EMAIL = 254;
+
+// 파일을 뺀 입력 칸 전체의 바이트 상한.
+// formidable 기본값이 20MB라, 위 글자 수 제한은 "파싱이 끝난 뒤"에야 걸렸다.
+// 한글은 UTF-8에서 3바이트이므로 내용 5,000자 ≈ 15KB다.
+// 256KB면 오타로 길게 적은 경우에도 아래 한글 안내 문구가 그대로 나오고,
+// 수 MB짜리 요청은 파싱 단계에서 끊긴다.
+const MAX_FIELDS_BYTES = 256 * 1024;
+
 const CONTACT_EMAIL = process.env.CONTACT_RECIPIENT || "contact@saegyeol.ai.kr";
 
 // 허용 업로드 형식(축소안).
@@ -45,6 +57,7 @@ const MESSAGES = {
   missingFields:    "필수 항목이 비어 있습니다.",
   nameTooLong:      `이름은 ${MAX_NAME}자 이내로 적어주세요.`,
   badEmail:         "이메일 주소 형식이 올바르지 않습니다.",
+  emailTooLong:     `이메일 주소는 ${MAX_EMAIL}자 이내로 적어주세요.`,
   messageTooShort:  "문의 내용을 조금 더 자세히 적어주세요.",
   messageTooLong:   `문의 내용은 ${MAX_MESSAGE.toLocaleString("ko-KR")}자 이내로 적어주세요.`,
   uploadTooLarge:   `첨부파일이 너무 큽니다. ${FILE_LIMIT_LABEL} 이하로 줄여주세요.`,
@@ -57,5 +70,6 @@ const MESSAGES = {
 
 module.exports = {
   RATE_LIMIT, FILE_LIMIT, FILE_LIMIT_LABEL, MAX_NAME, MAX_MESSAGE,
+  MAX_EMAIL, MAX_FIELDS_BYTES,
   CONTACT_EMAIL, ALLOWED_UPLOADS, ALLOWED_EXT_LABEL, ALLOWED_ACCEPT, MESSAGES,
 };

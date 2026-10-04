@@ -1,7 +1,7 @@
 const { formidable } = require("formidable");
 const fs = require("fs").promises;
 const {
-  RECIPIENT, MAX_NAME, FILE_LIMIT, MESSAGES,
+  RECIPIENT, MAX_NAME, MAX_EMAIL, MAX_FIELDS_BYTES, FILE_LIMIT, MESSAGES,
   sanitizeHeader, sanitizeFilename, escapeHtml,
   validateUpload, checkOrigin, checkConfigured, cleanupUpload,
   detectBot, logBot, describeParseError,
@@ -26,7 +26,13 @@ async function handler(req, res) {
     return res.status(429).json({ error: limited.message, retryAfter: limited.retryAfter });
   }
 
-  const form = formidable({ maxFileSize: FILE_LIMIT, maxFiles: 1 });
+  // maxFieldsSize를 주지 않으면 formidable 기본값이 20MB다. 글자 수 제한은
+  // 파싱이 끝난 뒤에야 걸리므로, 그 전에 끊는다.
+  const form = formidable({
+    maxFileSize: FILE_LIMIT,
+    maxFiles: 1,
+    maxFieldsSize: MAX_FIELDS_BYTES,
+  });
   let fields, files;
   try {
     [fields, files] = await form.parse(req);
@@ -52,6 +58,10 @@ async function handler(req, res) {
     }
     if (name.length > MAX_NAME) {
       return res.status(400).json({ error: MESSAGES.nameTooLong });
+    }
+    // 길이를 먼저 본다. 아주 긴 문자열을 정규식에 넘기지 않으려는 것이기도 하다.
+    if (email.length > MAX_EMAIL) {
+      return res.status(400).json({ error: MESSAGES.emailTooLong });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       return res.status(400).json({ error: MESSAGES.badEmail });

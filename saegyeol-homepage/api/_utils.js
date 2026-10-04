@@ -3,7 +3,7 @@ const path = require("path");
 const fsp = require("fs").promises;
 const nodemailer = require("nodemailer");
 const {
-  RATE_LIMIT, FILE_LIMIT, MAX_NAME, MAX_MESSAGE,
+  RATE_LIMIT, FILE_LIMIT, MAX_NAME, MAX_MESSAGE, MAX_EMAIL, MAX_FIELDS_BYTES,
   CONTACT_EMAIL, ALLOWED_UPLOADS, MESSAGES,
 } = require("./_config");
 const { rateLimitConfigured } = require("./_ratelimit");
@@ -229,7 +229,8 @@ function describeParseError(err, scope) {
 }
 
 module.exports = {
-  RECIPIENT, MAX_NAME, MAX_MESSAGE, FILE_LIMIT, RATE_LIMIT, MESSAGES, CONTACT_EMAIL,
+  RECIPIENT, MAX_NAME, MAX_MESSAGE, MAX_EMAIL, MAX_FIELDS_BYTES,
+  FILE_LIMIT, RATE_LIMIT, MESSAGES, CONTACT_EMAIL,
   IS_PRODUCTION,
   sanitizeHeader, sanitizeFilename, escapeHtml,
   detectFileKind, validateUpload, readZipEntryNames,

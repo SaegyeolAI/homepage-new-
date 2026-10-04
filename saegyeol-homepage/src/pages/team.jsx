@@ -19,6 +19,7 @@ function TeamPage({ setRoute }) {
     const found = {};
     if (!name.trim()) found["rcv2-name"] = "이름을 적어주세요.";
     if (!email.trim()) found["rcv2-email"] = "이메일 주소를 적어주세요.";
+    else if (email.trim().length > MAX_EMAIL_LEN) found["rcv2-email"] = `이메일 주소는 ${MAX_EMAIL_LEN}자 이내로 적어주세요.`;
     else if (!/\S+@\S+\.\S+/.test(email)) found["rcv2-email"] = "이메일 주소를 다시 확인해 주세요. (예: you@mail.kr)";
     return found;
   };
@@ -153,7 +154,7 @@ function TeamPage({ setRoute }) {
               <TextField id="rcv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
                 value={name} error={errors["rcv2-name"]}
                 onChange={(v) => { setName(v); setErrors((p) => (p["rcv2-name"] ? { ...p, "rcv2-name": "" } : p)); }} />
-              <TextField id="rcv2-email" label="이메일 / EMAIL" type="email" placeholder="you@mail.kr" autoComplete="email"
+              <TextField id="rcv2-email" label="이메일 / EMAIL" type="email" placeholder="you@mail.kr" autoComplete="email" maxLength={MAX_EMAIL_LEN}
                 value={email} error={errors["rcv2-email"]}
                 onChange={(v) => { setEmail(v); setErrors((p) => (p["rcv2-email"] ? { ...p, "rcv2-email": "" } : p)); }} />
               <FileField id="rcv2-file" label="포트폴리오 / FREE FORMAT"

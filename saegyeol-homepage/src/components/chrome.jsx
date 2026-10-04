@@ -1038,7 +1038,7 @@ function FormField({ id, label, optional, error, children }) {
   );
 }
 
-function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error }) {
+function TextField({ id, label, type = "text", placeholder, value, onChange, autoComplete, error, maxLength }) {
   return (
     <FormField id={id} label={label} error={error}>
       {({ describedBy, invalid, required }) => (
@@ -1049,6 +1049,7 @@ function TextField({ id, label, type = "text", placeholder, value, onChange, aut
           placeholder={placeholder}
           value={value}
           autoComplete={autoComplete}
+          maxLength={maxLength}
           aria-required={required || undefined}
           aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
@@ -1187,6 +1188,12 @@ async function readJson(res) {
 }
 
 /* ---------------- Inline contact form ---------------- */
+
+// 서버(api/_config.js)의 MAX_EMAIL과 같은 값.
+// 브라우저에서 먼저 걸러 주면 사용자가 보내 보기 전에 알 수 있다.
+// 서버 검사를 대신하는 것이 아니라 거드는 것이다 — 서버는 그대로 다시 본다.
+const MAX_EMAIL_LEN = 254;
+
 const SUBMIT_COOLDOWN_MS = 60_000;
 const lastSubmitKey = "saegyeol-last-submit";
 
@@ -1196,6 +1203,7 @@ function validateContact(data) {
   const errors = {};
   if (!data.name.trim()) errors["cfv2-name"] = "이름을 적어주세요.";
   if (!data.email.trim()) errors["cfv2-email"] = "이메일 주소를 적어주세요.";
+  else if (data.email.trim().length > MAX_EMAIL_LEN) errors["cfv2-email"] = `이메일 주소는 ${MAX_EMAIL_LEN}자 이내로 적어주세요.`;
   else if (!/\S+@\S+\.\S+/.test(data.email)) errors["cfv2-email"] = "이메일 주소를 다시 확인해 주세요. (예: you@company.kr)";
   if (!data.message.trim()) errors["cfv2-msg"] = "문의 내용을 적어주세요.";
   else if (data.message.trim().length < 4) errors["cfv2-msg"] = "조금만 더 자세히 적어주세요. (네 글자 이상)";
@@ -1293,7 +1301,7 @@ function ContactForm() {
       <Honeypot startedAt={startedAt} />
       <TextField id="cfv2-name" label="이름 / NAME" placeholder="홍길동" autoComplete="name"
         value={data.name} onChange={update("name", "cfv2-name")} error={errors["cfv2-name"]} />
-      <TextField id="cfv2-email" label="이메일 / EMAIL" type="email" placeholder="you@company.kr" autoComplete="email"
+      <TextField id="cfv2-email" label="이메일 / EMAIL" type="email" placeholder="you@company.kr" autoComplete="email" maxLength={MAX_EMAIL_LEN}
         value={data.email} onChange={update("email", "cfv2-email")} error={errors["cfv2-email"]} />
       <FormField id="cfv2-msg" label="문의 내용 / MESSAGE" error={errors["cfv2-msg"]}>
         {({ describedBy, invalid, required }) => (
