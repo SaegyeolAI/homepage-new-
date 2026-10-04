@@ -2487,9 +2487,10 @@ html[data-theme="dark"] .btn-accent:hover { background: #8FBAF0; }
 
 .hero, .page-hero { background: var(--bg); }
 section.block { background: var(--bg); }
-[data-screen-label] > section.block:nth-of-type(even),
+/* 어느 섹션이 흰 면인지는 chrome.jsx의 markSnapSections가 정한다.
+   CSS :nth-of-type은 .block이 아닌 히어로까지 세어 버려서, 히어로 위치가
+   바뀌면 교대가 어긋난다(실제로 어긋났다). 여기서는 색만 맡는다. */
 section.block.surface-alt { background: var(--surface); }
-html[data-theme="dark"] [data-screen-label] > section.block:nth-of-type(even),
 html[data-theme="dark"] section.block.surface-alt { background: var(--sg-navy); }
 
 /* 섹션 윗변 선은 물결선이 대신한다(아래). 기존 1px 선은 끈다. */

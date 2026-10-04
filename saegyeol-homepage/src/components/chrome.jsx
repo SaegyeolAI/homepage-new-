@@ -31,6 +31,25 @@ function markSnapSections() {
   const page = document.querySelector("[data-screen-label]");
   if (!page) return [];
   const sections = [...page.children].filter((el) => el.tagName === "SECTION");
+
+  // 6.3 섹션 구분은 배경색 교대(흰색 ↔ 물보라).
+  //
+  // CSS :nth-of-type으로 하면 .block이 아닌 히어로가 셈에 끼어들고,
+  // .block끼리만 세면 이번엔 히어로가 늘 물보라라서 그 앞뒤가 같은 색으로 겹친다.
+  // (홈에서 회사 소개를 히어로 위로 올리자 둘 다 실제로 어긋났다.)
+  //
+  // 히어로를 기준점으로 잡고 거기서부터 한 칸씩 번갈아 칠한다.
+  // 히어로는 문서가 물보라로 정해 두었으므로 그 자리를 0으로 둔다.
+  // 히어로가 없으면 첫 섹션이 기준이다.
+  const heroAt = sections.findIndex(
+    (el) => el.classList.contains("hero") || el.classList.contains("page-hero"));
+  const base = heroAt < 0 ? 0 : heroAt;
+  sections.forEach((el, i) => {
+    if (!el.classList.contains("block")) return;
+    const white = Math.abs(i - base) % 2 === 1;
+    el.classList.toggle("surface-alt", white);
+  });
+
   sections.forEach((el, i) => {
     el.classList.add("snap-section");
 

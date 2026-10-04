@@ -14,26 +14,6 @@ function HomePage({ setRoute }) {
   // 했으므로 둘을 겹쳐 쓰지 않고, 물결선은 히어로 끝에 한 번만 둔다.
   return (
     <div data-screen-label="01 Home">
-      {/* 히어로 — 물보라 면, 왼쪽 정렬, 큰 문장 한 줄 + 짧은 설명 + 버튼 두 개 */}
-      <section className="hero" data-section-label="인트로">
-        <div className="hero-inner">
-          <span className="hero-tag">한국어 AI 에이전트 보안</span>
-          <h1>내보내도 되는 상태인지,<br className="wide-only" />{" "}내보내기 전에 확인해요.</h1>
-          <p className="hero-sub">
-            여울이 출시 직전의 한국어 AI&nbsp;에이전트에 실제 공격을 넣어보고, 배포해도 되는지 알려드려요.
-            확인한 범위와 확인하지 못한 범위를 같이 적어 드려요.
-          </p>
-          <div className="hero-cta">
-            <button className="btn btn-accent" onClick={goContact}>
-              점검 문의하기 <span className="arrow">→</span>
-            </button>
-            <button className="btn btn-ghost" onClick={() => openRoute("product")}>
-              여울 알아보기 <span className="arrow">→</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* 회사 소개 — 여울 이야기를 꺼내기 전에 새결이 어떤 회사인지 먼저 말한다.
           모토·비전은 회사가 정한 문구라 해요체로 바꾸지 않는다 (디자인 시스템 7장 예외). */}
       <section className="block" data-section-label="새결">
@@ -66,6 +46,26 @@ function HomePage({ setRoute }) {
               <strong>안전하고 편리한 정보사회</strong>
               <p>만드는 데 기여하고 앞장서는 것.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 히어로 — 물보라 면, 왼쪽 정렬, 큰 문장 한 줄 + 짧은 설명 + 버튼 두 개 */}
+      <section className="hero" data-section-label="인트로">
+        <div className="hero-inner">
+          <span className="hero-tag">한국어 AI 에이전트 보안</span>
+          <h1>내보내도 되는 상태인지,<br className="wide-only" />{" "}내보내기 전에 확인해요.</h1>
+          <p className="hero-sub">
+            여울이 출시 직전의 한국어 AI&nbsp;에이전트에 실제 공격을 넣어보고, 배포해도 되는지 알려드려요.
+            확인한 범위와 확인하지 못한 범위를 같이 적어 드려요.
+          </p>
+          <div className="hero-cta">
+            <button className="btn btn-accent" onClick={goContact}>
+              점검 문의하기 <span className="arrow">→</span>
+            </button>
+            <button className="btn btn-ghost" onClick={() => openRoute("product")}>
+              여울 알아보기 <span className="arrow">→</span>
+            </button>
           </div>
         </div>
       </section>
